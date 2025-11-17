@@ -12,7 +12,7 @@ const SuperAdminSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true, // no two HODs with the same email
+      unique: true, 
       lowercase: true,
       trim: true
     },
@@ -44,10 +44,10 @@ const SuperAdminSchema = new Schema(
     },
 
     // If you need to disable a HOD in future (soft delete)
-    isActive: {
-      type: Boolean,
-      default: true
-    }
+    // isActive: {
+    //   type: Boolean,
+    //   default: true
+    // }
   },
   { timestamps: true }
 );
@@ -56,3 +56,4 @@ const SuperAdminSchema = new Schema(
 SuperAdminSchema.index({ email: 1, department: 1 }, { unique: true });
 
 module.exports = mongoose.model("SuperAdmin", SuperAdminSchema);
+
