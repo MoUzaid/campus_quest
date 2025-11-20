@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// Group is stored simply as a string inside an array
+// Group is stored simply as a string inside an array this is faizan branch
 const CourseSchema = new Schema(
   {
     courseName: {
