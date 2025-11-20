@@ -1,47 +1,51 @@
 const mongoose = require('mongoose');
 
 const facultySchema = new mongoose.Schema({
+    facultyId: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
     name: {
         type: String,
         required: true,
+        trim: true
     },
     email: {
         type: String,
         required: true,
         unique: true,
+        trim: true,
+    },
+    mobileNumber: {
+        type: String,
+        required: true,
+        trim: true,
     },
     department: {
         type: String,
         required: true,
+        trim: true
     },
-    designation:{
+    designation: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    password: {
         type: String,
         required: true,
     },
-    createdQuizzes:[
+    createdQuizzes: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Quiz',
+            ref: "Quiz"
         }
-    ],
-    facutlyId: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password:{
-        type: String,
-        required: true,
-    },
-    mobileNumber:{
-        type: Number,   
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    }
+    ]
+}, {
+    timestamps: true
 });
 
-const Faculty = mongoose.model('Faculty', facultySchema);
+const Faculty = mongoose.model("Faculty", facultySchema);
 module.exports = Faculty;

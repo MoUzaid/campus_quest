@@ -8,22 +8,50 @@ const leaderboardSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'students',
         required: true,
     },
     score: {
         type: Number,
         required: true,
     },
-    rank: { 
-        type: Number,
-        required: true,
-    },
    timeTaken:{
-        type: Number, // in minutes
+        type: Number, // in seconds
         required: true,
    }
 });
 
 const Leaderboard = mongoose.model('Leaderboard', leaderboardSchema);
 module.exports = Leaderboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
