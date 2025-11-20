@@ -20,3 +20,7 @@ mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB connected"))
 .catch(err=>console.log("MongoDB connection error: ", err));
   
+
+// For student routes
+const studentRoutes = require("./routes/studentRoutes");
+app.use("/api/students", studentRoutes);
