@@ -3,6 +3,14 @@ const { Schema } = mongoose;
 
 const SuperAdminSchema = new Schema(
   {
+    // Auto-generated ID (not filled from form)
+    superAdminId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true
+    },
+
     name: {
       type: String,
       required: true,
@@ -12,7 +20,7 @@ const SuperAdminSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
       lowercase: true,
       trim: true
     },
@@ -22,14 +30,26 @@ const SuperAdminSchema = new Schema(
       required: true
     },
 
-    // E.g. CA, Computer Science, etc.
     department: {
       type: String,
       required: true,
       trim: true
     },
 
-    // For future: in case multiple universities or colleges support
+    role: {
+      type: String,
+      default: "superadmin",
+      enum: ["superadmin"]
+    }
+
+// If you need to disable a HOD in future (soft delete)
+    // isActive: {
+    //   type: Boolean,
+    //   default: true
+    // }
+
+
+// For future: in case multiple universities or colleges support
     
     // instituteName: {
     //   type: String,
@@ -37,23 +57,11 @@ const SuperAdminSchema = new Schema(
     //   trim: true
     // },
 
-    role: {
-      type: String,
-      default: "superadmin", // always superadmin
-      enum: ["superadmin"]
-    },
 
-    // If you need to disable a HOD in future (soft delete)
-    // isActive: {
-    //   type: Boolean,
-    //   default: true
-    // }
   },
   { timestamps: true }
 );
 
-// Index to prevent duplicates like SAME dept + SAME email
 SuperAdminSchema.index({ email: 1, department: 1 }, { unique: true });
 
 module.exports = mongoose.model("SuperAdmin", SuperAdminSchema);
-
