@@ -16,7 +16,7 @@ const leaderboardSchema = new mongoose.Schema({
         required: true,
     },
    timeTaken:{
-        type: Number, // in seconds
+        type: Number,
         required: true,
    }
 });

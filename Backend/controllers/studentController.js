@@ -69,10 +69,6 @@ exports.forgotPassword = async (req, res) => {
             { expiresIn: "15m" }
         );
 
-        student.resetToken = resetToken;
-        student.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
-        await student.save();
-
         const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
 
         await sendEmail(

@@ -79,6 +79,10 @@ const quizSchema = new mongoose.Schema({
         ref: 'Student',
         }
 ],
+leaderboard: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Leaderboard',
+    },
     allowedAttempts: {
         type: Number,
         required: true,

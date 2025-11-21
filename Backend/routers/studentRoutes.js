@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const studentController = require("../controllers/studentController");
+const feedbackController = require("../controllers/feedbackController");
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
@@ -22,5 +23,8 @@ router.get("/:id", studentController.getStudent);
 
 // DELETE STUDENT
 router.delete("/:id", studentController.deleteStudent);
+
+// submit feedback
+router.post("/feedback", feedbackController.submitFeedback);
 
 module.exports = router;
