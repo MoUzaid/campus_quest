@@ -43,7 +43,20 @@ const studentSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+
+    // -------------------------
+    // PASSWORD RESET FIELDS
+    // -------------------------
+    resetToken: {
+        type: String,
+        default: null
+    },
+    resetTokenExpiry: {
+        type: Date,
+        default: null
     }
+
 }, {
     timestamps: true
 });

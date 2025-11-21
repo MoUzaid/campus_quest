@@ -1,14 +1,14 @@
 const Student = require("../models/studentModel");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendEmail");
 
 // REGISTER STUDENT
 exports.registerStudent = async (req, res) => {
     try {
-        // Hash password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         req.body.password = hashedPassword;
 
-        // Save student
         const student = await Student.create(req.body);
         res.json(student);
     } catch (err) {
@@ -50,5 +50,73 @@ exports.deleteStudent = async (req, res) => {
         res.json({ message: "Student deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+
+
+// FORGOT PASSWORD (send email with token)
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const student = await Student.findOne({ email });
+        if (!student) return res.status(404).json({ msg: "Student not found" });
+
+        const resetToken = jwt.sign(
+            { id: student._id },
+            process.env.RESET_PASSWORD_SECRET,
+            { expiresIn: "15m" }
+        );
+
+        student.resetToken = resetToken;
+        student.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+        await student.save();
+
+        const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+
+        await sendEmail(
+            email,
+            "Reset Your Campus Quest Password",
+            `<p>Hello ${student.name},</p>
+            <p>Click the link below to reset your password:</p>
+            <a href="${resetLink}">${resetLink}</a>
+            <p>This link expires in 15 minutes.</p>`
+        );
+
+        res.json({ msg: "Password reset email sent" });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+};
+
+// RESET PASSWORD
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token) return res.status(400).json({ msg: "No token provided" });
+
+        const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+
+        const student = await Student.findById(decoded.id);
+        if (!student) return res.status(404).json({ msg: "Invalid token" });
+
+        if (student.resetToken !== token)
+            return res.status(400).json({ msg: "Token mismatch" });
+
+        if (student.resetTokenExpiry < Date.now())
+            return res.status(400).json({ msg: "Token expired" });
+
+        const hashed = await bcrypt.hash(newPassword, 10);
+        student.password = hashed;
+        student.resetToken = undefined;
+        student.resetTokenExpiry = undefined;
+
+        await student.save();
+
+        res.json({ msg: "Password reset successful" });
+    } catch (err) {
+        res.status(400).json({ msg: "Invalid or expired token" });
     }
 };

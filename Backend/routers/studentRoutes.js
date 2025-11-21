@@ -8,6 +8,12 @@ router.post("/register", studentController.registerStudent);
 // LOGIN
 router.post("/login", studentController.loginStudent);
 
+// FORGOT PASSWORD (send reset email)
+router.post("/forgot-password", studentController.forgotPassword);
+
+// RESET PASSWORD (update password using token)
+router.post("/reset-password", studentController.resetPassword);
+
 // ALL STUDENTS
 router.get("/", studentController.getAllStudents);
 
