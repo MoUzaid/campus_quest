@@ -1,5 +1,11 @@
-const express = require('express');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
+
 const app = express();
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -20,6 +26,17 @@ const io = new Server(server, {
         origin: "http://localhost:3000"
     }
 });
+=======
+
+// ----------------------------
+// MIDDLEWARES
+// ----------------------------
+app.use(cors({
+  origin: ["http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+>>>>>>> d0c79d1afb8614dbd05156f0fe58713cf9719ffe
 
 // Export io
 module.exports = { io };
@@ -37,16 +54,28 @@ io.on("connection", (socket) => {
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: ["http://localhost:3000"],
-  methods: ["GET", "POST","PUT", "DELETE"],
-  credentials: true     
-}));
 
+<<<<<<< HEAD
 // Routes
+=======
+// ----------------------------
+// ROUTES IMPORT
+// ----------------------------
+const studentRoutes = require('./routers/studentRoutes');
+const quizRoutes = require('./routers/quizRoutes');
+const facultyRoutes = require("./routers/facultyRoutes");
+const superAdminRoutes = require("./routers/superAdminRoutes");
+
+// ----------------------------
+// ROUTES MOUNTING
+// ----------------------------
+>>>>>>> d0c79d1afb8614dbd05156f0fe58713cf9719ffe
 app.use('/students', studentRoutes);
 app.use('/quiz', quizRoutes);
+app.use("/api/faculty", facultyRoutes);
+app.use("/api/superadmin", superAdminRoutes);
 
+<<<<<<< HEAD
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB connected"))
@@ -55,4 +84,24 @@ mongoose.connect(process.env.MONGO_URI)
 // Start server (NOT app.listen)
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+=======
+// ----------------------------
+// MONGODB CONNECTION
+// ----------------------------
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("DB Error:", err));
+
+// ----------------------------
+// SERVER START
+// ----------------------------
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+>>>>>>> d0c79d1afb8614dbd05156f0fe58713cf9719ffe
 });

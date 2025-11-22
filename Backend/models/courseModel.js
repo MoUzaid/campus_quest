@@ -3,30 +3,42 @@ const { Schema } = mongoose;
 
 const CourseSchema = new Schema(
   {
+    department: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     courseName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
-
     year: {
       type: Number,
-      required: true
+      required: true,
     },
     groups: {
       type: [String],
       required: true,
+      validate: {
+        validator: (v) => Array.isArray(v) && v.length > 0,
+        message: 'At least one group is required',
+      },
     },
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'superAdmin',
-      required: true
+      ref: 'User', // (HOD / Created By reference)
+      required: true,
     }
   },
   { timestamps: true }
 );
 
-
+// Prevent duplicate course inside SAME department + year
+CourseSchema.index(
+  { department: 1, courseName: 1, year: 1 },
+  { unique: true }
+);
 
 module.exports = mongoose.model('Course', CourseSchema);

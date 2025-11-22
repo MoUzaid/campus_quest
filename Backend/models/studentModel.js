@@ -8,11 +8,13 @@ const studentSchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
+
     name: {
         type: String,
         required: true,
         trim: true
     },
+
     email: {
         type: String,
         required: true,
@@ -21,45 +23,56 @@ const studentSchema = new mongoose.Schema({
         trim: true,
         match: [/^\S+@\S+\.\S+$/, "Invalid email format"]
     },
+
     mobileNumber: {
         type: String,
         required: true,
         trim: true,
         match: [/^[0-9]{10}$/, "Invalid mobile number"]
     },
+
     department: {
         type: String,
         required: true,
         trim: true
     },
+
+    // Instead of section -> course + group (correct for your system)
+    course: {
+        type: String,        // Example: "BCA", "BBA", "B.Tech"
+        required: true,
+        trim: true
+    },
+
     semester: {
         type: Number,
         required: true
     },
-    section: {
-        type: String,
+
+    group: {
+        type: String,        // Example: "A", "B", "C"
+        required: true,
         trim: true
     },
+
     password: {
         type: String,
         required: true
     },
 
-    // -------------------------
-    // PASSWORD RESET FIELDS
-    // -------------------------
+    // password reset fields
     resetToken: {
         type: String,
         default: null
     },
+
     resetTokenExpiry: {
         type: Date,
         default: null
     }
 
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
+
 
 // Hash password before save
 studentSchema.pre("save", async function (next) {
