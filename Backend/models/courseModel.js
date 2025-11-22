@@ -1,84 +1,44 @@
 const mongoose = require('mongoose');
-const bcrypt = require("bcrypt");
+const { Schema } = mongoose;
 
-const studentSchema = new mongoose.Schema({
-    studentId: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
-
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        match: [/^\S+@\S+\.\S+$/, "Invalid email format"]
-    },
-
-    mobileNumber: {
-        type: String,
-        required: true,
-        trim: true,
-        match: [/^[0-9]{10}$/, "Invalid mobile number"]
-    },
-
+const CourseSchema = new Schema(
+  {
     department: {
-        type: String,
-        required: true,
-        trim: true
+      type: String,
+      required: true,
+      trim: true,
+    },
+    courseName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    year: {
+      type: Number,
+      required: true,
+    },
+    groups: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: (v) => Array.isArray(v) && v.length > 0,
+        message: 'At least one group is required',
+      },
     },
 
-    // Instead of section -> course + group (correct for your system)
-    course: {
-        type: String,        // Example: "BCA", "BBA", "B.Tech"
-        required: true,
-        trim: true
-    },
-
-    semester: {
-        type: Number,
-        required: true
-    },
-
-    group: {
-        type: String,        // Example: "A", "B", "C"
-        required: true,
-        trim: true
-    },
-
-    password: {
-        type: String,
-        required: true
-    },
-
-    // password reset fields
-    resetToken: {
-        type: String,
-        default: null
-    },
-
-    resetTokenExpiry: {
-        type: Date,
-        default: null
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // (HOD / Created By reference)
+      required: true,
     }
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true });
+// Prevent duplicate course inside SAME department + year
+CourseSchema.index(
+  { department: 1, courseName: 1, year: 1 },
+  { unique: true }
+);
 
-
-// Hash password before save
-studentSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-});
-
-module.exports = mongoose.model("Student", studentSchema);
+module.exports = mongoose.model('Course', CourseSchema);
