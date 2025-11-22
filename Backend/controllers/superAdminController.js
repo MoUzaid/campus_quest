@@ -17,15 +17,10 @@
 // }
 
 
-
-
-
-
-
-const SuperAdmin = require("../../models/superAdminModel");
+const SuperAdmin = require("../models/superAdminModel");
 const bcrypt = require("bcryptjs");
 
-// ID Generator: CA-SUP-2025-4938
+// ID Generator
 function generateSuperAdminId(department) {
   const deptCode = department
     .split(" ")

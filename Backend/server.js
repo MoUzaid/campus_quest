@@ -29,34 +29,45 @@
 //   console.log(`🚀 Server is running on port ${PORT}`);
 // });
 
-
-const express = require('express');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
-// Middleware to parse JSON
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
-// Import Routes
-const superAdminRoutes = require("./routes/superAdminRoutes");
+// ----------------------------
+// ROUTES IMPORT
+// ----------------------------
 const facultyRoutes = require("./routes/facultyRoutes");
+const superAdminRoutes = require("./routes/superAdminRoutes");
 
-// ===== Mount Routes =====
-app.use("/api/superadmin", superAdminRoutes);  // Super Admin + HOD faculty management
-app.use("/api/faculty", facultyRoutes);        // Faculty login + password update
+// ----------------------------
+// ROUTES MOUNTING
+// ----------------------------
+app.use("/api/faculty", facultyRoutes);
+app.use("/api/superadmin", superAdminRoutes);
 
-// ENV Variables
+// ----------------------------
+// MONGODB CONNECTION
+// ----------------------------
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("DB Error:", err));
+
+// ----------------------------
+// SERVER START
+// ----------------------------
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
 
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected Successfully"))
-  .catch((err) => console.log("❌ MongoDB Connection Error:", err));
-
-// Start Server
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
