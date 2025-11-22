@@ -23,8 +23,8 @@ app.use(cookieParser());
 // ----------------------------
 const studentRoutes = require('./routers/studentRoutes');
 const quizRoutes = require('./routers/quizRoutes');
-const facultyRoutes = require("./routes/facultyRoutes");
-const superAdminRoutes = require("./routes/superAdminRoutes");
+const facultyRoutes = require("./routers/facultyRoutes");
+const superAdminRoutes = require("./routers/superAdminRoutes");
 
 // ----------------------------
 // ROUTES MOUNTING
