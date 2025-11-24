@@ -5,7 +5,6 @@ function normalizeInput({ department, courseName, year, groups }) {
   const course = courseName ? String(courseName).trim() : '';
   const yr = Number(year);
 
-  // Normalize groups: trim, remove empties, preserve case or optionally uppercase
   const normalizedGroups = Array.isArray(groups)
     ? groups
         .map(g => String(g).trim())
@@ -15,10 +14,7 @@ function normalizeInput({ department, courseName, year, groups }) {
   return { dept, course, yr, normalizedGroups };
 }
 
-//  * CREATE or MERGE course document
-//  * - If (department + courseName + year) exists: add only NEW groups (atomic via $addToSet)
-//  * - If not exist: create new document (with the provided groups)
-
+// CREATE or MERGE course
 exports.createOrMergeCourse = async (req, res) => {
   try {
     const { department, courseName, year, groups, createdBy } = req.body;
@@ -33,47 +29,54 @@ exports.createOrMergeCourse = async (req, res) => {
       return res.status(400).json({ message: 'Invalid input after normalization.' });
     }
 
-    // Try to atomically add groups to existing doc if present
     const filter = { department: dept, courseName: course, year: yr };
 
-    // Try to find-and-update: add unique groups only ($addToSet with $each)
+    // Add sorted groups
     const updated = await Course.findOneAndUpdate(
       filter,
-      { $addToSet: { groups: { $each: normalizedGroups } } },
+      { 
+        $addToSet: { groups: { $each: normalizedGroups } } 
+      },
       { new: true }
     );
 
     if (updated) {
-      // If updated, it means document existed; groups merged
+      // Ensure groups stay sorted
+      updated.groups = updated.groups.sort();
+      await updated.save();
+
       return res.status(200).json({
         message: 'Existing course updated with new groups (if any).',
         course: updated
       });
     }
 
-    // If not updated (i.e. document doesn't exist) -> create new
+    // Create new course
     const created = await Course.create({
       department: dept,
       courseName: course,
       year: yr,
-      groups: normalizedGroups,
+      groups: normalizedGroups.sort(),
       createdBy
     });
 
     return res.status(201).json({ message: 'New course created successfully.', course: created });
 
   } catch (err) {
-    // Handle duplicate key race: if two requests tried to create same doc at same time,
-    // unique index will throw E11000; in that case, merge groups and return updated doc.
     if (err && err.code === 11000) {
       try {
         const { department, courseName, year, groups } = req.body;
         const { dept, course, yr, normalizedGroups } = normalizeInput({ department, courseName, year, groups });
+
         const merged = await Course.findOneAndUpdate(
           { department: dept, courseName: course, year: yr },
           { $addToSet: { groups: { $each: normalizedGroups } } },
           { new: true }
         );
+
+        merged.groups = merged.groups.sort();
+        await merged.save();
+
         return res.status(200).json({
           message: 'Race condition: existing course updated with new groups.',
           course: merged
@@ -86,7 +89,7 @@ exports.createOrMergeCourse = async (req, res) => {
   }
 };
 
-
+// GET all courses — now uses lean()
 exports.getAllCourses = async (req, res) => {
   try {
     const { department, courseName, year } = req.query;
@@ -96,7 +99,9 @@ exports.getAllCourses = async (req, res) => {
     if (courseName) filter.courseName = String(courseName).trim();
     if (year) filter.year = Number(year);
 
-    const courses = await Course.find(filter).sort({ department: 1, courseName: 1, year: 1 });
+    const courses = await Course.find(filter)
+      .sort({ department: 1, courseName: 1, year: 1 })
+      .lean();
 
     return res.status(200).json({ total: courses.length, courses });
   } catch (err) {
@@ -104,12 +109,9 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-/**
- * GET course by ID (for edit view)
- */
 exports.getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).lean();
     if (!course) return res.status(404).json({ message: 'Course not found.' });
     return res.status(200).json(course);
   } catch (err) {
@@ -117,22 +119,25 @@ exports.getCourseById = async (req, res) => {
   }
 };
 
-
 exports.updateCourse = async (req, res) => {
   try {
-    // Normalize if provided
     if (req.body.department) req.body.department = String(req.body.department).trim();
     if (req.body.courseName) req.body.courseName = String(req.body.courseName).trim();
     if (req.body.year) req.body.year = Number(req.body.year);
     if (Array.isArray(req.body.groups)) {
-      req.body.groups = req.body.groups.map(g => String(g).trim()).filter(Boolean);
+      req.body.groups = req.body.groups.map(g => String(g).trim()).filter(Boolean).sort();
     }
 
-    const updated = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updated = await Course.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
     if (!updated) return res.status(404).json({ message: 'Course not found.' });
+
     return res.status(200).json({ message: 'Course updated.', course: updated });
   } catch (err) {
-    // duplicate key may occur if dept+course+year edited to an existing combo
     if (err && err.code === 11000) {
       return res.status(400).json({ message: 'Update would create duplicate course (department+courseName+year must be unique).' });
     }
@@ -140,9 +145,6 @@ exports.updateCourse = async (req, res) => {
   }
 };
 
-/**
- * DELETE course
- */
 exports.deleteCourse = async (req, res) => {
   try {
     const deleted = await Course.findByIdAndDelete(req.params.id);
