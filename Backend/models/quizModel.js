@@ -103,7 +103,16 @@ const quizSchema = new mongoose.Schema({
         required: true,
         default: 1,
     },
-
+   feedbacks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Feedback',
+        }
+    ],
+    certificatesGenerated: {
+  type: Boolean,
+  default: false
+},
     createdAt: {
         type: Date,
         default: Date.now,

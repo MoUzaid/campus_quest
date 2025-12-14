@@ -49,7 +49,8 @@ const QuizCtrl = {
                 totalMarks,
                 startTime,
                 endTime,
-                durationMinutes
+                durationMinutes,
+                createdBy: req.faculty.id,
             });
             await newQuiz.save();
             const facultyId = req.faculty.id;
