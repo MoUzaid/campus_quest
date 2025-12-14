@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const quizController = require('../controllers/quizController');
 const multer = require('multer');
+const authFacultyOrSuperAdmin = require('../middleware/authFacultyOrSuperAdmin');
+const authFaculty = require('../middleware/authFaculty');
+const authSuperAdmin = require('../middleware/authSuperAdmin');
+const auth = require('../middleware/auth');
 
 
 const upload = multer({
@@ -11,22 +15,22 @@ const upload = multer({
   }
 });
 
-router.post('/create-quiz',upload.any(), quizController.createQuiz);
+router.post('/create-quiz',authFacultyOrSuperAdmin,upload.any(), quizController.createQuiz);
 
-router.get('/all-quizzes', quizController.getAllQuizzes);
+router.get('/all-quizzes',quizController.getAllQuizzes);
 
 router.get('/:quizId', quizController.getQuizById);
 
-router.put('/:quizId', quizController.updateQuizById);
+router.put('/:quizId',authFaculty,quizController.updateQuizById);
 
-router.delete('/:quizId', quizController.deleteQuizById);
+router.delete('/:quizId',authFaculty,quizController.deleteQuizById);
 
-router.post('/:quizId/register-student', quizController.registerStudentForQuiz);
+router.post('/:quizId/register-student',auth, quizController.registerStudentForQuiz);
 
-router.get('/department/:departmentName', quizController.getQuizzesByDepartment);
+router.get('/department/:departmentName',authSuperAdmin,quizController.getQuizzesByDepartment);
 
-router.post('/:quizId/submit', quizController.submitQuiz);
+router.post('/:quizId/submit',auth,quizController.submitQuiz);
 
-router.get('/:quizId/start', quizController.QuizAttempt);
+router.get('/:quizId/start',auth, quizController.QuizAttempt);
 
 module.exports = router;

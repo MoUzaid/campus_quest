@@ -1,53 +1,89 @@
 const mongoose = require('mongoose');
+const bcrypt = require("bcrypt");
 
 const studentSchema = new mongoose.Schema({
+    studentId: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+
     name: {
         type: String,
         required: true,
+        trim: true
+    },
+
+    gender: {
+        type: String,
+        enum: ["Male", "Female", "Other"],
+        required: true
     },
 
     email: {
         type: String,
         required: true,
         unique: true,
+        lowercase: true,
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, "Invalid email format"]
     },
-    department: {
+
+    mobileNumber: {
         type: String,
         required: true,
+        trim: true,
+        match: [/^[0-9]{10}$/, "Invalid mobile number"]
     },
-    enrollmentNumber: {
+
+    department: {
         type: String,
         required: true,
         trim: true
     },
 
-    // Instead of section -> course + group (correct for your system)
     course: {
         type: String,        // Example: "BCA", "BBA", "B.Tech"
         required: true,
+        trim: true
     },
-    yearOfStudy: {
+
+    semester: {
         type: Number,
-        required: true,
+        required: true
     },
-    group:{
+
+    group: {
+        type: String,        // Example: "A", "B", "C"
+        required: true,
+        trim: true
+    },
+
+    password: {
         type: String,
-        required: true,
+        required: true
     },
-    mobileNumber:{
-        type: Number,
-        required: true,     
-    },
-    password:{
+
+    // password reset fields
+    resetToken: {
         type: String,
-        required: true,
+        default: null
     },
-    createdAt: {
+
+    resetTokenExpiry: {
         type: Date,
-        default: Date.now,
+        default: null
     }
+
+}, { timestamps: true });
+
+
+// Hash password before save
+studentSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
 });
 
-const Student = mongoose.model('Student', studentSchema);
-module.exports = Student;
-
+module.exports = mongoose.model("Student", studentSchema);

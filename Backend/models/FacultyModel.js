@@ -43,9 +43,11 @@ const facultySchema = new mongoose.Schema(
       type: String,
       required: true
     },
-
-    // 🔥 NEW FIELD: To check if password was set by HOD (temp)
-    // After first login → faculty changes password → we mark isTempPassword = false
+role:{
+ type:Number,
+ required:true,
+ default:0,
+},
     isTempPassword: {
       type: Boolean,
       default: true
@@ -62,5 +64,4 @@ const facultySchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-module.exports = mongoose.model("Faculty", facultySchema);
+module.exports = mongoose.models.Faculty || mongoose.model("Faculty", facultySchema);

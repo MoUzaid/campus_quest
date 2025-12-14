@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const studentController = require("../controllers/studentController");
 const feedbackController = require("../controllers/feedbackController");
+const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
+const auth = require("../middleware/auth");
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
@@ -16,16 +18,16 @@ router.post("/forgot-password", studentController.forgotPassword);
 router.post("/reset-password", studentController.resetPassword);
 
 // ALL STUDENTS
-router.get("/", studentController.getAllStudents);
+router.get("/",authFacultyOrSuperAdmin, studentController.getAllStudents);
 
 // ONE STUDENT
-router.get("/:id", studentController.getStudent);
+router.get("/:id",authFacultyOrSuperAdmin, studentController.getStudent);
 
 // DELETE STUDENT
-router.delete("/:id", studentController.deleteStudent);
+router.delete("/:id", authFacultyOrSuperAdmin,studentController.deleteStudent);
 
 // submit feedback
-router.post("/feedback", feedbackController.submitFeedback);
+router.post("/feedback",auth, feedbackController.submitFeedback);
 // get all feedbacks
 router.get("/all-feedbacks", feedbackController.getAllFeedbacks);
 
