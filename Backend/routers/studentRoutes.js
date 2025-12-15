@@ -4,7 +4,7 @@ const router = express.Router();
 const studentController = require("../controllers/studentController");
 const feedbackController = require("../controllers/feedbackController");
 
-const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
+const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrSuperAdmin");
 const auth = require("../middleware/auth");
 
 /* ================= AUTH ================= */
