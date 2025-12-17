@@ -333,6 +333,67 @@ startTimer: async (req, res) => {
         res.status(500).json({ message: 'Error fetching starting timer', error: error.message });
     }
 },
+startQuizTimer:async (req, res) => {
+  try {
+    const { quizId } = req.params;
+
+    const quiz = await Quiz.findById(quizId);
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    if (quiz.isStarted) {
+      return res.status(400).json({ message: "Quiz already started" });
+    }
+
+    quiz.quizStartTime = new Date();            // SERVER TIME
+    quiz.durationSeconds = quiz.durationMinutes * 60;
+    quiz.isStarted = true;
+
+    await quiz.save();
+
+    /* 🔥 REAL-TIME EVENT */
+    io.to(`timer_${quizId}`).emit("quiz-started", {
+      quizId,
+      startTime: quiz.quizStartTime,
+      duration: quiz.durationSeconds,
+    });
+
+    res.status(200).json({
+      message: "Quiz timer started",
+      startTime: quiz.quizStartTime,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error starting quiz",
+      error: error.message,
+    });
+  }
+},
+
+getQuizTimer:async (req, res) => {
+  try {
+    const { quizId } = req.params;
+
+    const quiz = await Quiz.findById(quizId);
+
+    if (!quiz || !quiz.isStarted) {
+      return res.status(400).json({ message: "Quiz not started yet" });
+    }
+
+    res.status(200).json({
+      startTime: quiz.quizStartTime,
+      duration: quiz.durationSeconds,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching timer",
+      error: error.message,
+    });
+  }
+},
 };
 
 module.exports = QuizCtrl;

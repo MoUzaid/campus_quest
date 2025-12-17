@@ -37,5 +37,8 @@ router.get('/:quizId/start',auth, quizController.QuizAttempt);
 
 router.get("/:quizId/start-timer",authFaculty,quizController.startTimer);
 
+router.post("/:quizId/start-timer", quizController.startQuizTimer);
+
+router.get("/:quizId/timer", quizController.getQuizTimer);
 
 module.exports = router;

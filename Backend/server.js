@@ -55,9 +55,14 @@ io.on("connection", (socket) => {
         socket.join(roomId);
         console.log("Joined Room:", roomId);
     });
-    socket.on("join-timer-room", (quizId) => {
-  socket.join(`timer_${quizId}`);
-});
+  socket.on("join-timer-room", (quizId) => {
+    socket.join(`timer_${quizId}`);
+    console.log(`Joined room: timer_${quizId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
+  });
 });
 
 
