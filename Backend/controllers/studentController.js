@@ -3,116 +3,202 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
 
-// REGISTER STUDENT
+/* ================= REGISTER STUDENT ================= */
 exports.registerStudent = async (req, res) => {
-    try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        req.body.password = hashedPassword;
+  try {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-        const student = await Student.create(req.body);
-        res.json(student);
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
+    const student = await Student.create({
+      ...req.body,
+      emailVerificationCode: otp,
+      emailVerificationExpires: Date.now() + 10 * 60 * 1000 // 10 min
+    });
+
+    await sendEmail(
+      student.email,
+      "Verify your Campus Quest email",
+      `Your verification code is ${otp}`
+    );
+
+    res.status(201).json({
+      message: "Registration successful. Verification code sent to email."
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 
-// LOGIN STUDENT
+/* ================= VERIFY EMAIL ================= */
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    const student = await Student.findOne({ email });
+    if (!student) return res.status(404).json({ msg: "Student not found" });
+
+    if (
+      student.emailVerificationCode !== code ||
+      student.emailVerificationExpires < Date.now()
+    ) {
+      return res.status(400).json({ msg: "Invalid or expired code" });
+    }
+
+    student.emailVerified = true;
+    student.emailVerificationCode = null;
+    student.emailVerificationExpires = null;
+
+    await student.save();
+
+    res.json({ msg: "Email verified successfully" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+/* ================= LOGIN STUDENT ================= */
 exports.loginStudent = async (req, res) => {
-    try {
-        const student = await Student.findOne({ email: req.body.email });
-        if (!student) return res.status(404).json({ error: "User not found" });
+  try {
+    const student = await Student.findOne({ email: req.body.email });
+    if (!student) return res.status(404).json({ msg: "Student not found" });
 
-        const match = await bcrypt.compare(req.body.password, student.password);
-        if (!match) return res.status(401).json({ error: "Wrong password" });
-
-        res.json({ message: "Login successful", student });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    if (!student.emailVerified) {
+      return res.status(403).json({ msg: "Please verify your email first" });
     }
+
+    const match = await bcrypt.compare(req.body.password, student.password);
+    if (!match) return res.status(401).json({ msg: "Wrong password" });
+
+    const accessToken = jwt.sign(
+      { id: student._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: student._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    student.refreshToken = refreshToken;
+    await student.save();
+
+    res.json({ accessToken, refreshToken });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
 };
 
-// GET ALL STUDENTS
+/* ================= REFRESH TOKEN ================= */
+exports.refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      return res.status(401).json({ msg: "Refresh token required" });
+
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const student = await Student.findById(decoded.id);
+    if (!student || student.refreshToken !== refreshToken) {
+      return res.status(403).json({ msg: "Invalid refresh token" });
+    }
+
+    const newAccessToken = jwt.sign(
+      { id: student._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.json({ accessToken: newAccessToken });
+  } catch (err) {
+    res.status(403).json({ msg: "Invalid refresh token" });
+  }
+};
+
+/* ================= GET ALL STUDENTS ================= */
 exports.getAllStudents = async (req, res) => {
-    const students = await Student.find();
-    res.json(students);
+  const students = await Student.find().select("-password -refreshToken");
+  res.json(students);
 };
 
-// GET ONE STUDENT
+/* ================= GET ONE STUDENT ================= */
 exports.getStudent = async (req, res) => {
-    const student = await Student.findById(req.params.id);
-    res.json(student);
+  const student = await Student.findById(req.params.id).select(
+    "-password -refreshToken"
+  );
+  res.json(student);
 };
 
-// DELETE STUDENT
+/* ================= DELETE STUDENT ================= */
 exports.deleteStudent = async (req, res) => {
-    try {
-        await Student.findByIdAndDelete(req.params.id);
-        res.json({ message: "Student deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  try {
+    await Student.findByIdAndDelete(req.params.id);
+    res.json({ msg: "Student deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
 };
 
-
-
-// FORGOT PASSWORD (send email with token)
+/* ================= FORGOT PASSWORD ================= */
 exports.forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        const student = await Student.findOne({ email });
-        if (!student) return res.status(404).json({ msg: "Student not found" });
+    const student = await Student.findOne({ email });
+    if (!student) return res.status(404).json({ msg: "Student not found" });
 
-        const resetToken = jwt.sign(
-            { id: student._id },
-            process.env.RESET_PASSWORD_SECRET,
-            { expiresIn: "15m" }
-        );
+    const resetToken = jwt.sign(
+      { id: student._id },
+      process.env.RESET_PASSWORD_SECRET,
+      { expiresIn: "15m" }
+    );
 
-        const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+    student.resetToken = resetToken;
+    student.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+    await student.save();
 
-        await sendEmail(
-            email,
-            "Reset Your Campus Quest Password",
-            `<p>Hello ${student.name},</p>
-            <p>Click the link below to reset your password:</p>
-            <a href="${resetLink}">${resetLink}</a>
-            <p>This link expires in 15 minutes.</p>`
-        );
+    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
 
-        res.json({ msg: "Password reset email sent" });
-    } catch (err) {
-        res.status(500).json({ msg: err.message });
-    }
+    await sendEmail(
+      email,
+      "Reset Your Campus Quest Password",
+      `<p>Hello ${student.name},</p>
+       <p><a href="${resetLink}">Reset Password</a></p>`
+    );
+
+    res.json({ msg: "Password reset email sent" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
 };
 
-// RESET PASSWORD
+/* ================= RESET PASSWORD ================= */
 exports.resetPassword = async (req, res) => {
-    try {
-        const { token, newPassword } = req.body;
+  try {
+    const { token, newPassword } = req.body;
 
-        if (!token) return res.status(400).json({ msg: "No token provided" });
+    const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+    const student = await Student.findById(decoded.id);
 
-        const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
-
-        const student = await Student.findById(decoded.id);
-        if (!student) return res.status(404).json({ msg: "Invalid token" });
-
-        if (student.resetToken !== token)
-            return res.status(400).json({ msg: "Token mismatch" });
-
-        if (student.resetTokenExpiry < Date.now())
-            return res.status(400).json({ msg: "Token expired" });
-
-        const hashed = await bcrypt.hash(newPassword, 10);
-        student.password = hashed;
-        student.resetToken = undefined;
-        student.resetTokenExpiry = undefined;
-
-        await student.save();
-
-        res.json({ msg: "Password reset successful" });
-    } catch (err) {
-        res.status(400).json({ msg: "Invalid or expired token" });
+    if (
+      !student ||
+      student.resetToken !== token ||
+      student.resetTokenExpiry < Date.now()
+    ) {
+      return res.status(400).json({ msg: "Invalid or expired token" });
     }
+
+    student.password = newPassword;
+    student.resetToken = null;
+    student.resetTokenExpiry = null;
+
+    await student.save();
+
+    res.json({ msg: "Password reset successful" });
+  } catch (err) {
+    res.status(400).json({ msg: "Invalid or expired token" });
+  }
 };
