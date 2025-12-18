@@ -22,16 +22,40 @@ const superAdminSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-   departmentQuizzes: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Quiz',
-  }
-],
+    departmentQuizzes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Quiz',
+        }
+    ],
+
+    /* 🔐 PASSWORD FIELDS */
     password: {
         type: String,
         required: true,
     },
+
+    tempPassword: {
+        type: String, // hashed temp password
+        default: null,
+    },
+
+    isTempPasswordUsed: {
+        type: Boolean,
+        default: false, // first login check
+    },
+
+    /* 🔁 RESET PASSWORD FIELDS */
+    resetPasswordToken: {
+        type: String,
+        default: null,
+    },
+
+    resetPasswordExpires: {
+        type: Date,
+        default: null,
+    },
+
     createdAt: {
         type: Date,
         default: Date.now,
