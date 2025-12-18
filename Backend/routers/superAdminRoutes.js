@@ -4,7 +4,9 @@ const router = express.Router();
 
 const {
   registerSuperAdmin,
-  loginSuperAdmin
+  loginSuperAdmin,
+  forgotPassword,
+  resetPassword
 } = require("../controllers/superAdminController");
 
 
@@ -13,5 +15,12 @@ router.post("/register", registerSuperAdmin);
 
 // ✔ Login Super Admin
 router.post("/login", loginSuperAdmin);
+
+// ✔ Forgot Password
+router.post("/forgot-password", forgotPassword);
+
+// ✔ Reset Password
+router.post("/reset-password", resetPassword);
+
 
 module.exports = router;

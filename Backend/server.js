@@ -11,6 +11,7 @@ const quizRoutes = require('./routers/quizRoutes');
 const facultyRoutes = require('./routers/facultyRoutes');
 const superAdminRoutes = require('./routers/superAdminRoutes');
 const courseRoutes = require('./routers/courseRoutes');
+const leaderboardRoutes = require('./routers/leaderboardRoutes');
 
 //Importing HTTP and creating server 
 const http = require("http");
@@ -35,7 +36,7 @@ app.use('/quiz', quizRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/faculty', facultyRoutes);
-
+app.use('/api/leaderboard', leaderboardRoutes);
 
 
 
