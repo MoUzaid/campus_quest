@@ -1,14 +1,17 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom';
 import CreateQuiz from './pages/CreateQuiz';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 const Pages = () => {
   return (
     <div>
-        <Routes>
+      <Routes>
         <Route path="/create-quiz" element={<CreateQuiz />} />
-
-        </Routes>
+        <Route path="/student/login" element={<Login />} />
+        <Route path="/student/signup" element={<Signup />} />
+      </Routes>
     </div>
   )
 }
