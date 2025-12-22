@@ -1,122 +1,492 @@
-const Course = require("../models/courseModel");
 
+
+// const Course = require("../models/CourseModel");
+
+
+// function normalizeInput(data) {
+//   return {
+//     courseType: data.courseType
+//       ? String(data.courseType).trim().toLowerCase()
+//       : "",
+//     department: data.department ? String(data.department).trim() : "",
+//     courseName: data.courseName ? String(data.courseName).trim() : "",
+//     year: Number(data.year),
+//     groups: Array.isArray(data.groups)
+//       ? data.groups.map(g => String(g).trim()).filter(Boolean)
+//       : [],
+//   };
+// }
+
+// /* =========================================
+//    CREATE or MERGE COURSE (MAIN FIXED API)
+// ========================================= */
+// exports.createOrMergeCourse = async (req, res) => {
+//   try {
+//     const { courseType, department, courseName, year, groups } =
+//       normalizeInput(req.body);
+
+//     // 🔐 createdBy ALWAYS from token
+//     const createdBy = req.user._id;
+
+//     /* -------- Validation -------- */
+//     if (!courseType || !courseName || !year) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "courseType, courseName and year are required.",
+//       });
+//     }
+
+//     if (!["departmental", "global"].includes(courseType)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "courseType must be 'departmental' or 'global'.",
+//       });
+//     }
+
+//     if (courseType === "departmental") {
+//       if (!department) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "department is required for departmental courses.",
+//         });
+//       }
+
+//       if (!groups.length) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "At least one group is required for departmental courses.",
+//         });
+//       }
+//     }
+
+//     /* -------- Check existing course -------- */
+//     const filter =
+//       courseType === "departmental"
+//         ? { courseType, department, courseName, year }
+//         : { courseType, courseName, year };
+
+//     const existingCourse = await Course.findOne(filter).populate(
+//       "createdBy",
+//       "name email"
+//     );
+
+//     // 🔁 Merge groups if already exists
+//     if (existingCourse) {
+//       if (courseType === "departmental") {
+//         existingCourse.groups = [
+//           ...new Set([...existingCourse.groups, ...groups]),
+//         ];
+//         await existingCourse.save();
+//       }
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Course already exists. Groups merged successfully.",
+//         course: existingCourse,
+//       });
+//     }
+
+//     /* -------- Create new course -------- */
+//     const newCourse = await Course.create({
+//       courseType,
+//       department: courseType === "departmental" ? department : undefined,
+//       courseName,
+//       year,
+//       groups: courseType === "departmental" ? groups : [],
+//       createdBy, // ✅ from token
+//     });
+
+//     const populatedCourse = await Course.findById(newCourse._id).populate(
+//       "createdBy",
+//       "name email"
+//     );
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Course created successfully.",
+//       course: populatedCourse,
+//     });
+//   } catch (err) {
+//     return res.status(500).json({
+//       success: false,
+//       error: err.message,
+//     });
+//   }
+// };
+
+// /* ==========================
+//    GET ALL COURSES
+// ========================== */
+// exports.getAllCourses = async (req, res) => {
+//   try {
+//     const courses = await Course.find({})
+//       .populate("createdBy", "name email")
+//       .sort({ createdAt: -1 });
+
+//     res.status(200).json({
+//       success: true,
+//       total: courses.length,
+//       course: courses,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       error: err.message,
+//     });
+//   }
+// };
+
+// /* ==========================
+//    GET COURSE BY ID
+// ========================== */
+// exports.getCourseById = async (req, res) => {
+//   try {
+//     const course = await Course.findById(req.params.id).populate(
+//       "createdBy",
+//       "name email"
+//     );
+
+//     if (!course) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Course not found.",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       course,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       error: err.message,
+//     });
+//   }
+// };
+
+// /* ==========================
+//    UPDATE COURSE
+// ========================== */
+// exports.updateCourse = async (req, res) => {
+//   try {
+//     const body = normalizeInput(req.body);
+
+//     const updated = await Course.findByIdAndUpdate(
+//       req.params.id,
+//       body,
+//       { new: true, runValidators: true }
+//     ).populate("createdBy", "name email");
+
+//     if (!updated) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Course not found.",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Course updated successfully.",
+//       course: updated,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       error: err.message,
+//     });
+//   }
+// };
+
+// /* ==========================
+//    DELETE COURSE
+// ========================== */
+// exports.deleteCourse = async (req, res) => {
+//   try {
+//     const deleted = await Course.findByIdAndDelete(req.params.id);
+
+//     if (!deleted) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Course not found.",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Course deleted successfully.",
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       error: err.message,
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+const Course = require("../models/CourseModel");
+
+/* ================================
+   Normalize input (convert to uppercase)
+================================ */
 function normalizeInput(data) {
   return {
-    department: data.department ? String(data.department).trim() : "",
-    courseName: data.courseName ? String(data.courseName).trim() : "",
+    courseType: data.courseType
+      ? String(data.courseType).trim().toLowerCase()
+      : "",
+    department: data.department ? String(data.department).trim().toUpperCase() : "",
+    courseName: data.courseName ? String(data.courseName).trim().toUpperCase() : "",
     year: Number(data.year),
     groups: Array.isArray(data.groups)
-      ? data.groups.map(g => String(g).trim()).filter(Boolean)
+      ? data.groups.map(g => String(g).trim().toUpperCase()).filter(Boolean)
       : [],
-    createdBy: data.createdBy
   };
 }
 
+/* =========================================
+   CREATE or MERGE COURSE (MAIN FIXED API)
+========================================= */
+exports.createOrMergeCourse = async (req, res) => {
+  try {
+    const { courseType, department, courseName, year, groups } =
+      normalizeInput(req.body);
 
-exports.createCourse = async(req,res)=>{
-  try{
-    // const {createdBy} = req.superAdmin;
-    const {department, courseName, year, groups} = req.body;
-    const newCourse = new Course({
-      department: department ? String(department).trim() : "",
-      courseName: Array.isArray(courseName) ? courseName.map(cn => String(cn).trim()).filter(Boolean) : [],
-      year: Array.isArray(year) ? year.map(yr => Number(yr)) : [],
-      groups: Array.isArray(groups) ? groups.map(g => String(g).trim()).filter(Boolean) : [],
-      createdBy: createdBy
-    });
-    const savedCourse = await newCourse.save();
-    console.log("Saved Course:", savedCourse);
-    return res.status(201).json({
-      message: "Course created successfully.",
-      course: savedCourse
-    });
-  }catch(err){
-    if (err.code === 11000) {
+    // 🔐 createdBy ALWAYS from token
+    const createdBy = req.user._id;
+
+    /* -------- Validation -------- */
+    if (!courseType || !courseName || !year) {
       return res.status(400).json({
-        message: "Course with the same details already exists."
+        success: false,
+        message: "courseType, courseName and year are required.",
       });
     }
-  }
-}
-/***********************************
- * GET ALL COURSES (Filtered)
- ***********************************/
-exports.getAllCourses = async (req, res) => {
-  try {
-    const courses = await Course.find();    
-    return res.status(200).json({ total: courses.length, courses });
+
+    if (!["departmental", "global"].includes(courseType)) {
+      return res.status(400).json({
+        success: false,
+        message: "courseType must be 'departmental' or 'global'.",
+      });
+    }
+
+    if (courseType === "departmental") {
+      if (!department) {
+        return res.status(400).json({
+          success: false,
+          message: "department is required for departmental courses.",
+        });
+      }
+
+      if (!groups.length) {
+        return res.status(400).json({
+          success: false,
+          message: "At least one group is required for departmental courses.",
+        });
+      }
+    }
+
+    /* -------- Check existing course (CASE INSENSITIVE) -------- */
+    const existingCourse = await Course.findOne({
+      courseType,
+      year,
+      $or: [
+        {
+          courseName: { $regex: new RegExp(`^${courseName}$`, 'i') },
+          ...(courseType === "departmental"
+            ? { department: { $regex: new RegExp(`^${department}$`, 'i') } }
+            : {})
+        }
+      ]
+    }).populate("createdBy", "name email");
+
+    // 🔁 Merge groups if already exists
+    if (existingCourse) {
+      if (courseType === "departmental") {
+        const combinedGroups = [
+          ...new Set([
+            ...existingCourse.groups.map(g => g.toUpperCase()),
+            ...groups
+          ])
+        ];
+        existingCourse.groups = combinedGroups;
+        await existingCourse.save();
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Course already exists. Groups merged successfully.",
+        course: existingCourse,
+      });
+    }
+
+    /* -------- Create new course -------- */
+    const newCourse = await Course.create({
+      courseType,
+      department: courseType === "departmental" ? department.toUpperCase() : undefined,
+      courseName: courseName.toUpperCase(),
+      year,
+      groups: courseType === "departmental" 
+        ? groups.map(g => g.toUpperCase()) 
+        : [],
+      createdBy, // ✅ from token
+    });
+
+    const populatedCourse = await Course.findById(newCourse._id).populate(
+      "createdBy",
+      "name email"
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Course created successfully.",
+      course: populatedCourse,
+    });
+
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-/***********************************
- * GET ONE Course
- ***********************************/
-exports.getCourseById = async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    if (!course)
-      return res.status(404).json({ message: "Course not found." });
-
-    return res.status(200).json(course);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-/***********************************
- * UPDATE Course
- ***********************************/
+/* ==========================
+   UPDATE COURSE
+========================== */
 exports.updateCourse = async (req, res) => {
   try {
     const body = normalizeInput(req.body);
+    
+    if (body.department) body.department = body.department.toUpperCase();
+    if (body.courseName) body.courseName = body.courseName.toUpperCase();
+    if (body.groups && body.groups.length) {
+      body.groups = body.groups.map(g => g.toUpperCase());
+    }
 
     const updated = await Course.findByIdAndUpdate(
       req.params.id,
       body,
       { new: true, runValidators: true }
-    );
+    ).populate("createdBy", "name email");
 
-    if (!updated)
-      return res.status(404).json({ message: "Course not found." });
-
-    return res.status(200).json({
-      message: "Course updated successfully.",
-      course: updated
-    });
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(400).json({
-        message: "Update would create a duplicate course."
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
       });
     }
-    return res.status(500).json({ error: err.message });
+
+    res.status(200).json({
+      success: true,
+      message: "Course updated successfully.",
+      course: updated,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-/***********************************
- * DELETE Course
- ***********************************/
+/* ==========================
+   GET ALL COURSES
+========================== */
+exports.getAllCourses = async (req, res) => {
+  try {
+    const courses = await Course.find({})
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      total: courses.length,
+      course: courses,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};
+
+/* ==========================
+   GET COURSE BY ID
+========================== */
+exports.getCourseById = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id).populate(
+      "createdBy",
+      "name email"
+    );
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      course,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};
+
+/* ==========================
+   DELETE COURSE
+========================== */
 exports.deleteCourse = async (req, res) => {
   try {
     const deleted = await Course.findByIdAndDelete(req.params.id);
-    if (!deleted)
-      return res.status(404).json({ message: "Course not found." });
 
-    return res.status(200).json({ message: "Course deleted." });
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Course deleted successfully.",
+    });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
+/* ==========================
+   GET GROUPS BY COURSE
+========================== */
 exports.getGroups = async (req, res) => {
   try {
-    const {courseName, year } = req.body;
+    const { courseName, year } = req.body;
     if (!courseName || !year) {
       return res.status(400).json({ message: "courseName and year are required." });
     }
-   const course = await Course.findOne({
+    const course = await Course.findOne({
       courseName: String(courseName).trim(),
       year: Number(year)
     });
@@ -124,8 +494,7 @@ exports.getGroups = async (req, res) => {
       return res.status(404).json({ message: "Course not found." });
     }
     return res.status(200).json({ groups: course.groups });
-  } 
-  catch (err) {
+  } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };

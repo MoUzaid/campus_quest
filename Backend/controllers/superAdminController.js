@@ -92,25 +92,38 @@ exports.loginSuperAdmin = async (req, res) => {
       return res.status(401).json({ msg: "Incorrect password" });
     }
 
-    // 🔐 TEMP PASSWORD CHECK
-    if (!admin.isTempPasswordUsed) {
-      return res.status(200).json({
-        msg: "Temp password login. Change password required.",
-        forcePasswordChange: true,
-        adminId: admin._id
-      });
-    }
+   // 🔐 CREATE JWT TOKEN (ALWAYS)
+const token = jwt.sign(
+  { id: admin._id, role: "superadmin" },
+  process.env.ACCESS_TOKEN_SECRET,
+  { expiresIn: "1d" }
+);
 
-    res.status(200).json({
-      msg: "Login successful",
-      admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-        department: admin.department,
-        designation: admin.designation
-      }
-    });
+// TEMP PASSWORD LOGIN (but token still sent)
+if (!admin.isTempPasswordUsed) {
+  return res.status(200).json({
+    msg: "Temp password login. Change password required.",
+    forcePasswordChange: true,
+    token,        // ✅ token will NOT be undefined
+    role: "superadmin", 
+    adminId: admin._id
+  });
+}
+
+// NORMAL LOGIN
+res.status(200).json({
+  msg: "Login successful",
+  token,          // ✅ token here too
+  role: "superadmin",
+  admin: {
+    id: admin._id,
+    username: admin.username,
+    email: admin.email,
+    department: admin.department,
+    designation: admin.designation
+  }
+});
+
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
@@ -137,9 +150,17 @@ exports.changePassword = async (req, res) => {
 
     await admin.save();
 
+const token = jwt.sign(
+  { id: admin._id },
+  process.env.ACCESS_TOKEN_SECRET,
+  { expiresIn: "1d" }
+);
+
     res.status(200).json({
-      msg: "Password changed successfully"
-    });
+  msg: "Password changed successfully",
+  token
+});
+
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
@@ -219,5 +240,25 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ msg: "Invalid or expired token" });
+  }
+};
+
+
+exports.getSuperAdminProfile = async (req, res) => {
+  try {
+    // req.superAdmin already populated by middleware
+    const admin = req.superAdmin;
+
+    res.status(200).json({
+      facultyName: admin.username,
+      facultyId: admin.facultyId,
+      department: admin.department,
+      designation: admin.designation,
+      email: admin.email
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error"
+    });
   }
 };

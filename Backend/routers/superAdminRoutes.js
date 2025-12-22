@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
-
+const authSuperAdmin = require("../middleware/authSuperAdmin");
 const {
   registerSuperAdmin,
   loginSuperAdmin,
   forgotPassword,
   resetPassword,
-  changePassword
+  changePassword,
+  getSuperAdminProfile
 } = require("../controllers/superAdminController");
 
 // ✔ Register Super Admin
@@ -23,5 +24,5 @@ router.post("/forgot-password", forgotPassword);
 
 // ✔ Reset Password
 router.post("/reset-password", resetPassword);
-
+router.get("/me", authSuperAdmin, getSuperAdminProfile);
 module.exports = router;
