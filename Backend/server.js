@@ -12,8 +12,6 @@ const facultyRoutes = require('./routers/facultyRoutes');
 const superAdminRoutes = require('./routers/superAdminRoutes');
 const courseRoutes = require('./routers/courseRoutes');
 const leaderboardRoutes = require('./routers/leaderboardRoutes');
-const authRoutes = require('./routers/authRoutes');
-
 
 //Importing HTTP and creating server 
 const http = require("http");
@@ -42,7 +40,6 @@ app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
-app.use("/api", authRoutes);
 
 
 

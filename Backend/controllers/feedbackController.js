@@ -8,7 +8,6 @@ const feedbackController = {
             const userId = req.user.id;
             const { message, rating } = req.body;
 
-            // 1️⃣ Check quiz exists
             const quiz = await Quiz.findById(quizId);
             if (!quiz) {
                 return res.status(404).json({ message: "Quiz not found" });

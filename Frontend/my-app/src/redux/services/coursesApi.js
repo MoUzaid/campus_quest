@@ -4,7 +4,7 @@ export const courseApi = createApi({
   reducerPath: "courseApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/courses",
+    baseUrl: "http://localhost:5000/api/course",
     credentials: "include", 
   }),
     tagTypes: ["Course"],
@@ -19,6 +19,10 @@ export const courseApi = createApi({
         }),
         getAllCourses: builder.query({
             query: () => "/",
+            providesTags: ["Course"],
+        }),
+        getGroups: builder.query({
+            query: () => "/groups",
             providesTags: ["Course"],
         }),
         getCourseById: builder.query({
@@ -51,6 +55,7 @@ export const {
   useCreateCourseMutation,
   useGetAllCoursesQuery,
     useGetCourseByIdQuery,
+    useGetGroupsQuery,
     useUpdateCourseByIdMutation,
     useDeleteCourseByIdMutation,
 } = courseApi;

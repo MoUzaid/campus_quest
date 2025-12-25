@@ -3,87 +3,77 @@ const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema(
   {
-    /**
-     * Department name, e.g., CA, CS, IT
-     * Stored in uppercase for consistent filtering and search
-     */
-    department: {
+    courseType: {
       type: String,
+      enum: ["departmental", "global"],
       required: true,
-      trim: true,
-      uppercase: true
     },
 
-    /**
-     * Course name, e.g., BCA, MCA
-     */
-    courseName: {
+    // Only required when courseType is departmental
+    department: {
       type: String,
+      required: function () {
+        return this.courseType === "departmental";
+      },
+      trim: true,
+    },
+
+    // Example: BCA, MCA, PGDCA
+    courseName: {
+      type: [String],
       required: true,
       trim: true
     },
 
-    /**
-     * Normalized course name (lowercase) for case-insensitive search
-     */
-    normalizedCourseName: {
-      type: String,
-      required: true,
-      lowercase: true,
-      index: true
-    },
-
-    /**
-     * Duration or max year of course
-     */
+    // Example: 1st year, 2nd year, etc.
     year: {
       type: Number,
       required: true,
-      min: 1,
-      max: 5
     },
 
-    /**
-     * Groups (A, B, C...) only meaningful for single-course quizzes
-     */
-    groups: [
-      {
-        type: String,
-        trim: true,
-        uppercase: true,
-        require:true
-      }
-    ],
+    // Only required for departmental mode
+    groups: {
+      type: [String],
+      validate: {
+        validator: function (v) {
+          if (this.courseType === "departmental") {
+            return Array.isArray(v) && v.length > 0;
+          }
+          return true;
+        },
+        message: "At least one group is required for departmental courses",
+      },
+      default: [],
+    },
 
-    /**
-     * Who added this course (HOD / SuperAdmin)
-     */
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SuperAdmin",
-      required: true
+      type: Schema.Types.ObjectId,
+      ref: 'User', // HOD
+      required: true,
     }
   },
   { timestamps: true }
 );
 
-/**
- * Pre-save hook to normalize course name
- */
-courseSchema.pre("save", function (next) {
-  if (this.isModified("courseName")) {
-    this.normalizedCourseName = this.courseName.toLowerCase();
-  }
-  next();
-});
 
-/**
- * Unique index to prevent duplicate course in same department
- */
-courseSchema.index(
-  { department: 1, normalizedCourseName: 1 },
-  { unique: true }
+   // Prevent duplicates:
+  
+ 
+
+CourseSchema.index(
+  { courseType: 1, department: 1, courseName: 1, year: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { courseType: "departmental" }
+  }
 );
 
- module.exports = mongoose.model("Course", courseSchema);
+CourseSchema.index(
+  { courseType: 1, courseName: 1, year: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { courseType: "global" }
+  }
+);
 
+module.exports = mongoose.model('Course', CourseSchema);

@@ -56,7 +56,7 @@ cron.schedule('*/5 * * * *', async () => {
                     totalMarks: quiz.totalMarks,
                     position: currentPosition,
                     date: quiz.startTime.toDateString(),
-                    issuedDate: new Date().toDateString(),
+                    //issuedDate: new Date().toDateString(),
                 });
 
                 const certificateUrl = await uploadCertificateToCloudinary(

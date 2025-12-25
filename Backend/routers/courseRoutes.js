@@ -3,18 +3,21 @@ const router = express.Router();
 const authSuperAdmin = require("../middleware/authSuperAdmin");
 
 const {
-  createOrMergeCourse,
+  createCourse,
   getAllCourses,
   getCourseById,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getGroups
 } = require("../controllers/courseController");
 
 // Create or merge course
-router.post("/add",authSuperAdmin, createOrMergeCourse);
+router.post("/add",authSuperAdmin,createCourse);
 
 // Get all courses
-router.get("/",authSuperAdmin,getAllCourses);
+router.get("/",getAllCourses);
+
+router.get('/group',getGroups);
 
 // Get course by id
 router.get("/:id",authSuperAdmin, getCourseById);

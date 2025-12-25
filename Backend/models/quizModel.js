@@ -151,7 +151,7 @@ const quizSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Faculty",
-    required: true,
+    required: false,
   },
 
   /* ================= META ================= */

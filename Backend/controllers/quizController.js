@@ -59,8 +59,7 @@ const QuizCtrl = {
                 durationMinutes,
                 createdBy:req.faculty.id,
             });
-            await newQuiz.save();
-            console.log(req.faculty.id);    
+            await newQuiz.save(); 
             const facultyId = req.faculty.id;
             const newFacultyQuiz = await Faculty.findById(facultyId);
             newFacultyQuiz.createdQuizzes.push(newQuiz._id);
