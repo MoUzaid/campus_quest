@@ -7,7 +7,14 @@ import PreviousQuizzes from "./components/PreviousQuizzes";
 const Dashboard = () => {
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">Student Dashboard</h1>
+      {/* Header */}
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">Student Dashboard</h1>
+
+        <a href="/student/profile" className="profile-link">
+          View Profile
+        </a>
+      </div>
 
       <OngoingQuizzes />
       <UpcomingQuizzes />
