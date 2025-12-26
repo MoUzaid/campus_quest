@@ -109,16 +109,17 @@ const QuizCtrl = {
             res.status(500).json({ message: 'Error creating quiz', error: error.message });
         }
     },
-    // getAllQuizzes: async (req, res) => {
-    //     try {
-    //         const quizzes = await Quiz.find();
-    //         res.status(200).json(quizzes);
-    //     } catch (error) {
-    //         res.status(500).json({ message: 'Error fetching quizzes', error: error.message });
-    //     }
-    // },
-
+    
      getAllQuizzes: async (req, res) => {
+        try {
+            const quizzes = await Quiz.find();
+            res.status(200).json(quizzes);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching quizzes', error: error.message });
+        }
+    },
+
+     getFacultyQuizzes: async (req, res) => {
         try {
             const quizzes = await Quiz.find({ createdBy: req.user._id }); // ✅ CHANGED
             res.status(200).json(quizzes);
@@ -126,6 +127,7 @@ const QuizCtrl = {
             res.status(500).json({ message: 'Error fetching quizzes', error: error.message });
         }
     },
+    
     
     getQuizById: async (req, res) => {
         try {
