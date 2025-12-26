@@ -21,6 +21,12 @@ router.post('/create-quiz',authFaculty,upload.any(), quizController.createQuiz);
 
 router.get('/all-quizzes',quizController.getAllQuizzes);
 
+router.get(
+  "/my-quizzes",
+  authFaculty,
+  quizController.getFacultyQuizzes
+);
+
 router.get('/:quizId', quizController.getQuizById);
 
 router.put('/:quizId',authFaculty,quizController.updateQuizById);

@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 const Faculty = require("../models/FacultyModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -259,5 +252,77 @@ exports.getFacultyProfile = async (req, res) => {
   } catch (err) {
     console.error("Get Faculty Profile Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch faculty profile" });
+  }
+};
+/* =====================================================
+   FACULTY LOGIN
+   ===================================================== */
+exports.facultyLogin = async (req, res) => {
+  try {
+    const { facultyId, password } = req.body;
+
+    if (!facultyId || !password) {
+      return res.status(400).json({ msg: "Faculty ID and password are required" });
+    }
+
+    // 🔍 find faculty
+    const faculty = await Faculty.findOne({ facultyId });
+    if (!faculty) {
+      return res.status(404).json({ msg: "Faculty not found" });
+    }
+
+    // 🔐 password check
+    const isMatch = await bcrypt.compare(password, faculty.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    // 🚨 temp password check (first login)
+    if (!faculty.isTempPasswordUsed) {
+      return res.status(403).json({
+        msg: "Temporary password detected. Please change your password first.",
+        forceChangePassword: true
+      });
+    }
+
+    // 🔐 tokens using helpers
+    const payload = {
+      id: faculty._id,
+      role: "faculty",
+      department: faculty.department
+    };
+
+    const accessToken = createAccessToken(payload);
+    const refreshToken = createRefreshToken(payload);
+
+    // 🍪 cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      success: true,
+      role: "faculty",
+      user: {
+        id: faculty._id,
+        facultyId: faculty.facultyId,
+        name: faculty.name,
+        email: faculty.email,
+        department: faculty.department,
+        designation: faculty.designation
+      }
+    });
+
+  } catch (err) {
+    console.error("FACULTY LOGIN ERROR:", err);
+    res.status(500).json({ msg: "Server error" });
   }
 };

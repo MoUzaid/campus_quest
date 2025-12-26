@@ -288,3 +288,65 @@ exports.getSuperAdminProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+exports.superAdminLogin = async (req, res) => {
+  try {
+    const { facultyId, password } = req.body;
+
+    // 🔍 find super admin
+    const superAdmin = await SuperAdmin.findOne({ facultyId });
+    if (!superAdmin) {
+      return res.status(400).json({ message: "SuperAdmin not found" });
+    }
+
+    // 🔐 password check
+    const isMatch = await bcrypt.compare(password, superAdmin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // 🔐 token
+    const accessToken = jwt.sign(
+      {
+        id: superAdmin._id,
+        role: "superadmin"
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        id: superAdmin._id,
+        role: "superadmin"
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // 🍪 cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      role: "superadmin",
+      user: {
+        id: superAdmin._id,
+        name: superAdmin.name,
+        facultyId: superAdmin.facultyId
+      }
+    });
+
+  } catch (err) {
+    console.error("SUPERADMIN LOGIN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
