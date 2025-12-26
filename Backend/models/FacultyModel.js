@@ -35,8 +35,10 @@ const facultySchema = new mongoose.Schema(
     department: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      index:true
     },
+
 
     designation: {
       type: String,

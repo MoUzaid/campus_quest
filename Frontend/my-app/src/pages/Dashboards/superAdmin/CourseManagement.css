@@ -1,0 +1,378 @@
+/* CourseManagement.css */
+
+/* Custom Variables */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --info-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+/* Glass Morphism Effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-modal {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Animated Gradient Border */
+.gradient-border {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--primary-gradient);
+  z-index: -1;
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* Header with Animated Background */
+.animated-header {
+  background: var(--primary-gradient);
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Custom Badge Styles */
+.department-badge {
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.department-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.year-badge {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  min-width: 100px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+/* Table Styles */
+.table-glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.table-glass thead {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+.table-glass thead th {
+  border: none;
+  padding: 16px 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.table-glass tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-glass tbody tr:hover {
+  background: rgba(102, 126, 234, 0.05);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Cards */
+.stats-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card .icon-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover .icon-container {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Floating Action Button */
+.floating-action-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.floating-action-btn:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
+}
+
+/* Custom Input Styles */
+.enhanced-input {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.enhanced-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: white;
+}
+
+.enhanced-select {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.9) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 16px center/16px 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: all 0.3s ease;
+}
+
+.enhanced-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background-color: white;
+}
+
+/* Group Badges */
+.group-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.group-badge:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Loading Animation */
+.loading-container {
+  position: relative;
+  min-height: 300px;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+  border-radius: 16px;
+  margin: 20px 0;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Modal Animations */
+.modal-enter {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Hover Effects for Cards */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Department Color Classes */
+.department-ca {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.department-cs {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.department-it {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.department-ec {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .table-glass thead th,
+  .table-glass tbody td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+  
+  .department-badge,
+  .year-badge {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .floating-action-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .glass-card,
+  .table-glass {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .floating-action-btn,
+  .no-print {
+    display: none !important;
+  }
+}

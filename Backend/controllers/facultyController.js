@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 const Faculty = require("../models/FacultyModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -13,8 +20,15 @@ const createRefreshToken = (payload) =>
   jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
 /* =====================================================
-   ADD FACULTY (BY HOD) → PASSWORD = TEMP PASSWORD
-   ===================================================== */
+// ADD FACULTY (BY HOD) → PASSWORD = TEMP PASSWORD
+// Only HOD can add faculty in their own department
+// ===================================================== */
+
+
+
+
+// //    ADD FACULTY (BY HOD) → PASSWORD = TEMP PASSWORD
+// //    ===================================================== */
 exports.addFaculty = async (req, res) => {
   try {
     const {
@@ -78,87 +92,20 @@ exports.addFaculty = async (req, res) => {
 };
 
 /* =====================================================
-   LOGIN FACULTY
-   ===================================================== */
-exports.loginFaculty = async (req, res) => {
-  try {
-    const { facultyId, password } = req.body;
-
-    if (!facultyId || !password) {
-      return res
-        .status(400)
-        .json({ msg: "Faculty ID and password required" });
-    }
-
-    const faculty = await Faculty.findOne({ facultyId });
-    if (!faculty) {
-      return res.status(404).json({ msg: "Faculty not found" });
-    }
-
-    const isMatch = await bcrypt.compare(password, faculty.password);
-    if (!isMatch) {
-      return res.status(401).json({ msg: "Incorrect password" });
-    }
-
-    const accessToken = createAccessToken({
-      id: faculty._id,
-      role: faculty.role
-    });
-
-    const refreshToken = createRefreshToken({
-      id: faculty._id,
-      role: faculty.role
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      path: "/faculty/refresh-token",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    res.json({
-      msg: faculty.isTempPasswordUsed
-        ? "Login successful"
-        : "Temp password login. Change password required.",
-      forcePasswordChange: !faculty.isTempPasswordUsed,
-      accessToken,
-      faculty: {
-        id: faculty._id,
-        facultyId: faculty.facultyId,
-        name: faculty.name,
-        email: faculty.email,
-        department: faculty.department,
-        designation: faculty.designation,
-        role: faculty.role
-      }
-    });
-  } catch (err) {
-    console.error("Faculty Login Error:", err);
-    res.status(500).json({ msg: "Server error" });
-  }
-};
-
-/* =====================================================
    CHANGE PASSWORD (FIRST LOGIN)
    ===================================================== */
 exports.changePassword = async (req, res) => {
   try {
     const { facultyId, newPassword } = req.body;
-
     if (!facultyId || !newPassword) {
-      return res
-        .status(400)
-        .json({ msg: "Faculty ID and new password required" });
+      return res.status(400).json({ msg: "Faculty ID and new password required" });
     }
 
     const faculty = await Faculty.findOne({ facultyId });
-    if (!faculty) {
-      return res.status(404).json({ msg: "Faculty not found" });
-    }
+    if (!faculty) return res.status(404).json({ msg: "Faculty not found" });
 
     faculty.password = newPassword;
     faculty.isTempPasswordUsed = true;
-
     await faculty.save();
 
     res.json({ msg: "Password updated successfully" });
@@ -174,29 +121,15 @@ exports.changePassword = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
-    if (!token) {
-      return res.status(401).json({ msg: "Please login again" });
-    }
+    if (!token) return res.status(401).json({ msg: "Please login again" });
 
-    const decoded = jwt.verify(
-      token,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     const faculty = await Faculty.findById(decoded.id).select("-password");
-    if (!faculty) {
-      return res.status(404).json({ msg: "Faculty not found" });
-    }
+    if (!faculty) return res.status(404).json({ msg: "Faculty not found" });
 
-    const accessToken = createAccessToken({
-      id: faculty._id,
-      role: faculty.role
-    });
+    const accessToken = createAccessToken({ id: faculty._id, role: faculty.role, department: faculty.department });
 
-    res.json({
-      accessToken,
-      faculty
-    });
+    res.json({ accessToken, faculty });
   } catch (err) {
     console.error("Refresh Token Error:", err);
     res.status(403).json({ msg: "Invalid refresh token" });
@@ -209,30 +142,16 @@ exports.refreshToken = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
     const faculty = await Faculty.findOne({ email });
-    if (!faculty) {
-      return res.status(404).json({ msg: "Faculty not found" });
-    }
+    if (!faculty) return res.status(404).json({ msg: "Faculty not found" });
 
-    const resetToken = jwt.sign(
-      { id: faculty._id },
-      process.env.RESET_PASSWORD_SECRET,
-      { expiresIn: "15m" }
-    );
-
+    const resetToken = jwt.sign({ id: faculty._id }, process.env.RESET_PASSWORD_SECRET, { expiresIn: "15m" });
     faculty.resetToken = resetToken;
     faculty.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await faculty.save();
 
     const resetLink = `http://localhost:5173/faculty-reset-password/${resetToken}`;
-
-    await sendEmail(
-      email,
-      "Reset Faculty Password",
-      `<p>Hello ${faculty.name},</p>
-       <p><a href="${resetLink}">Reset Password</a></p>`
-    );
+    await sendEmail(email, "Reset Faculty Password", `<p>Hello ${faculty.name},</p><p><a href="${resetLink}">Reset Password</a></p>`);
 
     res.json({ msg: "Password reset email sent" });
   } catch (err) {
@@ -247,15 +166,10 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-
     const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
     const faculty = await Faculty.findById(decoded.id);
 
-    if (
-      !faculty ||
-      faculty.resetToken !== token ||
-      faculty.resetTokenExpiry < Date.now()
-    ) {
+    if (!faculty || faculty.resetToken !== token || faculty.resetTokenExpiry < Date.now()) {
       return res.status(400).json({ msg: "Invalid or expired token" });
     }
 
@@ -263,7 +177,6 @@ exports.resetPassword = async (req, res) => {
     faculty.resetToken = null;
     faculty.resetTokenExpiry = null;
     faculty.isTempPasswordUsed = true;
-
     await faculty.save();
 
     res.json({ msg: "Password reset successful" });
@@ -278,11 +191,8 @@ exports.resetPassword = async (req, res) => {
 exports.deleteFaculty = async (req, res) => {
   try {
     const { facultyId } = req.params;
-
     const faculty = await Faculty.findOneAndDelete({ facultyId });
-    if (!faculty) {
-      return res.status(404).json({ msg: "Faculty not found" });
-    }
+    if (!faculty) return res.status(404).json({ msg: "Faculty not found" });
 
     res.json({ msg: "Faculty deleted successfully" });
   } catch (err) {
@@ -296,24 +206,17 @@ exports.deleteFaculty = async (req, res) => {
    ===================================================== */
 exports.getAllFaculty = async (req, res) => {
   try {
-    const {
-      facultyId,
-      name,
-      email,
-      department,
-      designation,
-      page = 1,
-      limit = 20
-    } = req.query;
+    const { facultyId, name, email, designation, page = 1, limit = 20 } = req.query;
 
-    const query = {};
-    if (facultyId) query.facultyId = facultyId;
+    // 🔐 HOD can see only own department
+    const query = { department: req.user.department };
+
+    if (facultyId) query.facultyId = facultyId.trim();
     if (name) query.name = { $regex: name, $options: "i" };
     if (email) query.email = { $regex: email, $options: "i" };
-    if (department) query.department = department.trim();
-    if (designation) query.designation = designation;
+    if (designation) query.designation = designation.trim();
 
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
 
     const facultyList = await Faculty.find(query)
       .skip(skip)
@@ -321,6 +224,9 @@ exports.getAllFaculty = async (req, res) => {
       .select("-password -resetToken -resetTokenExpiry -__v");
 
     const total = await Faculty.countDocuments(query);
+
+    // 👇 Console log for total faculty count
+    console.log("📊 Total Faculty Count:", total);
 
     res.json({
       total,
@@ -331,5 +237,27 @@ exports.getAllFaculty = async (req, res) => {
   } catch (err) {
     console.error("Get All Faculty Error:", err);
     res.status(500).json({ msg: "Server error" });
+  }
+};
+
+/* =====================================================
+   GET FACULTY PROFILE
+   ===================================================== */
+exports.getFacultyProfile = async (req, res) => {
+  try {
+    const faculty = req.user;
+    res.status(200).json({
+      success: true,
+      profile: {
+        id: faculty._id,
+        name: faculty.name,
+        email: faculty.email,
+        department: faculty.department,
+        designation: faculty.designation
+      }
+    });
+  } catch (err) {
+    console.error("Get Faculty Profile Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch faculty profile" });
   }
 };

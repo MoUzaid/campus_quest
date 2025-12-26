@@ -1,0 +1,92 @@
+/* ================================
+   Student Profile – Read Only
+================================ */
+
+/* Profile.css */
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap");
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --text-light: #ffffff;
+  --text-dark: #2d2d2d;
+}
+
+/* Page wrapper */
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-gradient);
+  font-family: "Outfit", sans-serif;
+  padding: clamp(16px, 4vw, 40px);
+}
+
+/* Glass card (same vibe as login) */
+.profile-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  padding: clamp(20px, 4vw, 36px);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+}
+
+/* Title */
+.profile-title {
+  text-align: center;
+  color: var(--text-light);
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+
+/* Info container */
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Each row */
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+/* Label */
+.profile-row span:first-child {
+  color: #555;
+  font-weight: 500;
+}
+
+/* Value */
+.profile-row span:last-child {
+  color: var(--text-dark);
+  font-weight: 600;
+  text-align: right;
+  margin-left: 12px;
+}
+
+/* Mobile polish */
+@media (max-width: 420px) {
+  .profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .profile-row span:last-child {
+    text-align: left;
+  }
+}

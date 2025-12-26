@@ -110,3 +110,33 @@
     }
   }
   
+
+  /* Dashboard header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+/* Profile link */
+.profile-link {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+.profile-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

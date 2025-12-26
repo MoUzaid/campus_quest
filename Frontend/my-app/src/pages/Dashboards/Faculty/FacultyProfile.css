@@ -1,0 +1,133 @@
+/* PAGE BACKGROUND */
+.faculty-profile {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* CARD */
+.profile-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+/* HEADER */
+.profile-header {
+  margin-bottom: 28px;
+}
+
+/* AVATAR */
+.avatar {
+  width: 96px;
+  height: 96px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+}
+
+/* NAME */
+.profile-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* DESIGNATION */
+.profile-header p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* DETAILS */
+.profile-details {
+  text-align: left;
+  margin-top: 26px;
+  margin-bottom: 30px;
+}
+
+.profile-details div {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-details div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.profile-details span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-details p {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.35);
+}
+
+/* LOADING */
+.loading {
+  font-size: 16px;
+  color: #475569;
+  margin-top: 100px;
+  text-align: center;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

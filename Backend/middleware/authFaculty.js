@@ -1,19 +1,34 @@
-const jwt = require('jsonwebtoken');
-const faculty = require('../models/FacultyModel');
+
+
+const jwt = require("jsonwebtoken");
+const Faculty = require("../models/FacultyModel");
 
 const authFaculty = async (req, res, next) => {
-    try {
-        const token = req.header('Authorization');
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const newFaculty = await faculty.findById(decoded.id).select('-password');
-        if (!newFaculty) {
-            return res.status(401).json({ message: 'Authorization denied' });
-        }
-        req.faculty = newFaculty;
-        next();
-    } catch (err) {
-        res.status(401).json({ message: 'Token is not valid' });
+  try {
+    // ✅ Get token from cookies (matches your login)
+    const token = req.cookies?.accessToken;
+
+    if (!token) {
+      return res.status(401).json({ message: "No token, authorization denied" });
     }
+
+    // 🔐 Verify token
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    // 🔍 Fetch faculty from DB
+    const faculty = await Faculty.findById(decoded.id).select("-password");
+
+    if (!faculty) {
+      return res.status(401).json({ message: "Authorization denied" });
+    }
+
+    // ✅ Attach faculty to request
+    req.user = faculty;
+    next();
+  } catch (err) {
+    console.error("AuthFaculty Error:", err);
+    return res.status(401).json({ message: "Token is not valid" });
+  }
 };
 
 module.exports = authFaculty;

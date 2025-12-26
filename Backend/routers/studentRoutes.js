@@ -19,7 +19,7 @@ router.post("/verify-email", studentController.verifyEmail);
 router.post("/resend-otp",studentController.resendOtp);
 
 // LOGIN
-router.post("/login", studentController.loginStudent);
+// router.post("/login", studentController.loginStudent);
 
 // REFRESH ACCESS TOKEN
 router.post("/refresh", studentController.refreshToken);

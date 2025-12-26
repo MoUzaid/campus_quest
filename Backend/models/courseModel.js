@@ -1,29 +1,58 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+// CourseModel.js
+const mongoose = require("mongoose");
 
-const CourseSchema = new Schema(
+const courseSchema = new mongoose.Schema(
   {
+    courseType: {
+      type: String,
+      enum: ["departmental", "global"],
+      required: true,
+    },
+
+    // Only required when courseType is departmental
     department: {
       type: String,
-      trim: true
+      required: function () {
+        return this.courseType === "departmental";
+      },
+      trim: true,
     },
+
+    // Example: BCA, MCA, PGDCA
     courseName: {
       type: [String],
       required: true,
       trim: true
     },
+
+    // Example: 1st year, 2nd year, etc.
     year: {
-      type: [Number],
-      required: true
+      type: Number,
+      required: true,
     },
+
+    // Only required for departmental mode
     groups: {
       type: [String],
-      required: true,
+      validate: {
+        validator: function (v) {
+          if (this.courseType === "departmental") {
+            return Array.isArray(v) && v.length > 0;
+          }
+          return true;
+        },
+        message: "At least one group is required for departmental courses",
+      },
+      default: [],
     },
 
     createdBy: {
       type: Schema.Types.ObjectId,
+<<<<<<< HEAD
       ref: 'superAdmin',
+=======
+      ref: 'User', // HOD
+>>>>>>> d82e028801d3ac03704f880f747fb02b4b0b411c
       required: true,
     }
   },
@@ -31,5 +60,24 @@ const CourseSchema = new Schema(
 );
 
 
+   // Prevent duplicates:
+  
+ 
+
+CourseSchema.index(
+  { courseType: 1, department: 1, courseName: 1, year: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { courseType: "departmental" }
+  }
+);
+
+CourseSchema.index(
+  { courseType: 1, courseName: 1, year: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { courseType: "global" }
+  }
+);
 
 module.exports = mongoose.model('Course', CourseSchema);

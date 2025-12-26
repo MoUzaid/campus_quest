@@ -12,9 +12,16 @@ import ForgotPassword from "./pages/student/auth/ForgotPassword";
 import ResetPassword from "./pages/student/auth/ResetPassword";
 
 
+// Student Profile
+import Profile from "./pages/student/profile/Profile";
+
+
 // Student Dashboard & Quiz
 import Dashboard from "./pages/student/dashboard/Dashboard";
 import QuizDetails from "./pages/student/quiz/QuizDetails";
+
+
+
 
 const Pages = () => {
   return (
@@ -30,8 +37,15 @@ const Pages = () => {
 
       <Route path="/student/forgot-password" element={<ForgotPassword />} />
       <Route path="/student/reset-password/:token" element={<ResetPassword />} />
+<<<<<<< HEAD
       <Route path="/student/verifyOtp" element={<Otp/>}/>
      
+=======
+
+   {/* Student Profile */}
+      <Route path="/student/profile" element={<Profile />} />
+
+>>>>>>> d82e028801d3ac03704f880f747fb02b4b0b411c
 
       {/* Student Dashboard */}
       <Route path="/student/dashboard" element={<Dashboard />} />

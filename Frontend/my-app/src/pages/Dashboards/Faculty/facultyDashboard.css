@@ -1,0 +1,146 @@
+/* MAIN CONTAINER */
+.dashboard {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.header p {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.icons {
+  display: flex;
+  gap: 18px;
+  font-size: 20px;
+  color: #475569;
+  cursor: pointer;
+}
+
+/* TOP OPTIONS */
+.top-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.option-card {
+  background: #6fa1c4;
+  color: #fff;
+  border-radius: 16px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.option-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+.option-icon {
+  font-size: 34px;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 18px;
+  border-radius: 50%;
+}
+
+.option-card span {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* RECENT ACTIVITY */
+.recent-activity {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.recent-activity h3 {
+  margin-bottom: 18px;
+  font-size: 20px;
+  color: #1e293b;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.activity-icon {
+  background: #e0f2fe;
+  color: #0284c7;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.activity-title {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.activity-date {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.activity-time {
+  font-size: 13px;
+  color: #475569;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .top-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .top-options {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

@@ -12,8 +12,11 @@ const facultyRoutes = require('./routers/facultyRoutes');
 const superAdminRoutes = require('./routers/superAdminRoutes');
 const courseRoutes = require('./routers/courseRoutes');
 const leaderboardRoutes = require('./routers/leaderboardRoutes');
+<<<<<<< HEAD
 const departmentRoutes = require('./routers/departmentRoutes');
 const chatRoutes = require('./routers/chatRoutes');
+=======
+>>>>>>> d82e028801d3ac03704f880f747fb02b4b0b411c
 
 //Importing HTTP and creating server 
 const http = require("http");
@@ -26,11 +29,14 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(cors({
-  origin: ["http://localhost:3000"],
-  methods: ["GET", "POST","PUT", "DELETE"],
-  credentials: true     
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 //Routes 
 app.use('/students', studentRoutes);
@@ -39,8 +45,11 @@ app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+<<<<<<< HEAD
 app.use('/api/department', departmentRoutes);
 app.use('/api/chat',chatRoutes);
+=======
+>>>>>>> d82e028801d3ac03704f880f747fb02b4b0b411c
 
 
 
@@ -83,3 +92,5 @@ mongoose.connect(process.env.MONGO_URI)
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
