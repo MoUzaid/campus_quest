@@ -92,12 +92,17 @@ const Signup = () => {
         department,
         course,
         year,
-       semester: Number(semester),
+        semester: Number(semester),
         group,
         password,
       };
       const res = await registerStudent(payload).unwrap();
-      dispatch(setUser(res.user));
+      dispatch(
+        setCredentials({
+          user: res.user,
+          role: "student",
+        })
+      );
 
       if (res) {
         dispatch(resetStudentForm());
@@ -226,23 +231,13 @@ const Signup = () => {
               ))}
             </select>
 
-            {/* 🔹 SEMESTER (separate field) */}
-            {/* <input
+            <select
               name="semester"
-              type="number"
-              placeholder="Semester (ex-6)"
               value={semester}
               onChange={handleChange}
-              className="auth-input"
+              className="auth-select"
               required
-            /> */}
-           <select
-  name="semester"
-  value={semester}
-  onChange={handleChange}
-  className="auth-select"
-  required
->
+            >
               <option value="">Select Semester</option>
               <option value="1">1</option>
               <option value="2">2</option>

@@ -1,6 +1,3 @@
-const Course = require("../models/CourseModel");
-
-
 // function normalizeInput(data) {
 //   return {
 //     courseType: data.courseType

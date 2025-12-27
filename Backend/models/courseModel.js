@@ -1,7 +1,7 @@
 // CourseModel.js
 const mongoose = require("mongoose");
 
-const courseSchema = new mongoose.Schema(
+const CourseSchema = new mongoose.Schema(
   {
     courseType: {
       type: String,
@@ -47,23 +47,14 @@ const courseSchema = new mongoose.Schema(
     },
 
     createdBy: {
-      type: Schema.Types.ObjectId,
-<<<<<<< HEAD
-      ref: 'superAdmin',
-=======
-      ref: 'User', // HOD
->>>>>>> d82e028801d3ac03704f880f747fb02b4b0b411c
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'superAdmin', // HOD
       required: true,
     }
   },
   { timestamps: true }
 );
-
-
-   // Prevent duplicates:
   
- 
-
 CourseSchema.index(
   { courseType: 1, department: 1, courseName: 1, year: 1 },
   {

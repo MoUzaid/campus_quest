@@ -3,7 +3,7 @@ const router = express.Router();
 const authSuperAdmin = require("../middleware/authSuperAdmin");
 
 const {
-  createCourse,
+ createOrMergeCourse ,
   getAllCourses,
   getCourseById,
   updateCourse,
@@ -13,7 +13,7 @@ const {
 } = require("../controllers/courseController");
 
 // Create or merge course
-router.post("/add",authSuperAdmin,createCourse);
+router.post("/add",authSuperAdmin,createOrMergeCourse );
 
 // Get all courses
 router.get("/",getAllCourses);

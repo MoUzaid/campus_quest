@@ -6,7 +6,7 @@ const authFacultyOrAdmin =require("../middleware/authFacultyOrAdmin");
 
 const {
   addFaculty,
-  loginFaculty,
+  facultyLogin,
   changePassword,
   deleteFaculty,
   getAllFaculty,
@@ -22,7 +22,7 @@ const {
 // router.post("/add", authFacultyOrAdmin, addFaculty);
 
 router.post("/add",addFaculty);
-router.post("/login", loginFaculty);
+router.post("/login",facultyLogin);
 router.put("/update-password",changePassword );
 router.delete("/delete/:facultyId",authSuperAdmin,deleteFaculty);
 // router.get("/all",getAllFaculty);

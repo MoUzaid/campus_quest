@@ -7,7 +7,8 @@ const {
   forgotPassword,
   resetPassword,
   changePassword,
-  getSuperAdminProfile
+  getSuperAdminProfile,
+  refreshToken
 } = require("../controllers/superAdminController");
 
 
@@ -23,6 +24,9 @@ router.post("/forgot-password", forgotPassword);
 
 // ✔ Reset Password
 router.post("/reset-password", resetPassword);
+
+//refresh Token
+router.get("/refresh-token",refreshToken);
 
 // ✔ SuperAdmin Profile
 router.get("/me", authSuperAdmin, getSuperAdminProfile);
