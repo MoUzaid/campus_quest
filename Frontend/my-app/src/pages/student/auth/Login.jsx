@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Auth.css";
 import { useLoginStudentMutation } from "../../../redux/services/studentApi";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../../redux/features/authSlice";
+import { setCredentials } from "../../../redux/features/authSlice";
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -12,7 +12,7 @@ const Login = () => {
     useLoginStudentMutation();
 
   const [formData, setFormData] = useState({
-    email: "", 
+    email: "",
     password: "",
   });
 
@@ -28,7 +28,12 @@ const Login = () => {
 
     try {
       const res = await loginStudent(formData).unwrap();
-dispatch(setUser(res.user));
+      dispatch(
+        setCredentials({
+          user: res.user,
+          role: "student",
+        })
+      );
       // example redirect after login
       navigate("/student/dashboard");
     } catch (err) {

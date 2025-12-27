@@ -8,7 +8,7 @@ import { useLoginSuperAdminMutation } from "../redux/services/superAdminApi";
 import { setCredentials } from "../redux/features/authSlice";
 
 const Login = () => {
-  const [userId, setUserId] = useState("");
+  const [facultyId, setFacultyId] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("");
   const [error, setError] = useState("");
@@ -32,9 +32,10 @@ const Login = () => {
     try {
       let res;
 
+      // ================= FACULTY LOGIN =================
       if (userType === "faculty") {
         res = await loginFaculty({
-          facultyId: userId,
+          facultyId,
           password,
         }).unwrap();
 
@@ -46,10 +47,12 @@ const Login = () => {
         );
 
         navigate("/faculty/dashboard");
-      } 
+      }
+
+      // ================= SUPER ADMIN LOGIN =================
       else if (userType === "superAdmin") {
         res = await loginSuperAdmin({
-          facultyId: userId,
+          facultyId,
           password,
         }).unwrap();
 
@@ -62,10 +65,25 @@ const Login = () => {
 
         navigate("/superadmin/dashboard");
       }
-
     } catch (err) {
+      // ✅ HANDLE TEMP PASSWORD (403)
+      if (
+        userType === "faculty" &&
+        err?.status === 403 &&
+        err?.data?.forceChangePassword
+      ) {
+        navigate("/faculty-change-password", {
+          state: { facultyId },
+        });
+        return;
+      }
+
       const message =
-        err?.data?.message || err?.error || "Login failed";
+        err?.data?.msg ||
+        err?.data?.message ||
+        err?.error ||
+        "Login failed";
+
       setError(message);
     }
   };
@@ -77,6 +95,7 @@ const Login = () => {
 
         <select
           value={userType}
+          className="auth-select"
           onChange={(e) => setUserType(e.target.value)}
           required
         >
@@ -87,8 +106,8 @@ const Login = () => {
 
         <input
           placeholder="User ID / Faculty ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
+          value={facultyId}
+          onChange={(e) => setFacultyId(e.target.value)}
           required
         />
 

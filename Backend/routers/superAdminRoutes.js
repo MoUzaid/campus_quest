@@ -3,6 +3,7 @@ const router = express.Router();
 const authSuperAdmin = require("../middleware/authSuperAdmin");
 
 const {
+  superAdminLogin,
   registerSuperAdmin,
   forgotPassword,
   resetPassword,
@@ -12,6 +13,8 @@ const {
 } = require("../controllers/superAdminController");
 
 
+
+router.post("/login",superAdminLogin);
 
 // ✔ Register Super Admin
 router.post("/register", registerSuperAdmin);

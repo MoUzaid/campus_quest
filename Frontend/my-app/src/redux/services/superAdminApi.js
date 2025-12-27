@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const superAdminApi = createApi({
     reducerPath:"superAdminApi",
     baseQuery:fetchBaseQuery({
-        baseUrl:"/api/superAdmin",
+        baseUrl:"http://localhost:5000/api/superAdmin",
         credentials:"include",
     }),
     tagTypes:["superAdmin"],

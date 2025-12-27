@@ -3,7 +3,7 @@ import "../styles/Header.css"
 
 const Header = () => {
   return (
-    <header className="app-header">
+    <header className="app-header1">
   <div className="left-logo">
     <img src="/campus-quest.png" alt="Campus Quest Logo" />
     <span>Campus Quest</span>

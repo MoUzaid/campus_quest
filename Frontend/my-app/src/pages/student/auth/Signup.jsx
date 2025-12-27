@@ -9,7 +9,7 @@ import {
 import { useRegisterStudentMutation } from "../../../redux/services/studentApi";
 import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
 import { useGetAllCoursesQuery } from "../../../redux/services/coursesApi";
-import { setUser } from "../../../redux/features/authSlice";
+import { setCredentials } from "../../../redux/features/authSlice";
 
 
 const Signup = () => {

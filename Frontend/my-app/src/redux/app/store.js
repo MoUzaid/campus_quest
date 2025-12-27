@@ -4,12 +4,14 @@ import courseReducer from "../features/courseSlice";
 import departmentReducer from "../features/departmentSlice";
 import studentReducer from "../features/studentSlice";
 import authReducer from "../features/authSlice";
-
+import facultyReducer from "../features/facultySlice";
 import { quizApi } from "../services/quizApi";
 import { courseApi } from "../services/coursesApi";
 import { departmentApi } from "../services/departmentApi";
 import { chatApi } from "../services/chatApi";
 import { studentApi } from "../services/studentApi";
+import { facultyApi } from "../services/facultyApi";
+import { superAdminApi } from "../services/superAdminApi";
 
 import {
   persistStore,
@@ -37,17 +39,20 @@ const persistedQuizReducer = persistReducer(
 
 export const store = configureStore({
   reducer: {
-    quiz: persistedQuizReducer,     // ✅ persisted
+    quiz: persistedQuizReducer,     
     course: courseReducer,
     department: departmentReducer,
     student: studentReducer,
-    auth: authReducer,              // ❌ not persisted
+    auth: authReducer, 
+    faculty: facultyReducer,            
 
     [quizApi.reducerPath]: quizApi.reducer,
     [courseApi.reducerPath]: courseApi.reducer,
     [departmentApi.reducerPath]: departmentApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     [studentApi.reducerPath]: studentApi.reducer,
+    [facultyApi.reducerPath]:facultyApi.reducer,
+    [superAdminApi.reducerPath]:superAdminApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -67,7 +72,9 @@ export const store = configureStore({
       courseApi.middleware,
       departmentApi.middleware,
       chatApi.middleware,
-      studentApi.middleware
+      studentApi.middleware,
+      facultyApi.middleware,
+      superAdminApi.middleware
     ),
 
   devTools: true,

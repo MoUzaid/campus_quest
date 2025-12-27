@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const facultyApi = createApi({
   reducerPath: "facultyApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/api/faculty",
+    baseUrl: "http://localhost:5000/api/faculty",
     credentials: "include", // 👈 cookies (access + refresh token)
   }),
   tagTypes: ["Faculty"],

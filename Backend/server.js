@@ -38,7 +38,7 @@ app.use(cors({
 //Routes 
 app.use('/students', studentRoutes);
 app.use('/quiz', quizRoutes);
-app.use('/api/superadmin', superAdminRoutes);
+app.use('/api/superAdmin', superAdminRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
