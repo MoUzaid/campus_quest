@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -21,14 +14,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        if (!allowedRoles || allowedRoles.length === 0) {
-          throw new Error("No roles defined");
-        }
-
-        // 🔁 Try each allowed role endpoint
+        // Check user for each allowed role
         for (let role of allowedRoles) {
           const res = await fetch(roleToMeEndpoint[role], {
-            credentials: "include"
+            credentials: "include" // send cookies
           });
 
           if (res.ok) {
@@ -38,7 +27,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           }
         }
 
-        throw new Error("Unauthorized");
+        // If no role is valid
+        setAuthorized(false);
+        setLoading(false);
       } catch (err) {
         setAuthorized(false);
         setLoading(false);
@@ -48,15 +39,26 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     checkAuth();
   }, [allowedRoles]);
 
+  // -------------------------------
+  // TEMPORARY TESTING CODE
+  // This allows dashboard to open
+  // without checking login
+  // -------------------------------
+
   if (loading) {
     return <p>Checking authentication...</p>;
   }
 
-  if (!authorized) {
-    return <Navigate to="/login" replace />;
-  }
+  return children; // allow access for testing
 
-  return children;
+  // -------------------------------
+  // AFTER TESTING (IMPORTANT)
+  // Replace the code above with:
+  //
+  // if (loading) return <p>Checking authentication...</p>;
+  // if (!authorized) return <Navigate to="/student/login" replace />;
+  // return children;
+  // -------------------------------
 };
 
 export default ProtectedRoute;

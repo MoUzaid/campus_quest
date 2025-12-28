@@ -4,7 +4,6 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 /* AUTH */
 import Login from "./pages/Login";
-import Signup from "./pages/student/auth/Signup";
 
 /* SUPER ADMIN */
 import SuperAdminDashboard from "./pages/Dashboards/superAdmin/SuperAdminDashboard";
@@ -22,11 +21,17 @@ import FacultyProfile from "./pages/Dashboards/Faculty/FacultyProfile";
 /* STUDENT */
 import StudentDashboard from "./pages/student/dashboard/Dashboard";
 import StudentLogin from "./pages/student/auth/StudentLogin";
+<<<<<<< HEAD
 import ForgotPassword from "./pages/student/auth/ForgotPassword";
 import ResetPassword from "./pages/student/auth/ResetPassword";
 import Profile from "./pages/student/profile/Profile";
+=======
+import Signup from "./pages/student/auth/Signup";
+import ForgotPassword from "./pages/student/auth/ForgotPassword";
+import ResetPassword from "./pages/student/auth/ResetPassword";
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
 
-/* QUIZ / EXTRA */
+/* EXTRA */
 import CreateQuiz from "./pages/CreateQuiz";
 import QuestionsPage from "./pages/QuestionsPage";
 import AI from "./pages/AI";
@@ -42,6 +47,7 @@ const Pages = () => {
   );
   return (
     <Routes>
+<<<<<<< HEAD
     
     {role==="student" && isAuthenticated && <Route path="/" element={<StudentDashboard />} />}
       {role==="faculty" && isAuthenticated && <Route path="/" element={<FacultyDashboard />} />}
@@ -49,6 +55,10 @@ const Pages = () => {
     
 
       {/* <Route path="/login" element={<Login />} /> */}
+=======
+      {/* ROOT */}
+      <Route path="/" element={<Login />} />
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
 
       {/* SUPER ADMIN */}
       {/* <Route
@@ -58,6 +68,7 @@ const Pages = () => {
             <SuperAdminDashboard />
           </ProtectedRoute>
         }
+<<<<<<< HEAD
       /> */}
 
       <Route
@@ -67,6 +78,10 @@ const Pages = () => {
         }
       />
 
+=======
+      />
+      <Route path="/superadmin/add-faculty" element={<AddFaculty />} />
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
       <Route
         path="/superadmin/profile"
         element={
@@ -75,7 +90,6 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/superadmin/course-management"
         element={
@@ -84,7 +98,6 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/superadmin/courses/add"
         element={
@@ -93,8 +106,6 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* SUPER ADMIN + FACULTY */}
       <Route
         path="/superadmin/view-faculty"
         element={
@@ -103,7 +114,6 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/students"
         element={
@@ -121,8 +131,12 @@ const Pages = () => {
             <FacultyDashboard />
           </ProtectedRoute>
         }
+<<<<<<< HEAD
       /> */}
 
+=======
+      />
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
       <Route
         path="/faculty/profile"
         element={
@@ -132,9 +146,21 @@ const Pages = () => {
         }
       />
 
+<<<<<<< HEAD
       {/* STUDENT */}
       {/* <Route
         path="/student"
+=======
+      {/* STUDENT AUTH (PUBLIC) */}
+      <Route path="/student/login" element={<StudentLogin />} />
+      <Route path="/student/signup" element={<Signup />} />
+      <Route path="/student/forgot-password" element={<ForgotPassword />} />
+      <Route path="/student/reset-password" element={<ResetPassword />} />
+
+      {/* STUDENT DASHBOARD (PROTECTED) */}
+      <Route
+        path="/student/dashboard"
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <StudentDashboard />
@@ -150,6 +176,7 @@ const Pages = () => {
         </ProtectedRoute>
       }
       />
+<<<<<<< HEAD
 
 <Route 
 path="/student/certificates"
@@ -170,6 +197,10 @@ element={ <StudentLogin/>
  <Route path="/student/signup" element={<Signup />} />
 
       {/* QUIZ / EXTRA */}
+=======
+
+      {/* EXTRA */}
+>>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
       <Route path="/create-quiz" element={<CreateQuiz />} />
       <Route path="/questions" element={<QuestionsPage />} />
       <Route path="/chat" element={<AI />} />
