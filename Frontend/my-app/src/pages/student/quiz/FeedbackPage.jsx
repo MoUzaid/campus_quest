@@ -47,10 +47,12 @@ const FeedbackPage = () => {
       <div className="feedback-card">
         <h1>Quiz Submitted Successfully 🎉</h1>
 
-        <p className="summary-text">
+        {/* <p className="summary-text">
           You answered <strong>{answeredCount}</strong> out of{" "}
           <strong>{totalQuestions}</strong> questions.
-        </p>
+        </p> */}
+    <p>Submission complete.
+    </p>
 
         <p className="lock-text">
           Your responses have been recorded.
