@@ -1,7 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap");
 
-/* ===== PAGE ===== */
-.student-login-page {
+/* =====================
+   COMMON PAGE BACKGROUND
+   ===================== */
+.student-login-page,
+.student-signup-page {
   font-family: "Outfit", sans-serif;
   min-height: 100vh;
   display: flex;
@@ -10,38 +13,60 @@
   background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
-/* ===== CARD ===== */
-.student-login-card {
+/* =====================
+   COMMON CARD
+   ===================== */
+.student-login-card,
+.student-signup-container {
   width: 100%;
-  max-width: 420px;
   background: #ffffff;
   padding: 32px;
   border-radius: 18px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-/* ===== HEADINGS ===== */
-.student-login-title {
+/* Login card size */
+.student-login-card {
+  max-width: 420px;
+}
+
+/* Signup card size */
+.student-signup-container {
+  max-width: 750px;
+}
+
+/* =====================
+   HEADINGS
+   ===================== */
+.student-login-title,
+.student-signup-title {
   text-align: center;
   font-size: 2rem;
   font-weight: 600;
   color: #333;
 }
 
-.student-login-subtitle {
+.student-login-subtitle,
+.student-signup-subtitle {
   text-align: center;
   font-size: 0.95rem;
   color: #666;
   margin-bottom: 24px;
 }
 
-/* ===== FORM ===== */
-.student-login-form {
+/* =====================
+   FORMS
+   ===================== */
+.student-login-form,
+.student-signup-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
+/* =====================
+   LOGIN SPECIFIC
+   ===================== */
 .student-login-group {
   display: flex;
   flex-direction: column;
@@ -54,21 +79,38 @@
   color: #333;
 }
 
-/* ===== INPUT ===== */
-.student-login-input {
+/* =====================
+   SIGNUP GRID
+   ===================== */
+.student-signup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* =====================
+   INPUTS & SELECTS
+   ===================== */
+.student-login-input,
+.student-signup-input,
+.student-signup-select {
   padding: 13px 14px;
   border-radius: 12px;
   border: 1px solid #ddd;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
-.student-login-input:focus {
+.student-login-input:focus,
+.student-signup-input:focus,
+.student-signup-select:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }
 
-/* ===== FORGOT ===== */
+/* =====================
+   FORGOT PASSWORD
+   ===================== */
 .student-login-forgot {
   text-align: right;
   font-size: 0.85rem;
@@ -79,8 +121,11 @@
   text-decoration: none;
 }
 
-/* ===== BUTTON ===== */
-.student-login-btn {
+/* =====================
+   BUTTONS
+   ===================== */
+.student-login-btn,
+.student-signup-btn {
   margin-top: 10px;
   padding: 14px;
   border-radius: 12px;
@@ -91,23 +136,36 @@
   cursor: pointer;
 }
 
-.student-login-btn:hover {
+.student-login-btn:hover,
+.student-signup-btn:hover {
   background: #4338ca;
 }
 
-/* ===== FOOTER ===== */
-.student-login-footer {
+.student-login-btn:disabled,
+.student-signup-btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+/* =====================
+   FOOTERS
+   ===================== */
+.student-login-footer,
+.student-signup-footer {
   text-align: center;
   margin-top: 22px;
   font-size: 0.9rem;
 }
 
-.student-login-footer a {
+.student-login-footer a,
+.student-signup-footer a {
   color: #4f46e5;
   font-weight: 600;
 }
 
-/* ===== ERROR ===== */
+/* =====================
+   ERROR
+   ===================== */
 .student-login-error {
   text-align: center;
   color: red;

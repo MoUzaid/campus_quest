@@ -3,7 +3,6 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 /* AUTH */
 import Login from "./pages/Login";
-import Signup from "./pages/student/auth/Signup";
 
 /* SUPER ADMIN */
 import SuperAdminDashboard from "./pages/Dashboards/superAdmin/SuperAdminDashboard";
@@ -21,6 +20,9 @@ import FacultyProfile from "./pages/Dashboards/Faculty/FacultyProfile";
 /* STUDENT */
 import StudentDashboard from "./pages/student/dashboard/Dashboard";
 import StudentLogin from "./pages/student/auth/StudentLogin";
+import Signup from "./pages/student/auth/Signup";
+import ForgotPassword from "./pages/student/auth/ForgotPassword";
+import ResetPassword from "./pages/student/auth/ResetPassword";
 
 /* QUIZ / EXTRA */
 import CreateQuiz from "./pages/CreateQuiz";
@@ -32,9 +34,8 @@ const Unauthorized = () => <h2>Access Denied</h2>;
 const Pages = () => {
   return (
     <Routes>
-      {/* AUTH */}
+      {/* ROOT / AUTH */}
       <Route path="/" element={<Login />} />
-      {/* <Route path="/login" element={<Login />} /> */}
 
       {/* SUPER ADMIN */}
       <Route
@@ -46,12 +47,7 @@ const Pages = () => {
         }
       />
 
-      <Route
-        path="/superadmin/add-faculty"
-        element={
-            <AddFaculty />
-        }
-      />
+      <Route path="/superadmin/add-faculty" element={<AddFaculty />} />
 
       <Route
         path="/superadmin/profile"
@@ -80,7 +76,6 @@ const Pages = () => {
         }
       />
 
-      {/* SUPER ADMIN + FACULTY */}
       <Route
         path="/superadmin/view-faculty"
         element={
@@ -118,7 +113,13 @@ const Pages = () => {
         }
       />
 
-      {/* STUDENT */}
+      {/* STUDENT AUTH (PUBLIC) */}
+      <Route path="/student/login" element={<StudentLogin />} />
+      <Route path="/student/signup" element={<Signup />} />
+      <Route path="/student/forgot-password" element={<ForgotPassword />} />
+      <Route path="/student/reset-password" element={<ResetPassword />} />
+
+      {/* STUDENT DASHBOARD (PROTECTED) */}
       <Route
         path="/student"
         element={
@@ -127,11 +128,6 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-<Route path="/student/login" 
-element={ <StudentLogin/>
-}/>
-
- <Route path="/student/signup" element={<Signup />} />
 
       {/* QUIZ / EXTRA */}
       <Route path="/create-quiz" element={<CreateQuiz />} />
