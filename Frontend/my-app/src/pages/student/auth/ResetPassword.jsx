@@ -5,63 +5,67 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const ResetPassword = () => {
   const { token } = useParams();
-  const Navigate = useNavigate();
-  const [newPassword,setNewPassword]=useState("");
-  const [confirmPass,setConfirmPass] = useState("");
-  const [err,setErr] = useState("");
-  const [msg,setMsg]=useState("");
- const [resetPassword,{isLoading,isError}]=useResetPasswordMutation();  
+  const navigate = useNavigate();
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+
+  const [resetPassword] = useResetPasswordMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try{
-if(newPassword !== confirmPass){
-  setMsg("Confirm Password is not matching");
-}
- const res = await resetPassword({token,newPassword});
-  if(res.data){
-   setTimeout(() => {
-    setMsg("Redirecting to Login....")
-  Navigate('/student/login');
-}, 2000); 
-  }
-  }catch(err){
-setErr(err);
-  }
-}
+
+    if (newPassword !== confirmPass) {
+      setMsg("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await resetPassword({ token, newPassword }).unwrap();
+      if (res) {
+        setMsg("Redirecting to login...");
+        setTimeout(() => navigate("/student/login"), 2000);
+      }
+    } catch (error) {
+      setErr("Failed to reset password");
+    }
+  };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <h2 className="auth-title">Reset Password</h2>
-        <p className="auth-subtext">
+    <div className="student-login-page">
+      <div className="student-login-card">
+        <h2 className="student-login-title">Reset Password</h2>
+        <p className="student-login-subtitle">
           Enter your new password
         </p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="student-login-form" onSubmit={handleSubmit}>
           <input
             type="password"
-            className="auth-input"
+            className="student-login-input"
             placeholder="New password"
             value={newPassword}
-            onChange={(e)=>setNewPassword(e.target.value)}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
           />
 
           <input
             type="password"
-            className="auth-input"
+            className="student-login-input"
             placeholder="Confirm new password"
             value={confirmPass}
-            onChange={(e)=>setConfirmPass(e.target.value)}
+            onChange={(e) => setConfirmPass(e.target.value)}
             required
           />
 
-          <button type="submit" className="auth-button">
+          <button type="submit" className="student-login-btn">
             Reset Password
           </button>
-          <p className="err">{err}</p>
-          <p className="msg">{msg}</p>
+
+          {err && <p className="student-login-error">{err}</p>}
+          {msg && <p>{msg}</p>}
         </form>
       </div>
     </div>
