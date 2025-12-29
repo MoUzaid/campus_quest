@@ -62,7 +62,7 @@ const QuizCtrl = {
             });
             await newQuiz.save(); 
             
-            const facultyId =req.user._id;
+            const facultyId = req.user._id;
             const newFacultyQuiz = await Faculty.findById(facultyId);
             newFacultyQuiz.createdQuizzes.push(newQuiz._id);
             await newFacultyQuiz.save();

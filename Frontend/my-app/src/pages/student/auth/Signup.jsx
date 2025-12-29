@@ -16,9 +16,6 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  /* =====================
-     REDUX STATE (SAFE)
-     ===================== */
   const {
     enrollmentNumber = "",
     name = "",
@@ -37,9 +34,6 @@ const Signup = () => {
   const [registerStudent, { isLoading }] =
     useRegisterStudentMutation();
 
-  /* =====================
-     API CALLS
-     ===================== */
   const { data: departments, isLoading: deptLoading } =
     useGetAllDepartmentsQuery();
 
@@ -48,19 +42,19 @@ const Signup = () => {
   const departmentList =
     departments?.data?.[0]?.departmentNames || [];
 
-  const allCourses = courses?.courses || [];
+  const allCourses =
+    courses?.courses || courses?.data || [];
 
   const filteredCourses = allCourses.filter(
     (c) => c.department === department
   );
 
   const selectedCourseObj = filteredCourses.find(
-    (c) => c.courseName.includes(course)
+    (c) =>
+      Array.isArray(c.courseName) &&
+      c.courseName.includes(course)
   );
 
-  /* =====================
-     HANDLERS
-     ===================== */
   const handleChange = (e) => {
     dispatch(
       setStudentField({
@@ -92,7 +86,7 @@ const Signup = () => {
         mobileNumber,
         department,
         course,
-        year,
+        year: Number(year),
         semester: Number(semester),
         group,
         password,
@@ -102,7 +96,7 @@ const Signup = () => {
 
       dispatch(
         setCredentials({
-          user: res.user,
+          user: res.student.name,
           role: "student",
         })
       );
@@ -117,9 +111,6 @@ const Signup = () => {
     }
   };
 
-  /* =====================
-     JSX
-     ===================== */
   return (
     <div className="student-signup-page">
       <div className="student-signup-container">
@@ -134,7 +125,6 @@ const Signup = () => {
           className="student-signup-form"
           onSubmit={handleSubmit}
         >
-          {/* ===== BASIC DETAILS ===== */}
           <div className="student-signup-grid">
             <input
               name="enrollmentNumber"
@@ -186,7 +176,6 @@ const Signup = () => {
               <option value="Other">Other</option>
             </select>
 
-            {/* ===== DEPARTMENT ===== */}
             <select
               name="department"
               value={department}
@@ -203,7 +192,6 @@ const Signup = () => {
               ))}
             </select>
 
-            {/* ===== COURSE ===== */}
             <select
               name="course"
               value={course}
@@ -225,7 +213,6 @@ const Signup = () => {
               )}
             </select>
 
-            {/* ===== YEAR ===== */}
             <select
               name="year"
               value={year}
@@ -235,11 +222,23 @@ const Signup = () => {
               required
             >
               <option value="">Select Year</option>
-              {selectedCourseObj?.year?.map((yr) => (
-                <option key={yr} value={yr}>
-                  Year {yr}
-                </option>
-              ))}
+              {selectedCourseObj && Array.isArray(selectedCourseObj.year) ? (
+                selectedCourseObj.year.map((yr) => (
+                  <option key={yr} value={String(yr)}>
+                    Year {yr}
+                  </option>
+                ))
+              ) : selectedCourseObj?.year ? (
+                // If year is a single number, generate range
+                Array.from(
+                  { length: 4 },
+                  (_, i) => i + Number(selectedCourseObj.year)
+                ).map((yr) => (
+                  <option key={yr} value={String(yr)}>
+                    Year {yr}
+                  </option>
+                ))
+              ) : null}
             </select>
 
             <select
@@ -250,14 +249,13 @@ const Signup = () => {
               required
             >
               <option value="">Select Semester</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8,9,10].map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>
               ))}
             </select>
 
-            {/* ===== GROUP ===== */}
             <select
               name="group"
               value={group}
@@ -275,7 +273,6 @@ const Signup = () => {
             </select>
           </div>
 
-          {/* ===== PASSWORD ===== */}
           <div className="student-signup-grid">
             <input
               name="password"

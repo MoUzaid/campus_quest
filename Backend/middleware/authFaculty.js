@@ -7,7 +7,7 @@ const authFaculty = async (req, res, next) => {
   try {
     // ✅ Get token from cookies (matches your login)
     const token = req.cookies?.accessToken;
-    console.log(req.cookies.accessToken)
+    console.log(req.cookies)
     if (!token) {
       return res.status(401).json({ message: "No token, authorization denied" });
     }

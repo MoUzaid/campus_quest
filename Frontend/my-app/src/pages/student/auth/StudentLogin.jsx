@@ -23,9 +23,10 @@ const StudentLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("Submitting", formData);
       const res = await loginStudent(formData).unwrap();
-      dispatch(setCredentials({ user: res.user, role: "student" }));
-      navigate("/student/dashboard");
+      dispatch(setCredentials({ user: res.student.name, role: "student" }));
+      navigate("/");
     } catch {}
   };
 

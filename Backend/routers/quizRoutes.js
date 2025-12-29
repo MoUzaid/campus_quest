@@ -5,7 +5,7 @@ const multer = require('multer');
 const authFacultyOrAdmin = require('../middleware/authFacultyOrAdmin');
 const authFaculty = require('../middleware/authFaculty');
 const authSuperAdmin = require('../middleware/authSuperAdmin');
-const auth = require('../middleware/auth');
+const authUser = require('../middleware/authUser');
 
 
 const upload = multer({
@@ -33,20 +33,21 @@ router.put('/:quizId',authFaculty,quizController.updateQuizById);
 
 router.delete('/:quizId',authFaculty,quizController.deleteQuizById);
 
-router.post('/:quizId/register-student',auth, quizController.registerStudentForQuiz);
+router.post('/:quizId/register-student',authUser, quizController.registerStudentForQuiz);
 
 router.get('/:quizId/registeredStudent',quizController.QuizRegisteredStudents);
 
 router.get('/department/:departmentName',authSuperAdmin,quizController.getQuizzesByDepartment);
 
-router.post('/:quizId/submit',auth,quizController.submitQuiz);
+router.post('/:quizId/submit',authUser,quizController.submitQuiz);
 
-router.get('/:quizId/start',auth, quizController.QuizAttempt);
+router.get('/:quizId/start',authUser, quizController.QuizAttempt);
 
 router.get("/:quizId/start-timer",authFaculty,quizController.startTimer);
 
 router.post("/:quizId/start-timer", quizController.startQuizTimer);
 
 router.get("/:quizId/timer", quizController.getQuizTimer);
+
 
 module.exports = router;

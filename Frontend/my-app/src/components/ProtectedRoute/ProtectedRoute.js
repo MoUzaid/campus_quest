@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 const roleToMeEndpoint = {
-  superadmin: "http://localhost:5000/api/superadmin/me",
-  faculty: "http://localhost:5000/api/faculty/me",
-  student: "http://localhost:5000/api/student/me"
+  superadmin: "http://localhost:3000/api/superadmin/me",
+  faculty: "http://localhost:3000/api/faculty/me",
+  student: "http://localhost:3000/api/student/me"
 };
 
 const ProtectedRoute = ({ children, allowedRoles }) => {

@@ -12,7 +12,8 @@ const ForgotPassword = () => {
       await forgotPassword(email).unwrap();
       alert("Password reset link sent to your email");
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      alert("Failed to send reset link. Please try again.");
     }
   };
 
@@ -29,6 +30,7 @@ const ForgotPassword = () => {
             type="email"
             className="student-login-input"
             placeholder="Enter your email"
+            value={email}
             required
             onChange={(e) => setEmail(e.target.value)}
           />

@@ -103,21 +103,43 @@ export const quizApi = createApi({
       query: (departmentName) => `/department/${departmentName}`,
       providesTags: ["Quiz"],
     }),
+    initializeQuestionsFromAI(state, action) {
+  const aiQuestions = action.payload;
+
+  state.totalQuestions = aiQuestions.length;
+
+  state.questions = aiQuestions.map((q) => ({
+    questionText: q.questionText || "",
+    imageUrl: [],
+    options: q.options || ["", "", "", ""],
+    correctAnswer: q.correctAnswer || "",
+    marks: state.marksPerQuestion,
+    negativeMarks: state.negativeMarksPerQuestion,
+  }));
+
+  state.totalMarks =
+    state.totalQuestions * state.marksPerQuestion;
+}
   }),
 });
 
 export const {
   useCreateQuizMutation,
-  useGetAllQuizzesQuery,    
-    useGetQuizByIdQuery,
-    useUpdateQuizByIdMutation,
-    useDeleteQuizByIdMutation,
-    useRegisterStudentForQuizMutation,
-    useSubmitQuizMutation,
-    useStartQuizAttemptQuery,
-    useStartTimerQuery,
-    useStartQuizTimerMutation,
-    useGetQuizTimerQuery,
-    useGenerateCertificateMutation,
-    useGetQuizzesByDepartmentQuery,
+  useGetAllQuizzesQuery,
+  useGetQuizByIdQuery,
+  useLazyGetQuizByIdQuery,
+  useUpdateQuizByIdMutation,
+  useDeleteQuizByIdMutation,
+  useRegisterStudentForQuizMutation,
+  useSubmitQuizMutation,
+
+  useStartQuizAttemptMutation,
+  useStartQuizTimerMutation,
+
+  useGetQuizTimerQuery,
+  useGetQuizzesByDepartmentQuery,
+
+  useGenerateCertificateMutation,
 } = quizApi;
+
+export default quizApi;

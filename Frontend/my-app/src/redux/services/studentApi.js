@@ -5,7 +5,7 @@ export const studentApi = createApi({
 
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:5000/students",
-    credentials: "include", // ✅ VERY IMPORTANT (cookies auto send)
+    credentials: "include", // ✅ cookies
   }),
 
   tagTypes: ["Student", "Feedback"],
@@ -16,22 +16,6 @@ export const studentApi = createApi({
     registerStudent: builder.mutation({
       query: (data) => ({
         url: "/register",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    verifyEmail: builder.mutation({
-      query: (data) => ({
-        url: "/verify-email",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    resendOtp: builder.mutation({
-      query: (data) => ({
-        url: "/resend-otp",
         method: "POST",
         body: data,
       }),
@@ -52,9 +36,27 @@ export const studentApi = createApi({
       }),
     }),
 
-    /* 🔥 VERY IMPORTANT: restore auth on refresh */
-    getMe: builder.query({
-      query: () => "/me",
+    verifyEmail: builder.mutation({
+      query: (data) => ({
+        url: "/verify-email",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    resendOtp: builder.mutation({
+      query: (data) => ({
+        url: "/resend-otp",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    refreshToken: builder.mutation({
+      query: () => ({
+        url: "/refresh",
+        method: "POST",
+      }),
     }),
 
     forgotPassword: builder.mutation({
@@ -71,6 +73,12 @@ export const studentApi = createApi({
         method: "POST",
         body: data,
       }),
+    }),
+
+    /* 🔥 GET LOGGED-IN STUDENT */
+    getMe: builder.query({
+      query: () => "/profile", // ✅ FIXED
+      providesTags: ["Student"],
     }),
 
     /* ================= STUDENTS ================= */
@@ -110,18 +118,25 @@ export const studentApi = createApi({
       query: () => "/all-feedbacks",
       providesTags: ["Feedback"],
     }),
+
+    getQuizRating: builder.query({
+      query: (quizId) => `/rating/${quizId}`,
+      providesTags: ["Feedback"],
+    }),
   }),
 });
 
 export const {
   useRegisterStudentMutation,
-  useVerifyEmailMutation,
-  useResendOtpMutation,
   useLoginStudentMutation,
   useLogoutStudentMutation,
-  useGetMeQuery,
+  useVerifyEmailMutation,
+  useResendOtpMutation,
+  useRefreshTokenMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+
+  useGetMeQuery,
 
   useGetAllStudentsQuery,
   useGetStudentByIdQuery,
@@ -129,4 +144,7 @@ export const {
 
   useSubmitFeedbackMutation,
   useGetAllFeedbacksQuery,
+  useGetQuizRatingQuery,
 } = studentApi;
+
+export default studentApi;

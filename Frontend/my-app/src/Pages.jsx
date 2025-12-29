@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 /* AUTH */
@@ -23,20 +24,23 @@ import StudentLogin from "./pages/student/auth/StudentLogin";
 import Signup from "./pages/student/auth/Signup";
 import ForgotPassword from "./pages/student/auth/ForgotPassword";
 import ResetPassword from "./pages/student/auth/ResetPassword";
+import Profile from "./pages/student/profile/Profile";
+import Certificates from "./pages/student/profile/Certificates";
 
-/* STUDENT QUIZ */
+/* QUIZ */
 import QuizDetails from "./pages/student/quiz/QuizDetails";
-import QuizAttempt from "./pages/student/quiz/QuizAttempt";
-import FeedbackPage from "./pages/student/quiz/FeedbackPage";
 
 /* EXTRA */
 import CreateQuiz from "./pages/CreateQuiz";
 import QuestionsPage from "./pages/QuestionsPage";
 import AI from "./pages/AI";
+import Home from "./pages/Home";
 
 const Unauthorized = () => <h2>Access Denied</h2>;
 
 const Pages = () => {
+  const { role, isAuthenticated } = useSelector((state) => state.auth);
+
   return (
     <Routes>
       {/* ROOT */}
@@ -44,10 +48,18 @@ const Pages = () => {
 
       {/* SUPER ADMIN */}
       <Route
-        path="/superadmin"
+        path="/superadmin/dashboard"
         element={
           <ProtectedRoute allowedRoles={["superadmin"]}>
             <SuperAdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/superadmin/add-faculty"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <AddFaculty />
           </ProtectedRoute>
         }
       />
@@ -76,14 +88,6 @@ const Pages = () => {
         }
       />
       <Route
-        path="/superadmin/add-faculty"
-        element={
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AddFaculty />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/superadmin/view-faculty"
         element={
           <ProtectedRoute allowedRoles={["superadmin", "faculty"]}>
@@ -102,7 +106,7 @@ const Pages = () => {
 
       {/* FACULTY */}
       <Route
-        path="/faculty"
+        path="/faculty/dashboard"
         element={
           <ProtectedRoute allowedRoles={["faculty"]}>
             <FacultyDashboard />
@@ -118,11 +122,11 @@ const Pages = () => {
         }
       />
 
-      {/* STUDENT AUTH (PUBLIC) */}
+      {/* STUDENT AUTH */}
       <Route path="/student/login" element={<StudentLogin />} />
       <Route path="/student/signup" element={<Signup />} />
       <Route path="/student/forgot-password" element={<ForgotPassword />} />
-      <Route path="/student/reset-password" element={<ResetPassword />} />
+      <Route path="/student/reset-password/:token" element={<ResetPassword />} />
 
       {/* STUDENT DASHBOARD */}
       <Route
@@ -133,8 +137,24 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/student/profile"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/certificates"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <Certificates />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* STUDENT QUIZ FLOW */}
+      {/* QUIZ */}
       <Route
         path="/student/quiz/:quizId"
         element={
@@ -144,28 +164,11 @@ const Pages = () => {
         }
       />
 
-      <Route
-        path="/student/quiz/:quizId/attempt"
-        element={
-          <ProtectedRoute allowedRoles={["student"]}>
-            <QuizAttempt />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/student/quiz/:quizId/feedback"
-        element={
-          <ProtectedRoute allowedRoles={["student"]}>
-            <FeedbackPage />
-          </ProtectedRoute>
-        }
-      />
-
       {/* EXTRA */}
       <Route path="/create-quiz" element={<CreateQuiz />} />
       <Route path="/questions" element={<QuestionsPage />} />
       <Route path="/chat" element={<AI />} />
+      <Route path="/home" element={<Home />} />
 
       {/* FALLBACK */}
       <Route path="/unauthorized" element={<Unauthorized />} />
