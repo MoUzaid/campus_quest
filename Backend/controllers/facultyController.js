@@ -276,7 +276,7 @@ exports.facultyLogin = async (req, res) => {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    // 🚨 temp password check (first login)
+    //🚨 temp password check (first login)
     if (!faculty.isTempPasswordUsed) {
       return res.status(403).json({
         msg: "Temporary password detected. Please change your password first.",

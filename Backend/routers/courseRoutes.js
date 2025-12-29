@@ -14,26 +14,26 @@ const {
   getAllCoursesFilter
 } = require("../controllers/courseController");
 
-// Create or merge course
-//router.post("/add",authSuperAdmin,createOrMergeCourse );
+//Create or merge course
+router.post("/add",authSuperAdmin,createOrMergeCourse );
 
-//router.get("/All-courses",getAllCoursesFilter)
+router.get("/All-courses",getAllCoursesFilter)
 
-// Get all courses
-//router.get("/", getAllCourses);
+//Get all courses
+router.get("/", getAllCourses);
 
-//router.get("/dept",getAllCoursesByDept);
+router.get("/dept",getAllCoursesByDept);
 
-//router.get('/group',getGroups);
+router.get('/group',getGroups);
 
-// Get course by id
-//router.get("/:id",authSuperAdmin, getCourseById);
+//Get course by id
+router.get("/:id",authSuperAdmin, getCourseById);
 
-// Update course
-//router.put("/:id",authSuperAdmin,updateCourse);
+//Update course
+router.put("/:id",authSuperAdmin,updateCourse);
 
-// Delete course
-//router.delete("/:id",authSuperAdmin,deleteCourse);
+//Delete course
+router.delete("/:id",authSuperAdmin,deleteCourse);
 
 router.post("/bulk-create", createCoursesBulk);
 

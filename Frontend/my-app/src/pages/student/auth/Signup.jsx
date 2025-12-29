@@ -16,6 +16,8 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  /* ================= REDUX STATE ================= */
+
   const {
     enrollmentNumber = "",
     name = "",
@@ -31,6 +33,8 @@ const Signup = () => {
     confirmPassword = "",
   } = useSelector((state) => state.student || {});
 
+  /* ================= API HOOKS ================= */
+
   const [registerStudent, { isLoading }] =
     useRegisterStudentMutation();
 
@@ -39,21 +43,34 @@ const Signup = () => {
 
   const { data: courses } = useGetAllCoursesQuery();
 
+  console.log(courses);
+
+  /* ================= DATA NORMALIZATION ================= */
+
+  // Departments
   const departmentList =
     departments?.data?.[0]?.departmentNames || [];
 
+  // 👇 IMAGE KE HISAAB SE ACTUAL COURSES YAHAN HAIN
   const allCourses =
-    courses?.courses || courses?.data || [];
+  courses?.courses?.[0]?.courses || [];
 
+
+  // Filter courses by selected department
   const filteredCourses = allCourses.filter(
-    (c) => c.department === department
-  );
+  (c) =>
+    c.department?.trim().toLowerCase() ===
+    department?.trim().toLowerCase()
+);
 
-  const selectedCourseObj = filteredCourses.find(
-    (c) =>
-      Array.isArray(c.courseName) &&
-      c.courseName.includes(course)
-  );
+
+  // Selected course object
+const selectedCourseObj = filteredCourses.find(
+  (c) => c.courseName === course
+);
+
+
+  /* ================= HANDLERS ================= */
 
   const handleChange = (e) => {
     dispatch(
@@ -110,6 +127,8 @@ const Signup = () => {
       alert(err?.data?.error || "Signup failed");
     }
   };
+
+  /* ================= JSX ================= */
 
   return (
     <div className="student-signup-page">
@@ -192,55 +211,46 @@ const Signup = () => {
               ))}
             </select>
 
+            {/* ===== COURSE ===== */}
             <select
-              name="course"
-              value={course}
-              onChange={handleChange}
-              className="student-signup-select"
-              disabled={!department}
-              required
-            >
-              <option value="">Select Course</option>
-              {filteredCourses.map((c) =>
-                c.courseName.map((singleCourse, idx) => (
-                  <option
-                    key={`${c._id}-${idx}`}
-                    value={singleCourse}
-                  >
-                    {singleCourse}
-                  </option>
-                ))
-              )}
-            </select>
+  name="course"
+  value={course}
+  onChange={handleChange}
+  className="student-signup-select"
+  disabled={!department}
+  required
+>
+  <option value="">Select Course</option>
 
+  {filteredCourses.length === 0 && (
+    <option disabled>No courses found</option>
+  )}
+
+  {filteredCourses.map((c, idx) => (
+    <option key={idx} value={c.courseName}>
+      {c.courseName}
+    </option>
+  ))}
+</select>
+
+
+            {/* ===== YEAR ===== */}
             <select
               name="year"
               value={year}
               onChange={handleChange}
               className="student-signup-select"
-              disabled={!selectedCourseObj}
               required
             >
               <option value="">Select Year</option>
-              {selectedCourseObj && Array.isArray(selectedCourseObj.year) ? (
-                selectedCourseObj.year.map((yr) => (
-                  <option key={yr} value={String(yr)}>
-                    Year {yr}
-                  </option>
-                ))
-              ) : selectedCourseObj?.year ? (
-                // If year is a single number, generate range
-                Array.from(
-                  { length: 4 },
-                  (_, i) => i + Number(selectedCourseObj.year)
-                ).map((yr) => (
-                  <option key={yr} value={String(yr)}>
-                    Year {yr}
-                  </option>
-                ))
-              ) : null}
+              {[1, 2, 3, 4].map((yr) => (
+                <option key={yr} value={yr}>
+                  Year {yr}
+                </option>
+              ))}
             </select>
 
+            {/* ===== SEMESTER ===== */}
             <select
               name="semester"
               value={semester}
@@ -249,13 +259,14 @@ const Signup = () => {
               required
             >
               <option value="">Select Semester</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8,9,10].map((s) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>
               ))}
             </select>
 
+            {/* ===== GROUP ===== */}
             <select
               name="group"
               value={group}

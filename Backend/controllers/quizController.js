@@ -360,7 +360,6 @@ startQuizTimer:async (req, res) => {
     }
 
     quiz.quizStartTime = new Date();          
-    quiz.durationSeconds = quiz.durationMinutes * 60;
     quiz.isStarted = true;
 
     await quiz.save();

@@ -38,7 +38,7 @@ const Login = () => {
           facultyId,
           password,
         }).unwrap();
-
+        
         dispatch(
           setCredentials({
             user: res.user,

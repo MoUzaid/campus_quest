@@ -126,7 +126,7 @@ exports.createOrMergeCourse = async (req, res) => {
 /***********************************
  * GET ALL COURSES (Filtered)
  ***********************************/
-exports.getAllCourses = async (req, res) => {
+exports.getAllCoursesFilter = async (req, res) => {
   try {
     const filter = {};
 
@@ -197,7 +197,7 @@ exports.updateCourse = async (req, res) => {
 /* ==========================
    GET ALL COURSES
 ========================== */
-exports.getAllCourses = async (req, res) => {
+exports.getAllCoursesByDept = async (req, res) => {
   try {
     const courses = await Course.find({
       department: req.user.department, // 🔥 MAIN FILTER
@@ -222,6 +222,21 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
+exports.getAllCourses=async(req,res)=>{
+  try {
+    const courses=await Course.find().sort({createdAt:-1});
+    return res.status(200).json({
+      success:true,
+      total:courses.length,
+      courses
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success:false,
+      error:err.message
+    });
+  }
+};
 
 /* ==========================
    GET COURSE BY ID

@@ -8,21 +8,11 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-    try{
-    const res = forgotPassword(email).unwrap();
-    console.log(res);
-    alert("Password reset link sent to your email");
-    }
-    catch(err){
-      console.log(err); 
-=======
     try {
       await forgotPassword(email).unwrap();
       alert("Password reset link sent to your email");
     } catch (err) {
       console.log(err);
->>>>>>> c023ccea86f75e3b746c5796d622bbf787ba5727
     }
   };
 
