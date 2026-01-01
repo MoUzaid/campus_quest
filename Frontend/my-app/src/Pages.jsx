@@ -26,11 +26,11 @@ import ForgotPassword from "./pages/student/auth/ForgotPassword";
 import ResetPassword from "./pages/student/auth/ResetPassword";
 import Profile from "./pages/student/profile/Profile";
 import Certificates from "./pages/student/profile/Certificates";
+import Otp from "./pages/student/auth/Otp";
 
 /* QUIZ */
 import QuizDetails from "./pages/student/quiz/QuizDetails";
 import QuizAttempt from "./pages/student/quiz/QuizAttempt";
-/* ✅ ADDED */
 import FeedbackPage from "./pages/student/quiz/FeedbackPage";
 
 /* EXTRA */
@@ -38,6 +38,7 @@ import CreateQuiz from "./pages/CreateQuiz";
 import QuestionsPage from "./pages/QuestionsPage";
 import AI from "./pages/AI";
 import Home from "./pages/Home";
+import SeeAll from "./pages/student/dashboard/SeeAll";
 
 const Unauthorized = () => <h2>Access Denied</h2>;
 
@@ -46,10 +47,30 @@ const Pages = () => {
 
   return (
     <Routes>
-      {/* ROOT */}
-      <Route path="/" element={<Login />} />
 
-      {/* SUPER ADMIN */}
+      {/* ✅ ROOT → ROLE BASED REDIRECT */}
+     <Route
+  path="/"
+  element={
+    isAuthenticated ? (
+      role === "student" ? (
+        <Navigate to="/student/dashboard" replace />
+      ) : role === "faculty" ? (
+        <Navigate to="/faculty/dashboard" replace />
+      ) : role === "superadmin" ? (
+        <Navigate to="/superadmin/dashboard" replace />
+      ) : (
+        <Navigate to="/unauthorized" replace />
+      )
+    ) : (
+      <Login />
+    )
+  }
+/>
+
+<Route path="/login" element={<Login />} />
+
+      {/* ================= SUPER ADMIN ================= */}
       <Route
         path="/superadmin/dashboard"
         element={
@@ -58,38 +79,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/superadmin/add-faculty"
-        element={
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AddFaculty />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/superadmin/profile"
-        element={
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <HodProfile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/superadmin/course-management"
-        element={
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <CourseManagement />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/superadmin/courses/add"
-        element={
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AddCourse />
-          </ProtectedRoute>
-        }
-      />
+
       <Route
         path="/superadmin/add-faculty"
         element={
@@ -99,7 +89,34 @@ const Pages = () => {
         }
       />
 
-      {/* SHARED (ADMIN + FACULTY) */}
+      <Route
+        path="/superadmin/profile"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <HodProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course-management"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <CourseManagement />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/courses/add"
+        element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <AddCourse />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ================= SHARED ================= */}
       <Route
         path="/view-faculty"
         element={
@@ -108,6 +125,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/students"
         element={
@@ -117,7 +135,7 @@ const Pages = () => {
         }
       />
 
-      {/* FACULTY */}
+      {/* ================= FACULTY ================= */}
       <Route
         path="/faculty/dashboard"
         element={
@@ -126,6 +144,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/faculty/profile"
         element={
@@ -135,13 +154,15 @@ const Pages = () => {
         }
       />
 
-      {/* STUDENT AUTH */}
+      {/* ================= STUDENT AUTH ================= */}
       <Route path="/student/login" element={<StudentLogin />} />
       <Route path="/student/signup" element={<Signup />} />
       <Route path="/student/forgot-password" element={<ForgotPassword />} />
       <Route path="/student/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/student/see-all" element={<SeeAll/>}/>
+      <Route path="/student/verify-email" element={<Otp />} />
 
-      {/* STUDENT DASHBOARD */}
+      {/* ================= STUDENT ================= */}
       <Route
         path="/student/dashboard"
         element={
@@ -150,6 +171,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/student/profile"
         element={
@@ -158,6 +180,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/student/certificates"
         element={
@@ -167,7 +190,7 @@ const Pages = () => {
         }
       />
 
-      {/* QUIZ */}
+      {/* ================= QUIZ ================= */}
       <Route
         path="/student/quiz/:quizId"
         element={
@@ -176,6 +199,7 @@ const Pages = () => {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/student/quiz/attempt/:quizId"
         element={
@@ -185,7 +209,6 @@ const Pages = () => {
         }
       />
 
-      {/* ✅ ADDED FEEDBACK ROUTE */}
       <Route
         path="/student/quiz/:quizId/feedback"
         element={
@@ -195,14 +218,15 @@ const Pages = () => {
         }
       />
 
-      {/* EXTRA */}
+      {/* ================= EXTRA ================= */}
       <Route path="/create-quiz" element={<CreateQuiz />} />
       <Route path="/questions" element={<QuestionsPage />} />
       <Route path="/chat" element={<AI />} />
       <Route path="/home" element={<Home />} />
 
-      {/* FALLBACK */}
+      {/* ================= FALLBACK ================= */}
       <Route path="/unauthorized" element={<Unauthorized />} />
+
     </Routes>
   );
 };

@@ -7,6 +7,7 @@ const sendEmail = require("../utils/sendEmail");
 exports.registerStudent = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log(req.body)
 
     if (!email.includes("@student.iul.ac.in")) {
       return res.status(400).json({ message: "Enter University Email" });

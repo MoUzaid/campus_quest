@@ -298,16 +298,26 @@ const QuizCtrl = {
             res.status(500).json({ message: 'Error fetching attempted quizzes', error: error.message });
         }   
     },
-    getAllAttemptedQuizzes: async (req, res) => {
-        try{
-            const studentId =req.user._id;
-            const attemptedQuizzes = (await QuizAttempt.find({student:studentId}).populate('quizId', 'title subject questions leaderboard')).sort({attemptedAt: -1});
-            res.status(200).json(attemptedQuizzes);
-        }
-        catch (error) {
-            res.status(500).json({ message: 'Error fetching attempted quizzes', error: error.message });
-        }
-    },
+  getAllAttemptedQuizzes: async (req, res) => {
+  try {
+    const studentId = req.user._id;
+
+    const attemptedQuizzes = await QuizAttempt.find({
+      student: studentId
+    })
+      .populate("quizId", "title subject")
+      .sort({ attemptedAt: -1 }); 
+
+    res.status(200).json(attemptedQuizzes);
+  } catch (error) {
+    console.error("Error fetching attempted quizzes:", error);
+    res.status(500).json({
+      message: "Error fetching attempted quizzes",
+      error: error.message,
+    });
+  }
+},
+
   generateCertificate: async (req, res) => {
   try {
     const data = req.body;
@@ -416,7 +426,17 @@ QuizRegisteredStudents:async(req,res)=>{
         message:"Registered Students",
         registeredStudent:registerStu,
     })
-}
+},
+getStudentsRegisteredQuizzes:async(req,res)=>{
+    try {
+         const studentId = req.user._id;
+         const registeredQuizzes = await Quiz.find({ registeredStudents: studentId });
+        res.status(200).json(registeredQuizzes);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching registered quizzes", error: error.message });
+    }
+},
 };
 
 module.exports = QuizCtrl;

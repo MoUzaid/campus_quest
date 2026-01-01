@@ -16,7 +16,7 @@ export const quizApi = createApi({
       query: (formData) => ({
         url: "/create-quiz",
         method: "POST",
-        body: formData, // FormData (multer upload.any)
+        body: formData, 
       }),
       invalidatesTags: ["Quiz"],
     }),
@@ -52,12 +52,29 @@ export const quizApi = createApi({
       invalidatesTags: ["Quiz"],
     }),
 
+    attemptedQuizByStudent: builder.query({
+      query: (quizId) => `/${quizId}/student`,
+      providesTags: (result, error, quizId) => [
+        { type: "Quiz", id: quizId },
+      ],
+    }),
+
+    getAllAttemptedQuizzes: builder.query({
+      query: () => '/attempted-quizzes',
+      providesTags: ["Quiz"],
+    }),
+
     registerStudentForQuiz: builder.mutation({
       query: ({ quizId, data }) => ({
         url: `/${quizId}/register-student`,
         method: "POST",
         body: data,
       }),
+    }),
+ 
+    getRegisteredQuizzesForStudent: builder.query({
+      query: () => `/my-registered-quizzes`,
+      providesTags: ["Quiz"],
     }),
 
     submitQuiz: builder.mutation({
@@ -103,23 +120,6 @@ export const quizApi = createApi({
       query: (departmentName) => `/department/${departmentName}`,
       providesTags: ["Quiz"],
     }),
-    initializeQuestionsFromAI(state, action) {
-  const aiQuestions = action.payload;
-
-  state.totalQuestions = aiQuestions.length;
-
-  state.questions = aiQuestions.map((q) => ({
-    questionText: q.questionText || "",
-    imageUrl: [],
-    options: q.options || ["", "", "", ""],
-    correctAnswer: q.correctAnswer || "",
-    marks: state.marksPerQuestion,
-    negativeMarks: state.negativeMarksPerQuestion,
-  }));
-
-  state.totalMarks =
-    state.totalQuestions * state.marksPerQuestion;
-}
   }),
 });
 
@@ -130,7 +130,10 @@ export const {
   useLazyGetQuizByIdQuery,
   useUpdateQuizByIdMutation,
   useDeleteQuizByIdMutation,
+  useAttemptedQuizByStudentQuery,
+  useGetAllAttemptedQuizzesQuery,
   useRegisterStudentForQuizMutation,
+  useGetRegisteredQuizzesForStudentQuery,
   useSubmitQuizMutation,
 
   useStartQuizAttemptMutation,

@@ -1,8 +1,10 @@
 import "./dashboard.css";
 
 import OngoingQuizzes from "./components/OngoingQuizzes";
-import UpcomingQuizzes from "./components/UpcomingQuizzes";
+import RegisteredQuizzes from "./components/RegisteredQuizzes";
 import PreviousQuizzes from "./components/PreviousQuizzes";
+import { FaUserCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -11,13 +13,13 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <h1 className="dashboard-title">Student Dashboard</h1>
 
-        <a href="/student/profile" className="profile-link">
-          View Profile
-        </a>
+        <Link to="/student/profile" className="profile-link">
+         View Profile  <FaUserCircle size={30} />
+        </Link>
       </div>
 
       <OngoingQuizzes />
-      <UpcomingQuizzes />
+      <RegisteredQuizzes />
       <PreviousQuizzes />
     </div>
   );
