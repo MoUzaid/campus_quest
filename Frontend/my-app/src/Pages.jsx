@@ -28,6 +28,8 @@ import Profile from "./pages/student/profile/Profile";
 import Certificates from "./pages/student/profile/Certificates";
 import Otp from "./pages/student/auth/Otp";
 import Leaderboard from "./pages/student/quiz/Leaderboard";
+import SeeAll from "./pages/student/dashboard/SeeAll";
+import SeeAllPrevious from "./pages/student/dashboard/SeeAllPrevious";
 
 /* QUIZ */
 import QuizDetails from "./pages/student/quiz/QuizDetails";
@@ -35,13 +37,13 @@ import QuizAttempt from "./pages/student/quiz/QuizAttempt";
 import FeedbackPage from "./pages/student/quiz/FeedbackPage";
 import QuizWaiting from "./pages/student/quiz/QuizWaiting";
 import QuizReview from "./pages/student/quiz/QuizReview";
+import QuizReviewMock from "./pages/student/quiz/QuizReviewMock";
+
 /* EXTRA */
 import CreateQuiz from "./pages/CreateQuiz";
 import QuestionsPage from "./pages/QuestionsPage";
 import AI from "./pages/AI";
 import Home from "./pages/Home";
-import SeeAll from "./pages/student/dashboard/SeeAll";
-import SeeAllPrevious from "./pages/student/dashboard/SeeAllPrevious";
 
 const Unauthorized = () => <h2>Access Denied</h2>;
 
@@ -50,28 +52,27 @@ const Pages = () => {
 
   return (
     <Routes>
+      {/* ROOT */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            role === "student" ? (
+              <Navigate to="/student/dashboard" replace />
+            ) : role === "faculty" ? (
+              <Navigate to="/faculty/dashboard" replace />
+            ) : role === "superadmin" ? (
+              <Navigate to="/superadmin/dashboard" replace />
+            ) : (
+              <Navigate to="/unauthorized" replace />
+            )
+          ) : (
+            <Login />
+          )
+        }
+      />
 
-      {/* ✅ ROOT → ROLE BASED REDIRECT */}
-     <Route
-  path="/"
-  element={
-    isAuthenticated ? (
-      role === "student" ? (
-        <Navigate to="/student/dashboard" replace />
-      ) : role === "faculty" ? (
-        <Navigate to="/faculty/dashboard" replace />
-      ) : role === "superadmin" ? (
-        <Navigate to="/superadmin/dashboard" replace />
-      ) : (
-        <Navigate to="/unauthorized" replace />
-      )
-    ) : (
-      <Login />
-    )
-  }
-/>
-
-<Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />} />
 
       {/* ================= SUPER ADMIN ================= */}
       <Route
@@ -162,7 +163,6 @@ const Pages = () => {
       <Route path="/student/signup" element={<Signup />} />
       <Route path="/student/forgot-password" element={<ForgotPassword />} />
       <Route path="/student/reset-password/:token" element={<ResetPassword />} />
-      <Route path="/student/see-all" element={<SeeAll/>}/>
       <Route path="/student/verify-email" element={<Otp />} />
 
       {/* ================= STUDENT ================= */}
@@ -193,36 +193,30 @@ const Pages = () => {
         }
       />
 
-      {/* ================= QUIZ ================= */}
+      {/* ================= SEE ALL ================= */}
+      <Route
+        path="/student/see-all"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <SeeAll />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
-  path="/student/quiz/waiting/:quizId"
-  element={<QuizWaiting />}
-/>
+        path="/student/see-all-prev"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <SeeAllPrevious />
+          </ProtectedRoute>
+        }
+      />
 
-<Route 
-path="/student/see-all-prev"
-element={
-<ProtectedRoute allowedRoles={["student"]}>
-  <SeeAllPrevious/>
-</ProtectedRoute>
-}
-/>
-
-<Route  path="/leaderboard"
-element={
-<Leaderboard />
-}
-/>
-
-<Route 
-  path="/student/quiz/review"
-  element={
-    <ProtectedRoute allowedRoles={["student"]}>
-      <QuizReview />
-    </ProtectedRoute>
-  }
-/>
+      {/* ================= QUIZ ================= */}
+      <Route
+        path="/student/quiz/waiting/:quizId"
+        element={<QuizWaiting />}
+      />
 
       <Route
         path="/student/quiz/:quizId"
@@ -251,6 +245,25 @@ element={
         }
       />
 
+      {/* 🚀 REAL REVIEW */}
+      <Route
+        path="/student/quiz/review"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <QuizReview />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 🧪 MOCK REVIEW (DEV ONLY) */}
+      <Route
+        path="/student/quiz/review-mock"
+        element={<QuizReviewMock />}
+      />
+
+      {/* ================= LEADERBOARD ================= */}
+      <Route path="/leaderboard" element={<Leaderboard />} />
+
       {/* ================= EXTRA ================= */}
       <Route path="/create-quiz" element={<CreateQuiz />} />
       <Route path="/questions" element={<QuestionsPage />} />
@@ -259,7 +272,6 @@ element={
 
       {/* ================= FALLBACK ================= */}
       <Route path="/unauthorized" element={<Unauthorized />} />
-
     </Routes>
   );
 };
