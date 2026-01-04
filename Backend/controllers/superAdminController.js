@@ -288,3 +288,122 @@ exports.getSuperAdminProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+const QuizAttempt = require("../models/QuizAttemptModel");
+
+exports.getDepartmentAttemptedQuizzes = async (req, res) => {
+  try {
+    const superAdminDepartment = req.user.department;
+
+    const attempts = await QuizAttempt.find()
+      .populate({
+        path: "quizId",
+        select: "title subject department createdBy",
+      })
+      .populate("student", "name enrollmentNumber")
+      .sort({ attemptedAt: -1 });
+
+    // 🔥 FILTER BY DEPARTMENT
+    const filteredAttempts = attempts.filter(
+      (attempt) =>
+        attempt.quizId &&
+        attempt.quizId.department === superAdminDepartment
+    );
+
+    res.status(200).json(filteredAttempts);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching department attempted quizzes",
+      error: error.message,
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.getStudentAttemptedQuizzes = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const department = req.user.department;
+
+    const attempts = await QuizAttempt.find({ student: studentId })
+      .populate({
+        path: "quizId",
+        select: "title subject department totalMarks durationMinutes",
+      })
+      .populate({
+        path: "student",
+        select: "name enrollmentNumber email",
+      })
+      .sort({ attemptedAt: -1 });
+
+    // 🔐 department security
+    const filteredAttempts = attempts.filter(
+      (a) => a.quizId && a.quizId.department === department
+    );
+
+    res.status(200).json({
+      student: filteredAttempts[0]?.student || null,
+      department,
+      totalQuizzesAttempted: filteredAttempts.length,
+      attempts: filteredAttempts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch student attempts",
+      error: error.message,
+    });
+  }
+};
+
+
+exports.getQuizAttemptsAnalytics = async (req, res) => {
+  try {
+    const { quizId } = req.params;
+
+    const attempts = await QuizAttempt.find({ quizId })
+      .populate("student", "name email gender studentId department group course") // ✅ use studentId instead of rollNo
+  .sort({ attemptedAt: -1 });
+      
+
+    const totalAttempts = attempts.length;
+
+    const maleCount = attempts.filter(
+      a => a.student?.gender === "Male"
+    ).length;
+
+    const femaleCount = attempts.filter(
+      a => a.student?.gender === "Female"
+    ).length;
+
+    res.json({
+      totalAttempts,
+      maleCount,
+      femaleCount,
+      attempts
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

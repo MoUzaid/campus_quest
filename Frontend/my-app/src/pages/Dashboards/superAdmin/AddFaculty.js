@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -33,23 +29,33 @@ const AddFaculty = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Academic departments and designations
+  // Academic departments with full name and short code
   const departments = [
-    "Computer Science & Engineering",
-    "Information Technology",
-    "Electronics & Communication Engineering",
-    "Mechanical Engineering",
-    "Civil Engineering",
-    "Electrical Engineering",
-    "Business Administration",
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "English & Literature",
-    "History",
-    "Economics",
-    "Psychology"
-  ];
+  { code: "CA", name: "Computer Applications" },
+  { code: "CS", name: "Computer Science" },
+  { code: "CSE", name: "Computer Science & Engineering" },
+  { code: "IT", name: "Information Technology" },
+  { code: "AI", name: "Artificial Intelligence" },
+  { code: "DS", name: "Data Science" },
+
+  { code: "ME", name: "Mechanical Engineering" },
+  { code: "CE", name: "Civil Engineering" },
+  { code: "EE", name: "Electrical Engineering" },
+  { code: "ECE", name: "Electronics & Communication Engineering" },
+
+  { code: "BBA", name: "Business Administration" },
+  { code: "MBA", name: "Master of Business Administration" },
+  { code: "BCom", name: "Commerce" },
+
+  { code: "MATH", name: "Mathematics" },
+  { code: "PHY", name: "Physics" },
+  { code: "CHEM", name: "Chemistry" },
+  { code: "BIO", name: "Biology" },
+
+  { code: "ECO", name: "Economics" },
+  { code: "ENG", name: "English" },
+  { code: "LAW", name: "Law" }
+];
 
   const designations = [
     "Professor",
@@ -72,6 +78,14 @@ const AddFaculty = () => {
         ...formData,
         [name]: numbers.slice(0, 10)
       });
+    } else if (name === "department") {
+      // Find the department object to get the code
+      const selectedDept = departments.find(dept => dept.name === value);
+      // Store the code in formData for backend
+      setFormData({
+        ...formData,
+        [name]: selectedDept ? selectedDept.code : ""
+      });
     } else {
       setFormData({
         ...formData,
@@ -85,6 +99,13 @@ const AddFaculty = () => {
     setLoading(true);
     setMessage({ type: "", text: "" });
 
+    // Get the selected department name for display purposes
+    const selectedDept = departments.find(dept => dept.code === formData.department);
+    const submissionData = {
+      ...formData,
+      departmentName: selectedDept ? selectedDept.name : ""
+    };
+
     try {
       const res = await fetch("http://localhost:5000/api/faculty/add", {
         method: "POST",
@@ -92,7 +113,7 @@ const AddFaculty = () => {
           "Content-Type": "application/json"
         },
         credentials: "include",
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData) // This sends the department code
       });
 
       const data = await res.json();
@@ -140,6 +161,12 @@ const AddFaculty = () => {
       ...formData,
       password: password
     });
+  };
+
+  // Get the currently selected department name for display
+  const getSelectedDepartmentName = () => {
+    const selectedDept = departments.find(dept => dept.code === formData.department);
+    return selectedDept ? selectedDept.name : "";
   };
 
   return (
@@ -315,15 +342,22 @@ const AddFaculty = () => {
                 <select
                   id="department"
                   name="department"
-                  value={formData.department}
-                  onChange={handleChange}
+                  value={getSelectedDepartmentName()} // Display full name
+                  onChange={(e) => {
+                    // We need to handle this differently since we're displaying full name
+                    const selectedDept = departments.find(dept => dept.name === e.target.value);
+                    setFormData({
+                      ...formData,
+                      department: selectedDept ? selectedDept.code : ""
+                    });
+                  }}
                   required
                   className="formal-select"
                 >
                   <option value="">Select Academic Department</option>
                   {departments.map((dept, index) => (
-                    <option key={index} value={dept}>
-                      {dept}
+                    <option key={index} value={dept.name}>
+                      {dept.name}
                     </option>
                   ))}
                 </select>

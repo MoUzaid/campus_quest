@@ -1,13 +1,12 @@
 
-
-
-
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../models/superAdminModel");
 
 const authSuperAdmin = async (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken;
+    const token =
+      req.cookies?.accessToken ||       // browser
+      req.headers.accesstoken;           // thunder / postman
 
     if (!token) {
       return res.status(401).json({
@@ -25,10 +24,8 @@ const authSuperAdmin = async (req, res, next) => {
       });
     }
 
-    // ✅ FULL OBJECT (for profile)
     req.superAdmin = superAdmin;
 
-    // ✅ LIGHT OBJECT (for authorization / filters)
     req.user = {
       id: superAdmin._id,
       role: superAdmin.role || "superadmin",
@@ -44,3 +41,13 @@ const authSuperAdmin = async (req, res, next) => {
 };
 
 module.exports = authSuperAdmin;
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,71 @@
+/* StudentRegisteredQuizzes.css */
+/* Minimal custom CSS - most styling is handled by Material-UI */
+
+.student-dashboard {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .MuiTable-root {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Animation for cards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.MuiCard-root {
+  animation: fadeIn 0.3s ease-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* Status indicators */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-attempted { background-color: #4caf50; }
+.status-missed { background-color: #f44336; }
+-status-active { background-color: #2196f3; }
+.status-upcoming { background-color: #ff9800; }

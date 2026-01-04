@@ -43,9 +43,8 @@ const Login = () => {
         navigate("/superadmin");
       } else if (data.role === "faculty") {
         navigate("/faculty");
-      } else if (data.role === "student") {
-        navigate("/student");
-      } else {
+      }
+       else {
         setError("Unknown role");
       }
 

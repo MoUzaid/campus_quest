@@ -11,12 +11,13 @@ const auth = require("../middleware/auth");
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
+router.get("/me", auth, studentController.getStudentProfile);
 
 // VERIFY EMAIL (OTP)
 router.post("/verify-email", studentController.verifyEmail);
 
 // LOGIN
-// router.post("/login", studentController.loginStudent);
+router.post("/login", studentController.loginStudent);
 
 // REFRESH ACCESS TOKEN
 router.post("/refresh", studentController.refreshToken);
@@ -31,12 +32,19 @@ router.post("/reset-password", studentController.resetPassword);
 
 // GET ALL STUDENTS
 router.get("/", authFacultyOrSuperAdmin, studentController.getAllStudents);
-
+// GET /students/registered
+router.get("/registered-students", authFacultyOrSuperAdmin, studentController.getRegisteredStudents);
+router.get("/students-quizzes/:id", authFacultyOrSuperAdmin,studentController.getStudentQuizzes);
 // GET ONE STUDENT
 router.get("/:id", authFacultyOrSuperAdmin, studentController.getStudent);
 
 // DELETE STUDENT
 router.delete("/:id", authFacultyOrSuperAdmin, studentController.deleteStudent);
+
+// router.get("/:id", (req, res) => {
+//   console.log("Student ID requested:", req.params.id);
+//   res.json({ ok: true });
+// });
 
 /* ================= FEEDBACK ================= */
 

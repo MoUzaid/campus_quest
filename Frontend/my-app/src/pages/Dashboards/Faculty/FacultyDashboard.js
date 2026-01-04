@@ -54,21 +54,36 @@ const FacultyDashboard = () => {
         </div>
 
         <div className="option-card"
-          onClick={() => (window.location.href = "/students")}>
+          onClick={() => (window.location.href = "/faculty/students")}>
           <FaUserGraduate className="option-icon" />
           
           <span> view-Students</span>
         </div>
 
-        <div className="option-card">
+        {/* <div className="option-card">
           <FaClipboardList className="option-icon" />
           <span>Quizzes</span>
-        </div>
+        </div> */}
 
-        <div className="option-card">
-          <FaChartBar className="option-icon" />
-          <span>Analytics</span>
-        </div>
+
+        <div
+      className="option-card"
+      onClick={() => navigate("/faculty/my-quizzes")} // ✅ navigate to ViewQuiz
+      style={{ cursor: "pointer" }} // ✅ makes it look clickable
+    >
+      <FaClipboardList className="option-icon" />
+      <span>Quizzes</span>
+    </div>
+
+       <div
+  className="option-card"
+  onClick={() => navigate("/faculty/analytics")}
+  style={{ cursor: "pointer" }}
+>
+  <FaChartBar className="option-icon" />
+  <span>Analytics</span>
+</div>
+
       </div>
 
       {/* RECENT ACTIVITY */}

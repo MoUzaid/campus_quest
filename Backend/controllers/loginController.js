@@ -1,10 +1,11 @@
 
 
 
+
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const Student = require("../models/studentModel");
 const Faculty = require("../models/FacultyModel");
 const SuperAdmin = require("../models/superAdminModel");
 
@@ -25,36 +26,26 @@ const loginController = async (req, res) => {
       if (user) role = "faculty";
     }
 
-    // 🔍 Student
-    if (!user) {
-      user = await Student.findOne({ rollNo: userId });
-      if (user) role = "student";
-    }
-
+    // ❌ No student login here anymore
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
+    // 🔐 Password check
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 🔐 ACCESS TOKEN (NO DEPARTMENT RESTRICTION)
+    // 🎟️ Tokens
     const accessToken = jwt.sign(
-      {
-        id: user._id,
-        role
-      },
+      { id: user._id, role },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      {
-        id: user._id,
-        role
-      },
+      { id: user._id, role },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
     );
@@ -78,7 +69,7 @@ const loginController = async (req, res) => {
       role,
       user: {
         id: user._id,
-        name: user.name || user.username
+        name: user.username || user.name
       }
     });
 
@@ -89,5 +80,3 @@ const loginController = async (req, res) => {
 };
 
 module.exports = loginController;
-
-

@@ -6,6 +6,9 @@ const quizAttemptSchema = new mongoose.Schema({
         ref: 'Quiz',
         required: true
     },
+
+ 
+
     student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
@@ -37,7 +40,11 @@ const quizAttemptSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+
+
+
 });
+
 
 const QuizAttempt = mongoose.model('QuizAttempt', quizAttemptSchema);
 module.exports = QuizAttempt;

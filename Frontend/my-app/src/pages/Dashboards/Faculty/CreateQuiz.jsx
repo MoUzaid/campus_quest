@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./styles/CreateQuiz.css";
+import "./CreateQuiz.css";
 import Select from "react-select";
 
 const CreateQuiz = () => {

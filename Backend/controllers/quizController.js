@@ -8,9 +8,11 @@ const cloudinary = require('../config/cloudinary');
 const Faculty = require('../models/FacultyModel');
 const superAdmin = require('../models/superAdminModel');
 const generateCertificatePDF = require('../utils/generateCertificatePDF');
+const  {createFacultyActivity}  = require("./FacultyActivityController");
 const uploadCertificateToCloudinary = require('../utils/uploadCertificate');
 
-
+//  update
+// req.user.id t->req.user._id
 
 
 const QuizCtrl = {
@@ -57,11 +59,10 @@ const QuizCtrl = {
                 startTime,
                 endTime,
                 durationMinutes,
-                createdBy:req.faculty.id,
+                createdBy:req.user._id,
             });
-            await newQuiz.save();
-            console.log(req.faculty.id);    
-            const facultyId = req.faculty.id;
+            await newQuiz.save(); 
+            const facultyId =req.user._id;
             const newFacultyQuiz = await Faculty.findById(facultyId);
             newFacultyQuiz.createdQuizzes.push(newQuiz._id);
             await newFacultyQuiz.save();
@@ -82,6 +83,13 @@ const QuizCtrl = {
    <p>End Time: ${new Date(endTime).toLocaleString()}</p> 
     <p>Duration: ${durationMinutes} minutes</p>
     `);
+
+    await createFacultyActivity({
+        facultyId: req.user._id,
+        action: "QUIZ_CREATED",
+        message: `Created quiz "${newQuiz.title}"`,
+        performedBy: req.user.name
+      });
             }
             else{
                 const query = {
@@ -108,15 +116,56 @@ const QuizCtrl = {
         } catch (error) {
             res.status(500).json({ message: 'Error creating quiz', error: error.message });
         }
+
+
+
+
+
+
     },
+    
+
+// AFTER Quiz.create(...)
+
+
+
+     
     getAllQuizzes: async (req, res) => {
+    try {
+        // Get the department from the authenticated user
+        const userDepartment = req.user.department;
+
+        // Fetch only quizzes for this department
+        const quizzes = await Quiz.find({ department: userDepartment });
+
+        // Calculate status dynamically
+        const now = new Date();
+        const formattedQuizzes = quizzes.map(q => {
+            let status = "upcoming";
+            if (new Date(q.startTime) <= now && new Date(q.endTime) >= now) {
+                status = "ongoing";
+            } else if (new Date(q.endTime) < now) {
+                status = "completed";
+            }
+            return { ...q._doc, status };
+        });
+
+        res.status(200).json(formattedQuizzes);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching quizzes', error: error.message });
+    }
+},
+
+
+     getFacultyQuizzes: async (req, res) => {
         try {
-            const quizzes = await Quiz.find();
+            const quizzes = await Quiz.find({ createdBy: req.user._id }); // ✅ CHANGED
             res.status(200).json(quizzes);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching quizzes', error: error.message });
         }
     },
+    
     getQuizById: async (req, res) => {
         try {
             const { quizId } = req.params;
@@ -136,11 +185,28 @@ const QuizCtrl = {
             const updatedQuiz = await Quiz.findByIdAndUpdate(quizId, req.body, { new: true });
             if (!updatedQuiz) {
                 return res.status(404).json({ message: 'Quiz not found' });
+
+
             }
+             await createFacultyActivity({
+        facultyId: req.user._id,
+        action: "QUIZ_UPDATED",
+        message: `Updated quiz "${updatedQuiz.title}"`,
+        performedBy: req.user.name
+      });
             res.status(200).json({ message: 'Quiz updated successfully', quiz: updatedQuiz });
         } catch (error) {
             res.status(500).json({ message: 'Error updating quiz', error: error.message });
         }
+
+
+        await createFacultyActivity({
+  facultyId: req.user._id,
+  action: "QUIZ_UPDATED",
+  message: `Updated quiz "${quiz.title}"`,
+  performedBy: req.user.name
+});
+
     },
 
     deleteQuizById: async (req, res) => {
@@ -149,16 +215,33 @@ const QuizCtrl = {
             const deletedQuiz = await Quiz.findByIdAndDelete(quizId);
             if (!deletedQuiz) {
                 return res.status(404).json({ message: 'Quiz not found' });
+
             }
+                await createFacultyActivity({
+        facultyId: req.user._id,
+        action: "QUIZ_DELETED",
+        message: `Deleted quiz "${deletedQuiz.title}"`,
+        performedBy: req.user.name
+
+      });
+            
             res.status(200).json({ message: 'Quiz deleted successfully' });
         } catch (error) {
             res.status(500).json({ message: 'Error deleting quiz', error: error.message });
         }
+        await createFacultyActivity({
+  facultyId: req.user._id,
+  action: "QUIZ_DELETED",
+  message: `Deleted quiz "${quiz.title}"`,
+  performedBy: req.user.name
+});
+
     },
+
     registerStudentForQuiz: async (req, res) => {
         try {
             const { quizId } = req.params;
-            const studentId = req.user.id;
+            const studentId = req.user._id;
             const quizToUpdate = await Quiz.findById(quizId);
             if (!quizToUpdate) {
                 return res.status(404).json({ message: 'Quiz not found' });
@@ -186,7 +269,7 @@ const QuizCtrl = {
     QuizAttempt: async (req, res) => {
         try {
             const { quizId } = req.params;
-            const studentId = req.user.id;
+            const studentId = req.user._id;
             const quiz = await Quiz.findById(quizId);
             if (!quiz) {
                 return res.status(404).json({ message: 'Quiz not found' });
@@ -245,6 +328,14 @@ const QuizCtrl = {
             timeTaken
         });
 
+        await createFacultyActivity({
+  facultyId: quiz.createdBy,
+  action: "STUDENT_ATTEMPTED",
+  message: `${student.name} attempted "${quiz.title}"`,
+  performedBy: "System"
+});
+
+
         await Leaderboard.create({
             quizId,
             userId: studentId,
@@ -277,7 +368,7 @@ const QuizCtrl = {
 
     getAttemptedQuizByStudent: async (req, res) => {
         try {
-            const studentId = req.user.id;
+            const studentId = req.user._id;
             const {quizId} = req.params;
             const attemptedQuiz = await QuizAttempt.find({ student: studentId, quizId: quizId }).populate('quizId', 'title subject questions leaderboard');
             res.status(200).json(attemptedQuiz);
@@ -285,9 +376,11 @@ const QuizCtrl = {
             res.status(500).json({ message: 'Error fetching attempted quizzes', error: error.message });
         }   
     },
+
+
     getAllAttemptedQuizzes: async (req, res) => {
         try{
-            const studentId = req.user.id;
+            const studentId =req.user._id;
             const attemptedQuizzes = (await QuizAttempt.find({student:studentId}).populate('quizId', 'title subject questions leaderboard')).sort({attemptedAt: -1});
             res.status(200).json(attemptedQuizzes);
         }

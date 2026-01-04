@@ -7,7 +7,10 @@ const {
   forgotPassword,
   resetPassword,
   changePassword,
-  getSuperAdminProfile
+  getSuperAdminProfile,
+  getDepartmentAttemptedQuizzes,
+  getStudentAttemptedQuizzes,
+  getQuizAttemptsAnalytics
 } = require("../controllers/superAdminController");
 
 
@@ -29,5 +32,23 @@ router.get("/me", authSuperAdmin, getSuperAdminProfile);
 
 // ✔ HOD → Course / Faculty Stats
 
+router.get(
+  "/attempted-quizzes",
+  authSuperAdmin,
+  getDepartmentAttemptedQuizzes
+);
 
+
+router.get(
+  "/attempted-quizzes/student/:studentId",
+  authSuperAdmin,
+  getStudentAttemptedQuizzes
+);
+
+
+router.get(
+  "/quiz/:quizId/attempts",
+  authSuperAdmin,
+  getQuizAttemptsAnalytics
+);
 module.exports = router;

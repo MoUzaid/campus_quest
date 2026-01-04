@@ -21,7 +21,7 @@ const server = http.createServer(app);
 
 
 //Port 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(express.json());
@@ -31,10 +31,18 @@ app.use(cors({
   origin: "http://localhost:3000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization","cache-control","pragma"]
 }));
 
 
+
+// app.use("/api/faculty-activity", require("./FacultyActivityRoutes"));
+
+
+// analytics routes
+app.use("/api/superadmin", require("./routers/superAdminAnalyticsRoutes"));
+
+app.use("/api", require("./routers/FacultyAnalyticsRoutes"));
 //Routes 
 app.use('/students', studentRoutes);
 app.use('/quiz', quizRoutes);
@@ -43,6 +51,8 @@ app.use('/api/course', courseRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use("/api", authRoutes);
+
+app.use("/api/activity", require("./routers/activityRoutes"));
 
 
 
@@ -53,6 +63,7 @@ const io = new Server(server, {
         origin: "http://localhost:3000"
     }
 });
+
 
 // Socket events
 io.on("connection", (socket) => {
@@ -81,9 +92,14 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB connected"))
 .catch(err => console.log("MongoDB error:", err));
 
+
 // Starting the server
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+
+
 
 

@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 const roleToMeEndpoint = {
   superadmin: "http://localhost:5000/api/superadmin/me",
   faculty: "http://localhost:5000/api/faculty/me",
-  student: "http://localhost:5000/api/student/me"
+  student: "http://localhost:5000/students/me"
 };
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
