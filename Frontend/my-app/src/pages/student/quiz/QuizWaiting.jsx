@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import QuizTimer from "./QuizTimer";
+import { useStartQuizAttemptMutation } from "../../../redux/services/quizApi";
 import "./QuizWaiting.css";
 
 const QuizWaiting = () => {
@@ -9,10 +10,19 @@ const QuizWaiting = () => {
   const navigate = useNavigate();
 
   const { quizData, startTime, duration } = state || {};
+  const [startQuizAttempt,{isLoading,isSuccess}] = useStartQuizAttemptMutation();
 
   if (!startTime || !duration) {
     return <p style={{ color: "#fff" }}>Timer data missing</p>;
   }
+const handleStartQuiz = async () => {
+
+      navigate(`/student/quiz/attempt/${quizId}`, {
+        state: { quizData },
+      });
+
+};
+
 
   return (
     <div className="quiz-waiting-wrapper">
@@ -25,11 +35,7 @@ const QuizWaiting = () => {
           <QuizTimer
             countdownStartTime={startTime}
             countdownDuration={duration}
-            onQuizStart={() =>
-              navigate(`/student/quiz/attempt/${quizId}`, {
-                state: { quizData }
-              })
-            }
+            onQuizStart={handleStartQuiz}
           />
         </div>
 

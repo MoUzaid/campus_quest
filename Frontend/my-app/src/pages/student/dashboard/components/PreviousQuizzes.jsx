@@ -18,7 +18,7 @@ const PreviousQuizzes = () => {
       <div className="quiz-header">
         <h2 className="quiz-section-title">Previous Attempts</h2>
         {prevQuiz.length > 0 && (
-          <button className="see-all-btn" onClick={() => navigate("/student/see-all",{ state:{ quizzes:prevQuiz}})}>
+          <button className="see-all-btn" onClick={() => navigate("/student/see-all-prev",{ state:{ quizzes:prevQuiz}})}>
             See All <FaArrowRight />
           </button>
         )}
@@ -29,7 +29,7 @@ const PreviousQuizzes = () => {
       ) : (
         <div className="quiz-grid">
           {topFour.map((item) => (
-            <div key={item._id} className="quiz-tile" onClick={() => navigate("/student/quiz/review",{ state:{ quizId: item._id }})}>
+            <div key={item._id} className="quiz-tile" onClick={() => navigate("/student/quiz/review",{ state:{ quizId: item.quizId._id }})}>
               <div className="card-top">
                 <div className="quiz-icon-wrapper icon-previous">
                   <FaHistory />

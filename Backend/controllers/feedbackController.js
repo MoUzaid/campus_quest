@@ -6,8 +6,9 @@ const feedbackController = {
   /* ================= SUBMIT FEEDBACK ================= */
   submitFeedback: async (req, res) => {
     try {
+      console.log("Feedback data received:", req.body);
       const { quizId } = req.params;
-      const userId = req.user.id;
+      //const userId = req.user.id;
       const { message, rating } = req.body;
 
       // check quiz exists

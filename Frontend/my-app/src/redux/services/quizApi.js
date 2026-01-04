@@ -85,9 +85,12 @@ export const quizApi = createApi({
       }),
     }),
 
-    startQuizAttempt: builder.query({
-      query: (quizId) => `/${quizId}/start`,
-    }),
+    startQuizAttempt: builder.mutation({
+  query: (quizId) => ({
+    url: `/${quizId}/start`,
+    method: "POST",
+  }),
+}),
 
     startTimer: builder.query({
       query: (quizId) => `/${quizId}/start-timer`,

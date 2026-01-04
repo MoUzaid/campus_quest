@@ -1,47 +1,34 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import "./FeedbackPage.css";
+import { useSubmitFeedbackMutation } from "../../../redux/services/studentApi";
 
 const FeedbackPage = () => {
   const navigate = useNavigate();
   const { quizId } = useParams();
   const location = useLocation();
+  const [submitFeedback] = useSubmitFeedbackMutation();
+
   const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(0); 
 
-  const state = location.state;
+  const state = location.state || {};
+  const { totalQuestions = 0, answers = {} } = state;
 
-  /* =========================
-     SAFETY GUARD
-  ========================= */
-  if (!state || !state.answers) {
-    return (
-      <div className="feedback-page">
-        <div className="feedback-card">
-          <h2>No quiz data found</h2>
-          <p>This page cannot be accessed directly.</p>
+  const handleSubmitFeedback =async () => {
+    console.log("Quiz Feedback:", {
+      quizId,
+      rating,
+      feedback,
+    });
 
-          <button
-            className="primary"
-            onClick={() => navigate("/student/dashboard", { replace: true })}
-          >
-            Go to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
+    const res = await submitFeedback({
+      quizId,
+      rating,
+      feedback,
+    }).unwrap();
 
-  const { totalQuestions, answers } = state;
-  const answeredCount = Object.keys(answers).length;
-
-  const handleSubmitFeedback = () => {
-    if (feedback.trim()) {
-      console.log("Quiz Feedback:", {
-        quizId,
-        feedback
-      });
-      // TODO: send to backend later
-    }
+    console.log("Feedback submission response:", res.messsage);
 
     navigate("/student/dashboard", { replace: true });
   };
@@ -52,7 +39,7 @@ const FeedbackPage = () => {
         <h1>Quiz Submitted Successfully 🎉</h1>
 
         <p className="summary-text">
-          You answered <strong>{answeredCount}</strong> out of{" "}
+          You answered <strong>{Object.keys(answers).length}</strong> out of{" "}
           <strong>{totalQuestions}</strong> questions.
         </p>
 
@@ -61,6 +48,23 @@ const FeedbackPage = () => {
         </p>
 
         <div className="feedback-box">
+          <label>
+            Rate this quiz <span>(1 = Poor, 5 = Excellent)</span>
+          </label>
+
+          {/* ⭐ STAR RATING */}
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`star ${rating >= star ? "active" : ""}`}
+                onClick={() => setRating(star)}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+
           <label>
             Optional feedback <span>(helps us improve)</span>
           </label>

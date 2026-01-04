@@ -24,7 +24,7 @@ exports.registerStudent = async (req, res) => {
     const accessToken = jwt.sign(
       { id: student._id },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "1d" }
     );
 
     const refreshToken = jwt.sign(
@@ -39,7 +39,7 @@ exports.registerStudent = async (req, res) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       sameSite: "lax",
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -137,7 +137,7 @@ exports.loginStudent = async (req, res) => {
     const accessToken = jwt.sign(
       { id: student._id },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "1d" }
     );
 
     const refreshToken = jwt.sign(
@@ -152,7 +152,7 @@ exports.loginStudent = async (req, res) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       sameSite: "lax",
-      maxAge: 15 * 60 * 1000,
+      maxAge:  24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {

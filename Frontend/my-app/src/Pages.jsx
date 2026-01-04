@@ -41,6 +41,7 @@ import QuestionsPage from "./pages/QuestionsPage";
 import AI from "./pages/AI";
 import Home from "./pages/Home";
 import SeeAll from "./pages/student/dashboard/SeeAll";
+import SeeAllPrevious from "./pages/student/dashboard/SeeAllPrevious";
 
 const Unauthorized = () => <h2>Access Denied</h2>;
 
@@ -199,6 +200,15 @@ const Pages = () => {
   element={<QuizWaiting />}
 />
 
+<Route 
+path="/student/see-all-prev"
+element={
+<ProtectedRoute allowedRoles={["student"]}>
+  <SeeAllPrevious/>
+</ProtectedRoute>
+}
+/>
+
 <Route  path="/leaderboard"
 element={
 <Leaderboard />
@@ -233,7 +243,7 @@ element={
       />
 
       <Route
-        path="/student/quiz/:quizId/feedback"
+        path="/student/quiz/feedback"
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <FeedbackPage />

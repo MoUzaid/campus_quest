@@ -1,14 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
+/* ================= CONTROLLERS ================= */
 const studentController = require("../controllers/studentController");
 const feedbackController = require("../controllers/feedbackController");
 
-const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
+/* ================= MIDDLEWARE ================= */
 const authUser = require("../middleware/authUser");
+const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
 
-
-/* ================= AUTH ================= */
+/* =================================================
+   AUTH & ACCOUNT
+================================================= */
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
@@ -16,19 +19,13 @@ router.post("/register", studentController.registerStudent);
 // LOGIN
 router.post("/login", studentController.loginStudent);
 
-//get your id 
-router.get("/profile", authUser, studentController.getMe);
-
-//Logout
-router.post("/logout", authUser, studentController.logoutStudent);
-
 // VERIFY EMAIL (OTP)
 router.post("/verify-email", studentController.verifyEmail);
 
-//Resent Otp
+// RESEND OTP
 router.post("/resend-otp", studentController.resendOtp);
 
-// REFRESH ACCESS TOKEN
+// REFRESH TOKEN
 router.post("/refresh", studentController.refreshToken);
 
 // FORGOT PASSWORD
@@ -37,28 +34,47 @@ router.post("/forgot-password", studentController.forgotPassword);
 // RESET PASSWORD
 router.post("/reset-password", studentController.resetPassword);
 
-/* ================= STUDENTS ================= */
+// LOGOUT
+router.post("/logout", authUser, studentController.logoutStudent);
+
+// GET LOGGED-IN USER PROFILE
+router.get("/profile", authUser, studentController.getMe);
+
+/* =================================================
+   STUDENT MANAGEMENT (ADMIN / FACULTY)
+================================================= */
 
 // GET ALL STUDENTS
 router.get("/", studentController.getAllStudents);
 
-// GET ONE STUDENT
+// GET SINGLE STUDENT
 router.get("/:id", authFacultyOrSuperAdmin, studentController.getStudent);
 
 // DELETE STUDENT
 router.delete("/:id", authFacultyOrSuperAdmin, studentController.deleteStudent);
 
-/* ================= FEEDBACK ================= */
+/* =================================================
+   FEEDBACK
+================================================= */
 
-// SUBMIT FEEDBACK
-router.post("/feedback", authUser, feedbackController.submitFeedback);
-
-router.get(
-    "/rating/:quizId",
-    feedbackController.getQuizRating
+// SUBMIT FEEDBACK (student → quiz)
+router.post(
+  "/:quizId/feedback",
+  authUser,
+  feedbackController.submitFeedback
 );
 
-// GET ALL FEEDBACKS
-router.get("/all-feedbacks", feedbackController.getAllFeedbacks);
+// GET QUIZ RATING
+router.get(
+  "/rating/:quizId",
+  feedbackController.getQuizRating
+);
+
+// GET ALL FEEDBACKS (admin / faculty)
+router.get(
+  "/all-feedbacks",
+  authFacultyOrSuperAdmin,
+  feedbackController.getAllFeedbacks
+);
 
 module.exports = router;

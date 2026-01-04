@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
+import { FaHistory, FaCheckCircle } from "react-icons/fa";
+import { MdSubject } from "react-icons/md";
 import "./SeeAll.css";
 
-const SeeAll = () => {
+
+const SeeAllPrevious = () => {
   const [department, setDepartment] = useState("");
   const [filteredQuizzes, setFilteredQuizzes] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { quizzes = [] } = location.state || {};
-
+console.log("All Previous Quizzes:", quizzes);
   const { data: departments, isLoading: deptLoading } =
     useGetAllDepartmentsQuery();
 
   const departmentList = departments?.data?.[0]?.departmentNames || [];
-
-  const now = new Date();
 
   const handleChange = (e) => {
     const selectedDepartment = e.target.value;
@@ -28,27 +29,25 @@ const SeeAll = () => {
     }
 
     const filtered = quizzes.filter(
-      (quiz) =>
-        quiz.department?.toLowerCase().trim() ===
-          selectedDepartment.toLowerCase().trim() &&
-        new Date(quiz.endTime) > now
+      (item) =>
+        item.quizId?.department?.toLowerCase().trim() ===
+        selectedDepartment.toLowerCase().trim()
     );
 
     setFilteredQuizzes(filtered);
   };
 
-  const quizzesToShow = (department ? filteredQuizzes : quizzes).filter(
-    (quiz) => new Date(quiz.endTime) > now
-  );
+  const quizzesToShow =
+    department && filteredQuizzes.length > 0 ? filteredQuizzes : quizzes;
 
   return (
     <div className="seeall-page">
-      <h1 className="seeall-title">All Quizzes</h1>
+      <h1 className="seeall-title">Previous Attempts</h1>
 
       <select
         name="department"
-        value={department}
         onChange={handleChange}
+        value={department}
         disabled={deptLoading}
         className="seeall-select"
       >
@@ -63,26 +62,39 @@ const SeeAll = () => {
       <div className="quiz-grid">
         {quizzesToShow.length === 0 ? (
           <p style={{ color: "#9ca3af", marginTop: "20px" }}>
-            No active quizzes available
+            No attempted quizzes found
           </p>
         ) : (
-          quizzesToShow.map((quiz) => (
+          quizzesToShow.map((item) => (
             <div
-              className="quiz-card"
-              key={quiz._id}
+              key={item._id}
+              className="quiz-tile"
               onClick={() =>
-                navigate(`/student/quiz/${quiz._id}`, {
-                  state: { quizData: quiz },
+                navigate("/student/quiz/review", {
+                  state: { quizId: item._id },
                 })
               }
             >
-              <div className="quiz-top">
-                <div className="play-icon">▶</div>
-                <span className="live-badge">LIVE</span>
+              <div className="card-top">
+                <div className="quiz-icon-wrapper icon-previous">
+                  <FaHistory />
+                </div>
+                <span className="quiz-category-badge">Completed</span>
               </div>
 
-              <h3 className="quiz-title">{quiz.title}</h3>
-              <p className="quiz-subject">{quiz.subject}</p>
+              <div className="quiz-tile-title">
+                {item.quizId?.title}
+              </div>
+
+              <div className="quiz-tile-subtitle">
+                <MdSubject size={16} /> {item.quizId?.subject}
+                <FaCheckCircle
+                  className="arrow-icon"
+                  style={{ color: "#10b981" }}
+                />
+              </div>
+
+              <FaHistory className="card-decoration" />
             </div>
           ))
         )}
@@ -91,4 +103,4 @@ const SeeAll = () => {
   );
 };
 
-export default SeeAll;
+export default SeeAllPrevious;

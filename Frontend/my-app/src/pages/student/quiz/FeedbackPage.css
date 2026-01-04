@@ -181,3 +181,23 @@ button.primary:hover {
     font-size: 20px;
   }
 }
+.star-rating {
+  display: flex;
+  gap: 8px;
+  font-size: 28px;
+  cursor: pointer;
+  margin: 10px 0 20px;
+}
+
+.star {
+  color: #374151; /* gray */
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.star.active {
+  color: #facc15; /* yellow */
+}
+
+.star:hover {
+  transform: scale(1.15);
+}
