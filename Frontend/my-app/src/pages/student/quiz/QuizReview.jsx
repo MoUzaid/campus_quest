@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAttemptedQuizByStudentQuery } from "../../../redux/services/quizApi";
+import { useGetAttemptedQuizByIdQuery } from "../../../redux/services/quizApi";
 import "./QuizReview.css";
 
 const QuizReview = () => {
@@ -13,7 +13,7 @@ const QuizReview = () => {
     data: prevQuiz,
     isLoading,
     isError,
-  } = useAttemptedQuizByStudentQuery(quizId, {
+  } = useGetAttemptedQuizByIdQuery(quizId, {
     skip: !quizId,
   });
 

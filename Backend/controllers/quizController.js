@@ -319,7 +319,6 @@ submitQuiz: async (req, res) => {
       }
     });
 
-<<<<<<< HEAD
     // update attempt
     attempt.answers = answers;
     attempt.correctCount = correctCount;
@@ -328,17 +327,6 @@ submitQuiz: async (req, res) => {
     attempt.timeTaken = timeTaken;
     attempt.status = "submitted";
     await attempt.save();
-=======
-        await QuizAttempt.create({
-            quizId,
-            student: studentId,
-            answers,
-            correctCount,
-            wrongCount,
-            scoredMarks,
-            timeTaken
-        });
->>>>>>> origin/faizan_branch
 
     // save leaderboard entry
     await Leaderboard.create({
@@ -380,15 +368,25 @@ submitQuiz: async (req, res) => {
         }   
     },
     getAllAttemptedQuizzes: async (req, res) => {
-        try{
-            const studentId = req.user.id;
-            const attemptedQuizzes = (await QuizAttempt.find({student:studentId}).populate('quizId', 'title subject questions leaderboard')).sort({attemptedAt: -1});
-            res.status(200).json(attemptedQuizzes);
-        }
-        catch (error) {
-            res.status(500).json({ message: 'Error fetching attempted quizzes', error: error.message });
-        }
-    },
+  try {
+    console.log("Fetching all attempted quizzes");
+    const studentId = req.user.id;
+
+    const attemptedQuizzes = await QuizAttempt.find({
+      student: studentId,
+    })
+      .populate("quizId", "title subject questions leaderboard")
+      .sort({ attemptedAt: -1 }); // ✅ mongoose-level sort
+
+    res.status(200).json(attemptedQuizzes);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching attempted quizzes",
+      error: error.message,
+    });
+  }
+},
+
   generateCertificate: async (req, res) => {
   try {
     const data = req.body;

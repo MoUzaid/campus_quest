@@ -121,9 +121,9 @@ const Profile = () => {
           </div>
         </div>
 
-        <button id="logout-btn" onClick={handleLogout}>
+        {/* <button id="logout-btn" onClick={handleLogout}>
           Logout
-        </button>
+        </button> */}
       </div>
     </div>
   );

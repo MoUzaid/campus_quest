@@ -3,7 +3,6 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./QuizDetails.css";
 import {
   useRegisterStudentForQuizMutation,
-  useStartQuizAttemptMutation,
   useGetQuizTimerQuery,
 } from "../../../redux/services/quizApi";
 import Socket from "../../../Socket";
@@ -18,8 +17,6 @@ const QuizDetails = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const [registerStudentForQuiz,{isLoading,isError}] = useRegisterStudentForQuizMutation();
-  const [startQuizAttempt, { isLoading: isStarting }] =
-    useStartQuizAttemptMutation();
 
   const {
     data: timerData,
@@ -72,21 +69,8 @@ const QuizDetails = () => {
       return;
     }
 
-    if (isStarting) return; // 🔒 frontend lock
-
     try {
-      const res = await startQuizAttempt(quizId).unwrap();
-
-      if (
-        res.message === "Quiz not active currently" ||
-        res.message === "Student not registered for this quiz" ||
-        res.message === "Quiz already attempted"
-      ) {
-        alert(res.message);
-        return;
-      }
-
-      // 🔥 fetch fresh timer data (no race)
+      // 🔥 fetch fresh timer data
       const latestTimer = await refetch().unwrap();
 
       // 🔥 join socket room
@@ -151,9 +135,8 @@ const QuizDetails = () => {
   <button
     className="quiz-start-btn"
     onClick={handleJoin}
-    disabled={isStarting}
   >
-    {isStarting ? "Joining..." : "Join"}
+    Join
   </button>
 ) : (
   <button

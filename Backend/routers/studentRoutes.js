@@ -5,7 +5,6 @@ const router = express.Router();
 const studentController = require("../controllers/studentController");
 const feedbackController = require("../controllers/feedbackController");
 
-<<<<<<< HEAD
 /* ================= MIDDLEWARE ================= */
 const authUser = require("../middleware/authUser");
 const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
@@ -13,36 +12,18 @@ const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
 /* =================================================
    AUTH & ACCOUNT
 ================================================= */
-=======
-const authFacultyOrSuperAdmin = require("../middleware/authFacultyOrAdmin");
-
-const authUser = require("../middleware/authUser");
-
-/* ================= AUTH ================= */
->>>>>>> origin/faizan_branch
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
 
-<<<<<<< HEAD
 // LOGIN
 router.post("/login", studentController.loginStudent);
-=======
-// GET STUDENT PROFILE
-router.get("/me", authUser, studentController.getStudentProfile);
->>>>>>> origin/faizan_branch
 
 // VERIFY EMAIL (OTP)
 router.post("/verify-email", studentController.verifyEmail);
 
-<<<<<<< HEAD
 // RESEND OTP
 router.post("/resend-otp", studentController.resendOtp);
-=======
-// LOGIN - DUPLICATE ROUTES (COMMENTED ONE)
-// router.post("/login", studentController.loginStudent);
-router.post("/login", studentController.loginStudent);
->>>>>>> origin/faizan_branch
 
 // REFRESH TOKEN
 router.post("/refresh", studentController.refreshToken);
@@ -78,7 +59,6 @@ router.get("/:id", authFacultyOrSuperAdmin, studentController.getStudent);
 // DELETE STUDENT
 router.delete("/:id", authFacultyOrSuperAdmin, studentController.deleteStudent);
 
-<<<<<<< HEAD
 /* =================================================
    FEEDBACK
 ================================================= */
@@ -89,22 +69,6 @@ router.post(
   authUser,
   feedbackController.submitFeedback
 );
-=======
-// Test route (commented in both files)
-// router.get("/:id", (req, res) => {
-//   console.log("Student ID requested:", req.params.id);
-//   res.json({ ok: true });
-// });
-
-/* ================= FEEDBACK ================= */
-
-// SUBMIT FEEDBACK - DUPLICATE ROUTES WITH DIFFERENT MIDDLEWARE
-// router.post("/feedback", auth, feedbackController.submitFeedback);
-router.post("/feedback", authUser, feedbackController.submitFeedback);
-
-// GET QUIZ RATING
-router.get("/rating/:quizId", feedbackController.getQuizRating);
->>>>>>> origin/faizan_branch
 
 // GET QUIZ RATING
 router.get(

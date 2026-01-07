@@ -150,7 +150,6 @@ exports.loginStudent = async (req, res) => {
     student.refreshToken = refreshToken;
     await student.save();
 
-<<<<<<< HEAD
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       sameSite: "lax",
@@ -171,9 +170,6 @@ exports.loginStudent = async (req, res) => {
         email: student.email,
       },
     });
-=======
-    res.json({ accessToken, refreshToken });
->>>>>>> origin/faizan_branch
   } catch (err) {
     console.error("Student Login Error:", err);
     return res.status(500).json({ message: "Server error" });
