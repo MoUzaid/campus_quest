@@ -89,6 +89,73 @@ await Activity.create({
   }
 };
 
+
+exports.loginFaculty = async (req, res) => {
+  try {
+    const { facultyId, password } = req.body;
+
+    if (!facultyId || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    // 🔍 Must select password explicitly
+    const faculty = await Faculty.findOne({ facultyId }).select("+password");
+    if (!faculty) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 🔐 Password check
+    const isMatch = await bcrypt.compare(password, faculty.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 🔑 Tokens
+    const accessToken = jwt.sign(
+      { id: faculty._id, role: "faculty" },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: faculty._id, role: "faculty" },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // 💾 Save refresh token
+    faculty.refreshToken = refreshToken;
+    await faculty.save();
+
+    // 🍪 Send cookies inline (SuperAdmin style)
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      role: "faculty",
+      user: {
+        id: faculty._id,
+        name: faculty.name,
+        facultyId: faculty.facultyId
+      }
+    });
+  } catch (err) {
+    console.error("FACULTY LOGIN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 /* =====================================================
    CHANGE PASSWORD (FIRST LOGIN)
    ===================================================== */
@@ -255,12 +322,17 @@ exports.getFacultyProfile = async (req, res) => {
       success: true,
       profile: {
         id: faculty._id,
+        facultyId: faculty.facultyId,
         name: faculty.name,
         email: faculty.email,
+        mobileNumber:faculty.mobileNumber,
         department: faculty.department,
         designation: faculty.designation
       }
+      
     });
+    console.log("Faculty profile:", faculty);
+
   } catch (err) {
     console.error("Get Faculty Profile Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch faculty profile" });
@@ -344,28 +416,43 @@ exports.facultyLogin = async (req, res) => {
 exports.updateFaculty = async (req, res) => {
   try {
     const { facultyId } = req.params;
-    const { name, designation, department, isActive } = req.body;
+
+    const {
+      name,
+      email,
+      mobileNumber,
+      designation,
+      department,
+      isActive
+    } = req.body;
 
     const faculty = await Faculty.findOne({ facultyId });
     if (!faculty) {
       return res.status(404).json({ msg: "Faculty not found" });
     }
 
+    // 🔁 Partial updates (no field required)
     if (name) faculty.name = name;
+    if (email) faculty.email = email;
+    if (mobileNumber) faculty.mobileNumber = mobileNumber;
     if (designation) faculty.designation = designation;
     if (department) faculty.department = department;
-    if (typeof isActive === "boolean") faculty.isActive = isActive;
+
+    // Admin-only flag (safe check)
+    if (typeof isActive === "boolean") {
+      faculty.isActive = isActive;
+    }
 
     await faculty.save();
 
     await Activity.create({
       action: "FACULTY_UPDATED",
-      message: `Faculty "${faculty.name}" updated`,
-      performedBy: req.user?.name || "Super Admin"
+      message: `Faculty "${faculty.name}" updated their profile`,
+      performedBy: req.user?.name || "Faculty"
     });
 
     res.json({
-      msg: "Faculty updated successfully",
+      msg: "Profile updated successfully",
       faculty
     });
   } catch (err) {
@@ -373,9 +460,6 @@ exports.updateFaculty = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
-
-
-
 
 
 const Quiz = require("../models/quizModel");
