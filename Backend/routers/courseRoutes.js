@@ -4,6 +4,7 @@ const authSuperAdmin = require("../middleware/authSuperAdmin");
 
 const {
  createOrMergeCourse ,
+ allCourses,
   getAllCourses,
   getCourseById,
   updateCourse,
@@ -19,7 +20,9 @@ router.post("/add",authSuperAdmin,createOrMergeCourse );
 
 // router.get("/All-courses",getAllCoursesFilter)
 
-//Get all courses
+router.get("/all",allCourses);
+
+//Get all courses by dept
 router.get("/",authSuperAdmin,getAllCourses);
 
 // router.get("/dept",getAllCoursesByDept);

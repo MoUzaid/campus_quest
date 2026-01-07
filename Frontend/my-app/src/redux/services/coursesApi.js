@@ -34,11 +34,16 @@ export const courseApi = createApi({
       invalidatesTags: ["Course"],
     }),
 
+//get all courses
+    allCourses: builder.query({
+      query: () => "/all",
+      providesTags: ["Course"],
+    }),
     /* =====================
        READ
        ===================== */
 
-    // GET /api/course
+    // GET /api/course get course by dept
     getAllCourses: builder.query({
       query: () => "/",
       providesTags: ["Course"],
@@ -105,7 +110,7 @@ export const courseApi = createApi({
 export const {
   useCreateCourseMutation,
   useCreateCoursesBulkMutation,
-
+  useAllCoursesQuery,
   useGetAllCoursesQuery,
   useGetAllCoursesFilterQuery,
   useGetAllCoursesByDeptQuery,

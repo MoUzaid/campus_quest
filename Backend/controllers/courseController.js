@@ -177,6 +177,23 @@ exports.updateCourse = async (req, res) => {
 //   }
 // };
 
+exports.allCourses = async (req, res) => {
+  try {
+    const courses = await Course.find();
+
+    return res.status(200).json({
+      success: true,
+      message: "Courses fetched successfully",
+      courses,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: err.message,
+    });
+  }
+};
 
 
 exports.getAllCourses = async (req, res) => {

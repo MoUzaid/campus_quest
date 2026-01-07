@@ -280,7 +280,7 @@ const QuizCtrl = {
 submitQuiz: async (req, res) => {
   try {
     const { quizId } = req.params;
-    const studentId = req.user._id;
+    const studentId = req.user.id;
     const { answers, timeTaken } = req.body;
 
     const quiz = await Quiz.findById(quizId);
@@ -292,6 +292,7 @@ submitQuiz: async (req, res) => {
       quizId,
       student: studentId,
     });
+console.log(attempt);
 
     if (!attempt || attempt.status !== "in_progress") {
       return res.status(403).json({
@@ -307,7 +308,7 @@ submitQuiz: async (req, res) => {
       const studentAnswer = answers.find(
         (ans) => ans.questionId === question._id.toString()
       );
-
+console.log(studentAnswer);
       if (studentAnswer) {
         if (studentAnswer.selectedOption === question.correctAnswer) {
           correctCount++;
@@ -318,6 +319,7 @@ submitQuiz: async (req, res) => {
         }
       }
     });
+
 
     // update attempt
     attempt.answers = answers;
