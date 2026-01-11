@@ -100,9 +100,6 @@ const QuizAttempt = () => {
           timeTaken,
         },
       }).unwrap();
-
-      console.log("Quiz submitted:", res);
-
       if (document.fullscreenElement) {
         document.exitFullscreen();
       }
@@ -118,7 +115,7 @@ const QuizAttempt = () => {
       });
     } catch (error) {
       console.error("Submit failed:", error);
-      alert("Quiz submission failed. Try again.");
+      alert(error.data.message);
       setIsSubmitted(false);
     }
   };

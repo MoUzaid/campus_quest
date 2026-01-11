@@ -3,8 +3,17 @@ const Student = require('../models/studentModel');
 const sendEmail = require('../utils/sendEmail');
 const Leaderboard = require('../models/leaderboardModel');
 const QuizAttempt = require('../models/QuizAttemptModel');
-const { io } = require('../server');
 const cloudinary = require('../config/cloudinary');
+
+// Lazy load io to avoid circular dependency
+const getIo = () => {
+  try {
+    return require('../server').io;
+  } catch (error) {
+    console.warn('io not available yet');
+    return null;
+  }
+};
 const Faculty = require('../models/FacultyModel');
 const superAdmin = require('../models/superAdminModel');
 const generateCertificatePDF = require('../utils/generateCertificatePDF');
@@ -228,7 +237,7 @@ const QuizCtrl = {
   QuizAttempt: async (req, res) => {
   try {
     const { quizId } = req.params;
-    const studentId = req.user._id;
+    const studentId = req.user.id;
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
@@ -247,6 +256,8 @@ const QuizCtrl = {
         message: "Quiz not active currently",
       });
     }
+
+    console.log("creating attempt:",quizId,studentId);
 
     const existingAttempt = await QuizAttempt.findOne({
       quizId,
@@ -292,7 +303,9 @@ submitQuiz: async (req, res) => {
       quizId,
       student: studentId,
     });
-console.log(attempt);
+
+    console.log("Type of quizId:",typeof quizId);
+console.log("Find",attempt);
 
     if (!attempt || attempt.status !== "in_progress") {
       return res.status(403).json({
@@ -308,7 +321,7 @@ console.log(attempt);
       const studentAnswer = answers.find(
         (ans) => ans.questionId === question._id.toString()
       );
-console.log(studentAnswer);
+
       if (studentAnswer) {
         if (studentAnswer.selectedOption === question.correctAnswer) {
           correctCount++;
@@ -344,7 +357,15 @@ console.log(studentAnswer);
       .sort({ score: -1, timeTaken: 1 });
 
     // 🔥 LIVE EMIT TO QUIZ ROOM
-    io.to(quizId.toString()).emit("leaderboardUpdate", updatedLeaderboard);
+  const io = getIo();
+  if (io) {
+  io.to(quizId).emit(
+    "leaderboardUpdate",
+    updatedLeaderboard
+  );
+} else {
+  console.log("Socket io not available, skipping emit");
+}
 
     res.status(200).json({
       message: "Quiz submitted successfully",
@@ -418,10 +439,13 @@ startTimer: async (req, res) => {
         if (!quiz) {
             return res.status(404).json({ message: 'Quiz not found' });
         }
-         io.to(quizId).emit("quiz-started", {
+         const io = getIo();
+         if (io) {
+           io.to(quizId).emit("quiz-started", {
     quizId,
     startingTimer: quiz.startingTimer,
   });
+         }
         res.status(200).json({ startingTimer: quiz.startingTimer });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching starting timer', error: error.message });
@@ -445,11 +469,16 @@ startQuizTimer:async (req, res) => {
 
     await quiz.save();
 
-    io.to(`timer_${quizId}`).emit("quiz-started", {
+    const io = getIo();
+    if (io) {
+      io.to(`timer_${quizId}`).emit("quiz-started", {
       quizId,
       startTime: quiz.quizStartTime,
       duration: quiz.durationSeconds,
     });
+    } else {
+      console.log("Socket io not available");
+    }
 
     res.status(200).json({
       message: "Quiz timer started",

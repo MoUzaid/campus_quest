@@ -99,8 +99,8 @@ router.post(
   quizController.registerStudentForQuiz
 );
 
-router.get(
-  "/:quizId/start",
+router.post(
+  "/:quizId/attempt",
   authUser,
   quizController.QuizAttempt
 );

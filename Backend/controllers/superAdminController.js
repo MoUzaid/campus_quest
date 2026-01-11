@@ -44,6 +44,7 @@ const sendAuthCookies = (res, accessToken, refreshToken) => {
 exports.registerSuperAdmin = async (req, res) => {
   try {
     const { username, facultyId, email, designation, department, password } = req.body;
+    console.log("super admin",req.body);
 
     if (!username || !facultyId || !email || !designation || !department || !password) {
       return res.status(400).json({ message: "All fields are required" });

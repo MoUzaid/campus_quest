@@ -12,7 +12,6 @@ const Header = () => {
   const navigate = useNavigate();
    const dispatch = useDispatch();
   const {user,role,isAuthenticated} = useSelector((state) => state.auth);
- console.log("Header auth state:", {user,role,isAuthenticated});
 
   const handleLogout = () => {
    dispatch(logout()); 

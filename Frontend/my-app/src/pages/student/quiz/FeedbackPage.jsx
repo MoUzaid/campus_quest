@@ -1,50 +1,74 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./FeedbackPage.css";
 import { useSubmitFeedbackMutation } from "../../../redux/services/studentApi";
 
 const FeedbackPage = () => {
   const navigate = useNavigate();
-  const { quizId } = useParams();
   const location = useLocation();
   const [submitFeedback] = useSubmitFeedbackMutation();
 
-  const [feedback, setFeedback] = useState("");
-  const [rating, setRating] = useState(0); 
+  const [message, setMessage] = useState("");
+  const [rating, setRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const state = location.state || {};
-  const { totalQuestions = 0, answers = {} } = state;
+  // ✅ DATA FROM NAVIGATION STATE
+  const {
+    quizId,
+    quizData,
+    totalQuestions = 0,
+    reason,
+  } = location.state || {};
 
-  const handleSubmitFeedback =async () => {
-    console.log("Quiz Feedback:", {
-      quizId,
-      rating,
-      feedback,
-    });
+  // ✅ SAFETY CHECK (refresh / direct access protection)
+  useEffect(() => {
+    if (!quizId || !quizData) {
+      console.error("Quiz data missing, redirecting...");
+      navigate("/student/dashboard", { replace: true });
+    }
+  }, [quizId, quizData, navigate]);
 
-    const res = await submitFeedback({
-      quizId,
-      rating,
-      feedback,
-    }).unwrap();
+  const handleSubmitFeedback = async () => {
+    if (rating === 0 || isSubmitting) return;
 
-    console.log("Feedback submission response:", res.messsage);
+    try {
+      setIsSubmitting(true);
 
-    navigate("/student/dashboard", { replace: true });
+        if (!message.trim()) {
+    alert("Please write a short feedback message");
+    return;
+  }
+
+      await submitFeedback({
+        quizId,
+        rating,
+        message, 
+      }).unwrap();
+
+      navigate("/student/dashboard", { replace: true });
+    } catch (err) {
+      console.error("Feedback submit failed:", err);
+      alert(err?.data?.message || "Failed to submit feedback");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="feedback-page">
       <div className="feedback-card">
+
+        {/* ✅ QUIZ INFO */}
         <h1>Quiz Submitted Successfully 🎉</h1>
+        <h3 className="quiz-title">{quizData?.title}</h3>
+        <p className="quiz-subject">{quizData?.subject}</p>
 
         <p className="summary-text">
-          You answered <strong>{Object.keys(answers).length}</strong> out of{" "}
-          <strong>{totalQuestions}</strong> questions.
+          Total Questions: <strong>{totalQuestions}</strong>
         </p>
 
         <p className="lock-text">
-          Your responses are final and have been recorded.
+          Reason: <strong>{reason || "Completed"}</strong>
         </p>
 
         <div className="feedback-box">
@@ -71,18 +95,22 @@ const FeedbackPage = () => {
 
           <textarea
             placeholder="Anything confusing or worth improving?"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             maxLength={300}
           />
 
           <div className="char-count">
-            {feedback.length}/300
+            {message.length}/300
           </div>
         </div>
 
-        <button className="primary" onClick={handleSubmitFeedback}>
-          Back to Dashboard
+        <button
+          className="primary"
+          disabled={rating === 0 || isSubmitting}
+          onClick={handleSubmitFeedback}
+        >
+          {isSubmitting ? "Submitting..." : "Submit Feedback"}
         </button>
       </div>
     </div>

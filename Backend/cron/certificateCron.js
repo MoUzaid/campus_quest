@@ -7,7 +7,7 @@ const Student = require('../models/studentModel');
 const SuperAdmin = require('../models/superAdminModel');
 const Faculty = require('../models/FacultyModel');
 
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log('Certificate generation cron job running...');
 
     const now = new Date();

@@ -106,12 +106,12 @@ export const studentApi = createApi({
     /* ================= FEEDBACK ================= */
 
     submitFeedback: builder.mutation({
-  query: ({ quizId, rating, feedback }) => ({
+  query: ({ quizId, rating, message}) => ({
     url: `/${quizId}/feedback`, // ✅ quizId URL me
     method: "POST",
     body: {
       rating,
-      feedback, // ✅ sirf ye body me
+      message, // ✅ sirf ye body me
     },
   }),
   invalidatesTags: ["Feedback"],

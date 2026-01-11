@@ -7,7 +7,6 @@ import "./QuizGrid.css";
 const RegisteredQuizzes = () => {
   const navigate = useNavigate();
   const { data: quizzesData = [], isLoading, isError } = useGetRegisteredQuizzesForStudentQuery();
-console.log("Registered Quizzes Data:", quizzesData);
   const filteredQuizzes = quizzesData.filter((quiz) => new Date(quiz.endTime) > new Date());
 
   if (isLoading) return <p style={{color: '#fff'}}>Loading...</p>;

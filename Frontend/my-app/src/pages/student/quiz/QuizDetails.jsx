@@ -26,7 +26,6 @@ const QuizDetails = () => {
   } = useGetQuizTimerQuery(quizId, {
     skip: !quizData?.isStarted,
   });
-
   if (!quizData) {
     return <p style={{ color: "#fff" }}>Invalid quiz data</p>;
   }
@@ -64,6 +63,7 @@ const QuizDetails = () => {
 
   /* ================= JOIN QUIZ ================= */
   const handleJoin = async () => {
+     console.log(quizData);
     if (!quizData.isStarted) {
       alert("Quiz has not started yet!");
       return;
@@ -72,16 +72,16 @@ const QuizDetails = () => {
     try {
       // 🔥 fetch fresh timer data
       const latestTimer = await refetch().unwrap();
-
+console.log(latestTimer)
       // 🔥 join socket room
       Socket.emit("join-timer-room", { quizId });
 
       // 🔥 navigate safely
       navigate(`/student/quiz/waiting/${quizId}`, {
         state: {
-          quizData,
-          startTime: new Date(latestTimer.startTime).getTime(),
-          duration: Number(latestTimer.duration),
+          quizData, 
+          startTime: new Date(timerData.startTime).getTime(),
+          duration: Number(timerData.duration),
         },
       });
     } catch (err) {

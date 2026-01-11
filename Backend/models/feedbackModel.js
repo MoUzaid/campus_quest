@@ -16,7 +16,7 @@ const feedbackSchema = new mongoose.Schema({
   message: {
     type: String,
     required: true,
-    maxlength: 1000,
+    maxlength: 300,
   },
 
   rating: {

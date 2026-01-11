@@ -1,48 +1,51 @@
 import React, { useState } from "react";
-import { 
-  FaEye, 
-  FaEyeSlash, 
-  FaLock, 
-  FaUserTie, 
-  FaIdCard, 
-  FaEnvelope, 
-  FaBuilding, 
+import {
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaUserTie,
+  FaIdCard,
+  FaEnvelope,
+  FaBuilding,
   FaShieldAlt,
   FaKey,
-  FaUniversity
+  FaUniversity,
 } from "react-icons/fa";
 import "./SuperAdminRegister.css";
-const departments = [
-  { code: "CA", name: "Computer Applications" },
-  { code: "CS", name: "Computer Science" },
-  { code: "CSE", name: "Computer Science & Engineering" },
-  { code: "IT", name: "Information Technology" },
-  { code: "AI", name: "Artificial Intelligence" },
-  { code: "DS", name: "Data Science" },
+import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
 
-  { code: "ME", name: "Mechanical Engineering" },
-  { code: "CE", name: "Civil Engineering" },
-  { code: "EE", name: "Electrical Engineering" },
-  { code: "ECE", name: "Electronics & Communication Engineering" },
-
-  { code: "BBA", name: "Business Administration" },
-  { code: "MBA", name: "Master of Business Administration" },
-  { code: "BCom", name: "Commerce" },
-
-  { code: "MATH", name: "Mathematics" },
-  { code: "PHY", name: "Physics" },
-  { code: "CHEM", name: "Chemistry" },
-  { code: "BIO", name: "Biology" },
-
-  { code: "ECO", name: "Economics" },
-  { code: "ENG", name: "English" },
-  { code: "LAW", name: "Law" }
-];
-
+// const departments = [
+//   { code: "CA", name: "Computer Applications" },
+//   { code: "CS", name: "Computer Science" },
+//   { code: "CSE", name: "Computer Science & Engineering" },
+//   { code: "IT", name: "Information Technology" },
+//   { code: "AI", name: "Artificial Intelligence" },
+//   { code: "DS", name: "Data Science" },
+//   { code: "ME", name: "Mechanical Engineering" },
+//   { code: "CE", name: "Civil Engineering" },
+//   { code: "EE", name: "Electrical Engineering" },
+//   { code: "ECE", name: "Electronics & Communication Engineering" },
+//   { code: "BBA", name: "Business Administration" },
+//   { code: "MBA", name: "Master of Business Administration" },
+//   { code: "BCom", name: "Commerce" },
+//   { code: "MATH", name: "Mathematics" },
+//   { code: "PHY", name: "Physics" },
+//   { code: "CHEM", name: "Chemistry" },
+//   { code: "BIO", name: "Biology" },
+//   { code: "ECO", name: "Economics" },
+//   { code: "ENG", name: "English" },
+//   { code: "LAW", name: "Law" },
+// ];
 
 const SuperAdminRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+const { data: departments, isLoading: deptLoading } =
+    useGetAllDepartmentsQuery();
+
+     const departmentList =
+    departments?.data?.[0]?.departmentNames || [];
 
   const [formData, setFormData] = useState({
     username: "",
@@ -50,7 +53,7 @@ const SuperAdminRegister = () => {
     email: "",
     designation: "Head of Department",
     department: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -59,7 +62,8 @@ const SuperAdminRegister = () => {
   };
 
   const validateForm = () => {
-    const { username, facultyId, email, designation, department, password } = formData;
+    const { username, facultyId, email, designation, department, password } =
+      formData;
     const errors = [];
 
     if (!username.trim()) errors.push("Full name is required");
@@ -79,8 +83,8 @@ const SuperAdminRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const errors = validateForm();
+
     if (errors.length > 0) {
       alert(errors.join("\n"));
       return;
@@ -89,17 +93,20 @@ const SuperAdminRegister = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/superadmin/register", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify({
-          ...formData,
-          registeredAt: new Date().toISOString()
-        })
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/superadmin/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          body: JSON.stringify({
+            ...formData,
+            registeredAt: new Date().toISOString(),
+          }),
+        }
+      );
 
       const data = await res.json();
 
@@ -108,6 +115,7 @@ const SuperAdminRegister = () => {
       }
 
       alert("✅ " + data.msg);
+
       // Reset form on successful submission
       setFormData({
         username: "",
@@ -115,7 +123,7 @@ const SuperAdminRegister = () => {
         email: "",
         designation: "Head of Department",
         department: "",
-        password: ""
+        password: "",
       });
     } catch (error) {
       alert(`❌ Error: ${error.message}`);
@@ -134,33 +142,34 @@ const SuperAdminRegister = () => {
         <span className="badge-text">Super Admin Portal</span>
       </div>
 
-     <div className="register-card-wrapper">
-  <div className="form-panel">
-    <div className="form-header">
-      <div className="form-header-main">
-        <FaUserTie className="header-icon" style={{fontSize: '44px'}} />
-        <div>
-          <h2>Super Admin Registration</h2>
-         
-        </div>
-      </div>
-      
-      <div className="form-logo">
-        <img 
-          src="/campus-quest.png" 
-          alt="Campus Quest" 
-          className="app-logo"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a237e'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3ECQ%3C/text%3E%3C/svg%3E";
-          }}
-        />
-        <span className="logo-text">Campus Quest</span>
-      </div>
-    </div>
-    {/* Rest of your form remains exactly the same */}
+      <div className="register-card-wrapper">
+        <div className="form-panel">
+          {/* Form Header */}
+          <div className="form-header">
+            <div className="form-header-main">
+              <FaUserTie className="header-icon" style={{ fontSize: "44px" }} />
+              <div>
+                <h2>Super Admin Registration</h2>
+              </div>
+            </div>
+            <div className="form-logo">
+              <img
+                src="/campus-quest.png"
+                alt="Campus Quest"
+                className="app-logo"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a237e'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3ECQ%3C/text%3E%3C/svg%3E";
+                }}
+              />
+              <span className="logo-text">Campus Quest</span>
+            </div>
+          </div>
+
+          {/* Registration Form */}
           <form onSubmit={handleSubmit} className="registration-form">
-            {/* Form Grid - Two Columns */}
+            {/* Full Name & Faculty ID Row */}
             <div className="form-row">
               {/* Full Name */}
               <div className="form-column">
@@ -209,7 +218,7 @@ const SuperAdminRegister = () => {
               </div>
             </div>
 
-            {/* Second Row */}
+            {/* Email & Designation Row */}
             <div className="form-row">
               {/* Email */}
               <div className="form-column">
@@ -254,7 +263,12 @@ const SuperAdminRegister = () => {
                     <button
                       type="button"
                       className="reset-btn"
-                      onClick={() => setFormData({...formData, designation: "Head of Department"})}
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          designation: "Head of Department",
+                        })
+                      }
                     >
                       Reset to Default
                     </button>
@@ -263,7 +277,7 @@ const SuperAdminRegister = () => {
               </div>
             </div>
 
-            {/* Single Column Row for Department */}
+            {/* Department Row */}
             <div className="form-row">
               <div className="form-full-column">
                 <div className="form-group">
@@ -272,22 +286,21 @@ const SuperAdminRegister = () => {
                     Department
                   </label>
                   <div className="custom-select-wrapper">
-                    <select
-                      name="department"
-                      required
-                      value={formData.department}
-                      onChange={handleChange}
-                      className="form-select"
-                    >
-                      <option value="" disabled>
-                        Select Department
-                      </option>
-                      {departments.map((dept) => (
-                        <option key={dept.code} value={dept.code}>
-                          {dept.icon} {dept.code} – {dept.name}
-                        </option>
-                      ))}
-                    </select>
+                      <select
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
+              className="student-signup-select"
+              disabled={deptLoading}
+              required
+            >
+              <option value="">Select Department</option>
+              {departmentList.map((dept, idx) => (
+                <option key={idx} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
                     <div className="select-arrow">▼</div>
                   </div>
                 </div>
@@ -302,7 +315,8 @@ const SuperAdminRegister = () => {
                     <FaLock className="label-icon" />
                     Temporary Password
                     <span className="temp-tag">
-                      <FaKey /> Temporary
+                      <FaKey />
+                      Temporary
                     </span>
                   </label>
                   <div className="password-container">
@@ -327,7 +341,8 @@ const SuperAdminRegister = () => {
                       </button>
                     </div>
                     <div className="password-hint">
-                      Enter a secure password (minimum 6 characters). Super Admin must change it on first login.
+                      Enter a secure password (minimum 6 characters). Super
+                      Admin must change it on first login.
                     </div>
                   </div>
                 </div>
@@ -340,15 +355,16 @@ const SuperAdminRegister = () => {
               <div className="alert-content">
                 <h4>Security Notice</h4>
                 <p>
-                  This password is temporary. Super Admin must change it on first login.
-                  All credentials are encrypted and stored securely.
+                  This password is temporary. Super Admin must change it on
+                  first login. All credentials are encrypted and stored
+                  securely.
                 </p>
               </div>
             </div>
 
             {/* Submit Button */}
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-button"
               disabled={isSubmitting}
             >
@@ -373,12 +389,13 @@ const SuperAdminRegister = () => {
               <span>HTTPS Secure Connection • Encrypted Transmission</span>
             </div>
             <p className="copyright">
-              © {new Date().getFullYear()} Campus Quest • Authorized Personnel Only
+              © {new Date().getFullYear()} Campus Quest • Authorized Personnel
+              Only
             </p>
           </div>
         </div>
 
-        {/* Right Panel - Branding (EXACTLY AS BEFORE - PERFECT) */}
+        {/* Right Panel - Branding */}
         <div className="brand-panel">
           <div className="brand-header">
             <div className="logo-container">
@@ -397,6 +414,7 @@ const SuperAdminRegister = () => {
             </h1>
           </div>
 
+          {/* Feature List */}
           <div className="feature-list">
             <div className="feature-item">
               <FaShieldAlt className="feature-icon" />
@@ -421,6 +439,7 @@ const SuperAdminRegister = () => {
             </div>
           </div>
 
+          {/* Watermark */}
           <div className="watermark">
             <FaUniversity />
             <span>Campus Quest v2.0</span>

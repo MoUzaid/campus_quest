@@ -66,9 +66,12 @@ export const quizApi = createApi({
       providesTags: ["Quiz"],
     }),
 
-    startQuizAttempt: builder.query({
-      query: (quizId) => `/${quizId}/start`,
-    }),
+   startQuizAttempt: builder.mutation({
+  query: (quizId) => ({
+    url: `/${quizId}/attempt`,
+    method: "POST",
+  }),
+}),
 
     submitQuiz: builder.mutation({
       query: ({ quizId, data }) => ({
@@ -144,7 +147,7 @@ export const {
 
   useRegisterStudentForQuizMutation,
   useGetRegisteredQuizzesForStudentQuery,
-  useStartQuizAttemptQuery,
+  useStartQuizAttemptMutation,
   useSubmitQuizMutation,
 
   useGetAllAttemptedQuizzesQuery,
