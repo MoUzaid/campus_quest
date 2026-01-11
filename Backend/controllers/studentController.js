@@ -124,6 +124,7 @@ exports.verifyEmail = async (req, res) => {
 
 exports.loginStudent = async (req, res) => {
   try {
+    console.log(req.body);
     const student = await Student.findOne({ email: req.body.email });
     if (!student) return res.status(404).json({ msg: "Student not found" });
 

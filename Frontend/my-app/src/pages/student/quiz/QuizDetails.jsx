@@ -63,31 +63,52 @@ const QuizDetails = () => {
 
   /* ================= JOIN QUIZ ================= */
   const handleJoin = async () => {
-     console.log(quizData);
-    if (!quizData.isStarted) {
-      alert("Quiz has not started yet!");
+  if (!quizData.isStarted) {
+    alert("Quiz has not started yet!");
+    return;
+  }
+
+  const startTimeMs = new Date(quizData.quizStartTime).getTime();
+  const durationSeconds = quizData.durationSeconds;
+  const endTimeMs = startTimeMs + durationSeconds * 1000;
+  const now = Date.now();
+
+  // ⛔ FAST CHECK
+  if (now >= endTimeMs) {
+    alert("Quiz Timer Ended");
+    return;
+  }
+
+  try {
+    // 🔥 fetch fresh timer data
+    const latestTimer = await refetch().unwrap();
+
+    // 🔒 FINAL SAFETY CHECK (authoritative)
+    const freshEndTime =
+      new Date(latestTimer.startTime).getTime() +
+      Number(latestTimer.duration) * 1000;  
+
+    if (Date.now() >= freshEndTime) {
+      alert("Quiz Timer Ended");
       return;
     }
 
-    try {
-      // 🔥 fetch fresh timer data
-      const latestTimer = await refetch().unwrap();
-console.log(latestTimer)
-      // 🔥 join socket room
-      Socket.emit("join-timer-room", { quizId });
+    // 🔥 join socket room
+    Socket.emit("join-timer-room", quizId);
 
-      // 🔥 navigate safely
-      navigate(`/student/quiz/waiting/${quizId}`, {
-        state: {
-          quizData, 
-          startTime: new Date(timerData.startTime).getTime(),
-          duration: Number(timerData.duration),
-        },
-      });
-    } catch (err) {
-      alert(err?.data?.message || "Failed to join quiz");
-    }
-  };
+    // 🔥 navigate safely
+   navigate(`/student/quiz/waiting/${quizId}`, {
+  state: {
+    quizData,
+    startTime: new Date(latestTimer.startTime).getTime(), // ✅ timestamp
+    duration: Number(latestTimer.duration),               // seconds
+  },
+});
+  } catch (err) {
+    alert(err?.data?.message || "Failed to join quiz");
+  }
+};
+
 
   return (
     <div className="quiz-details">

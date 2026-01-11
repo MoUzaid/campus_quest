@@ -30,6 +30,7 @@ const QuizWaiting = () => {
       });
     } catch (err) {
       console.error("Failed to start quiz:", err);
+      alert(err.data.message)
     }
   };
 
