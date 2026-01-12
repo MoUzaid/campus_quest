@@ -382,10 +382,8 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-
     const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
     const student = await Student.findById(decoded.id);
-
     if (
       !student ||
       student.resetToken !== token ||
@@ -394,15 +392,15 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ msg: "Invalid or expired token" });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    student.password = hashedPassword;
+    student.password = newPassword;
     student.resetToken = null;
     student.resetTokenExpiry = null;
 
     await student.save();
-
+console.log("new Student",student);
     res.json({ msg: "Password reset successful" });
   } catch (err) {
+    console.log("Reason",err.msg);
     res.status(400).json({ msg: "Invalid or expired token" });
   }
 };

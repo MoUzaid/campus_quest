@@ -1,66 +1,75 @@
 .certificates-page {
-  padding: 24px;
+  padding: 20px;
 }
 
 .certificates-title {
   font-size: 24px;
+  font-weight: 700;
   margin-bottom: 20px;
 }
 
-.empty-text {
-  color: #777;
-}
-
-/* GRID */
 .certificates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
 }
 
-/* CARD */
 .certificate-card {
-  background: #fff;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.pdf-thumbnail {
+  height: 160px;
+  background: #f2f4ff;
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #4f46e5;
 }
 
-.certificate-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
+.pdf-thumbnail span {
+  margin-top: 6px;
+  font-size: 14px;
 }
 
-/* IMAGE */
-.certificate-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-/* INFO */
 .certificate-info {
-  padding: 14px;
   text-align: center;
+  margin-top: 14px;
 }
 
 .certificate-info h4 {
   font-size: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-/* BUTTON */
-.view-btn {
-  display: inline-block;
+.certificate-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.view-btn,
+.download-btn {
   padding: 8px 14px;
-  background: #4f46e5;
-  color: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
   text-decoration: none;
+  font-weight: 600;
   font-size: 14px;
 }
 
-.view-btn:hover {
-  background: #4338ca;
+.view-btn {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.download-btn {
+  background: #e5e7eb;
+  color: #111827;
 }

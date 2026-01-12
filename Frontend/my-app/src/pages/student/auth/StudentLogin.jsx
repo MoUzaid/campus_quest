@@ -26,7 +26,7 @@ const StudentLogin = () => {
       console.log("Submitting", formData);
       const res = await loginStudent(formData).unwrap();
       dispatch(setCredentials({ user: res.student.name, role: "student" }));
-      navigate("/");
+      navigate("/student/home");
     } catch {}
   };
 

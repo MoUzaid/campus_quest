@@ -147,7 +147,8 @@ exports.loginFaculty = async (req, res) => {
       user: {
         id: faculty._id,
         name: faculty.name,
-        facultyId: faculty.facultyId
+        facultyId: faculty.facultyId,
+        accessToken:accessToken
       }
     });
   } catch (err) {

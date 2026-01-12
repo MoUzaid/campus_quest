@@ -38,7 +38,7 @@ const Otp = () => {
     try {
       const res = await verifyEmail({ email, otp }).unwrap();
       if (res?.msg) {
-        navigate("/student");
+        navigate("/student/home");
       }
     } catch (err) {
       setErr(err?.data?.msg || "Invalid OTP");

@@ -24,7 +24,7 @@ const ViewQuiz = () => {
   return (
     <div className="view-quiz-container">
       <h1>My Quizzes</h1>
-      <button onClick={() => navigate("/createquiz")}>Create Quiz</button> {/* ✅ Navigate to create quiz */}
+      <button onClick={() => navigate("/create-quiz")}>Create Quiz</button> {/* ✅ Navigate to create quiz */}
       <div className="quiz-list">
         {quizzes.length === 0 ? (
           <p>No quizzes found</p>

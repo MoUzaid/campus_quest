@@ -91,7 +91,11 @@ module.exports = { io };
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB connected"))
+.then(() => {console.log("MongoDB connected")
+
+  require('./cron/certificateCron');
+
+})
 .catch(err => console.log("MongoDB error:", err));
 
 

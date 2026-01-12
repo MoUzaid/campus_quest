@@ -23,7 +23,7 @@ const Header = () => {
     <header className="app-header">
       <div className="logo">
         <span id="text">Welcome back!</span>
-        <span id="user">{user}</span>
+        <span id="user"></span>
       </div>
 
       <div className="header-buttons">

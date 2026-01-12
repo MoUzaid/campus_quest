@@ -37,7 +37,7 @@ import OwnFacultyQuizzes from "./pages/Dashboards/Faculty/OwnFacultyQuizzes";
 import FacultyAnalytics from "./pages/Dashboards/Faculty/FacultyAnalytics";
 
 /* STUDENT */
-import StudentDashboard from "./pages/student/dashboard/Dashboard";
+import HomeStudent from "./pages/student/dashboard/HomeStudent";
 import StudentLogin from "./pages/student/auth/StudentLogin";
 import Signup from "./pages/student/auth/Signup";
 import ForgotPassword from "./pages/student/auth/ForgotPassword";
@@ -80,7 +80,7 @@ const Pages = () => {
           element={
             isAuthenticated ? (
               role === "student" ? (
-                <Navigate to="/student/dashboard" replace />
+                <Navigate to="/student/home" replace />
               ) : role === "faculty" ? (
                 <Navigate to="/faculty/dashboard" replace />
               ) : role === "superadmin" ? (
@@ -211,14 +211,14 @@ const Pages = () => {
         <Route path="/student/signup" element={<Signup />} />
         <Route path="/student/forgot-password" element={<ForgotPassword />} />
         <Route path="/student/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/student/verify-email" element={<Otp />} />
+        <Route path="/student/verifyOtp" element={<Otp />} />
 
         {/* STUDENT */}
         <Route
-          path="/student/dashboard"
+          path="/student/home"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
-              <StudentDashboard />
+              <HomeStudent />
             </ProtectedRoute>
           }
         />

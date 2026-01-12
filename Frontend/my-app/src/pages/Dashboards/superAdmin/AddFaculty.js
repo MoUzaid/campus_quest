@@ -13,9 +13,18 @@ import {
   Lock,
   Briefcase
 } from "lucide-react";
+import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
+
 import "./AddFaculty.css";
 
 const AddFaculty = () => {
+
+  const { data: departments, isLoading: deptLoading } =
+      useGetAllDepartmentsQuery();
+
+      const departmentList =
+    departments?.data?.[0]?.departmentNames || [];
+
   const [formData, setFormData] = useState({
     facultyId: "",
     name: "",
@@ -30,32 +39,32 @@ const AddFaculty = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
 
   // Academic departments with full name and short code
-  const departments = [
-  { code: "CA", name: "Computer Applications" },
-  { code: "CS", name: "Computer Science" },
-  { code: "CSE", name: "Computer Science & Engineering" },
-  { code: "IT", name: "Information Technology" },
-  { code: "AI", name: "Artificial Intelligence" },
-  { code: "DS", name: "Data Science" },
+//   const departments = [
+//   { code: "CA", name: "Computer Applications" },
+//   { code: "CS", name: "Computer Science" },
+//   { code: "CSE", name: "Computer Science & Engineering" },
+//   { code: "IT", name: "Information Technology" },
+//   { code: "AI", name: "Artificial Intelligence" },
+//   { code: "DS", name: "Data Science" },
 
-  { code: "ME", name: "Mechanical Engineering" },
-  { code: "CE", name: "Civil Engineering" },
-  { code: "EE", name: "Electrical Engineering" },
-  { code: "ECE", name: "Electronics & Communication Engineering" },
+//   { code: "ME", name: "Mechanical Engineering" },
+//   { code: "CE", name: "Civil Engineering" },
+//   { code: "EE", name: "Electrical Engineering" },
+//   { code: "ECE", name: "Electronics & Communication Engineering" },
 
-  { code: "BBA", name: "Business Administration" },
-  { code: "MBA", name: "Master of Business Administration" },
-  { code: "BCom", name: "Commerce" },
+//   { code: "BBA", name: "Business Administration" },
+//   { code: "MBA", name: "Master of Business Administration" },
+//   { code: "BCom", name: "Commerce" },
 
-  { code: "MATH", name: "Mathematics" },
-  { code: "PHY", name: "Physics" },
-  { code: "CHEM", name: "Chemistry" },
-  { code: "BIO", name: "Biology" },
+//   { code: "MATH", name: "Mathematics" },
+//   { code: "PHY", name: "Physics" },
+//   { code: "CHEM", name: "Chemistry" },
+//   { code: "BIO", name: "Biology" },
 
-  { code: "ECO", name: "Economics" },
-  { code: "ENG", name: "English" },
-  { code: "LAW", name: "Law" }
-];
+//   { code: "ECO", name: "Economics" },
+//   { code: "ENG", name: "English" },
+//   { code: "LAW", name: "Law" }
+// ];
 
   const designations = [
     "Professor",
@@ -164,10 +173,13 @@ const AddFaculty = () => {
   };
 
   // Get the currently selected department name for display
+  // const getSelectedDepartmentName = () => {
+  //   const selectedDept = departments.find(dept => dept.code === formData.department);
+  //   return selectedDept ? selectedDept.name : "";
+  // };
   const getSelectedDepartmentName = () => {
-    const selectedDept = departments.find(dept => dept.code === formData.department);
-    return selectedDept ? selectedDept.name : "";
-  };
+  return formData.department;
+};
 
   return (
     <motion.div 
@@ -339,7 +351,7 @@ const AddFaculty = () => {
                 <span className="required">*</span>
               </label>
               <div className="select-wrapper">
-                <select
+                {/* <select
                   id="department"
                   name="department"
                   value={getSelectedDepartmentName()} // Display full name
@@ -360,7 +372,28 @@ const AddFaculty = () => {
                       {dept.name}
                     </option>
                   ))}
-                </select>
+                </select> */}
+              <select
+  name="department"
+  value={getSelectedDepartmentName()}
+  onChange={(e) =>
+    setFormData({
+      ...formData,
+      department: e.target.value
+    })
+  }
+  className="formal-select"
+  disabled={deptLoading}
+  required
+>
+  <option value="">Select Academic Department</option>
+  {departmentList.map((dept, idx) => (
+    <option key={idx} value={dept}>
+      {dept}
+    </option>
+  ))}
+</select>
+
                 <div className="select-icon">
                   <Building size={18} />
                 </div>
@@ -499,3 +532,4 @@ const AddFaculty = () => {
 };
 
 export default AddFaculty;
+

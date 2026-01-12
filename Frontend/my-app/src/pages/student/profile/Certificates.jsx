@@ -20,34 +20,39 @@ const Certificates = () => {
       ) : (
         <div className="certificates-grid">
           {certificates.map((cert, index) => {
-            const quiz = quizzes.find(
-              (q) => q._id === cert.quizId
-            );
+            const quiz = quizzes.find((q) => q._id === cert.quizId);
 
             return (
               <div className="certificate-card" key={index}>
-                <a
-                  href={cert.certificateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={cert.certificateUrl}
-                    alt="Certificate"
-                    className="certificate-img"
-                  />
-                </a>
+                {/* 📄 PDF ICON */}
+                <div className="pdf-thumbnail">
+                  📄
+                  <span>PDF Certificate</span>
+                </div>
 
                 <div className="certificate-info">
                   <h4>{quiz?.title || "Quiz Certificate"}</h4>
-                  <a
-                    href={cert.certificateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="view-btn"
-                  >
-                    View Certificate
-                  </a>
+
+                  <div className="certificate-actions">
+                    {/* 👁 VIEW */}
+                    <a
+                      href={cert.certificateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="view-btn"
+                    >
+                      View
+                    </a>
+
+                    {/* ⬇️ DOWNLOAD */}
+                    <a
+                      href={cert.certificateUrl}
+                      download
+                      className="download-btn"
+                    >
+                      Download
+                    </a>
+                  </div>
                 </div>
               </div>
             );

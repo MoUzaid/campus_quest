@@ -38,7 +38,7 @@ const Login = () => {
           facultyId,
           password,
         }).unwrap();
-        
+
         dispatch(
           setCredentials({
             user: res.user,
@@ -66,6 +66,8 @@ const Login = () => {
         navigate("/superadmin/dashboard");
       }
     } catch (err) {
+      console.error("Login Error Details:", err); // Log the error to debug backend response
+
       // ✅ HANDLE TEMP PASSWORD (403)
       if (
         userType === "faculty" &&
@@ -78,11 +80,19 @@ const Login = () => {
         return;
       }
 
-      const message =
-        err?.data?.msg ||
-        err?.data?.message ||
-        err?.error ||
-        "Login failed";
+      // ✅ FIXED: Ensure 'message' is always a string
+      let message = "Login failed";
+
+      const incomingMsg =
+        err?.data?.msg || err?.data?.message || err?.error;
+
+      if (typeof incomingMsg === "string") {
+        message = incomingMsg;
+      } else if (typeof incomingMsg === "object") {
+        // If the backend returns an object (like the user object), don't try to render it.
+        // You might want to pick a specific field or show a generic error.
+        message = "An unexpected error occurred. Please try again.";
+      }
 
       setError(message);
     }
@@ -123,6 +133,7 @@ const Login = () => {
           {isLoading || isSuperAdminLoading ? "Logging in..." : "Login"}
         </button>
 
+        {/* This line was crashing because 'error' was an object */}
         {error && <p className="error-text">{error}</p>}
       </form>
     </div>

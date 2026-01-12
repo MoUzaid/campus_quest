@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
 import "./SeeAll.css";
-
+import { useNavigate } from "react-router-dom";
 const SeeAll = () => {
   const [department, setDepartment] = useState("");
   const [filteredQuizzes, setFilteredQuizzes] = useState([]);
-
   const navigate = useNavigate();
+
   const location = useLocation();
   const { quizzes = [] } = location.state || {};
 
@@ -15,8 +15,6 @@ const SeeAll = () => {
     useGetAllDepartmentsQuery();
 
   const departmentList = departments?.data?.[0]?.departmentNames || [];
-
-  const now = new Date();
 
   const handleChange = (e) => {
     const selectedDepartment = e.target.value;
@@ -30,16 +28,14 @@ const SeeAll = () => {
     const filtered = quizzes.filter(
       (quiz) =>
         quiz.department?.toLowerCase().trim() ===
-          selectedDepartment.toLowerCase().trim() &&
-        new Date(quiz.endTime) > now
+        selectedDepartment.toLowerCase().trim()
     );
 
     setFilteredQuizzes(filtered);
   };
 
-  const quizzesToShow = (department ? filteredQuizzes : quizzes).filter(
-    (quiz) => new Date(quiz.endTime) > now
-  );
+  const quizzesToShow =
+    department && filteredQuizzes.length > 0 ? filteredQuizzes : quizzes;
 
   return (
     <div className="seeall-page">
@@ -47,8 +43,8 @@ const SeeAll = () => {
 
       <select
         name="department"
-        value={department}
         onChange={handleChange}
+        value={department}
         disabled={deptLoading}
         className="seeall-select"
       >
@@ -61,31 +57,19 @@ const SeeAll = () => {
       </select>
 
       <div className="quiz-grid">
-        {quizzesToShow.length === 0 ? (
-          <p style={{ color: "#9ca3af", marginTop: "20px" }}>
-            No active quizzes available
-          </p>
-        ) : (
-          quizzesToShow.map((quiz) => (
-            <div
-              className="quiz-card"
-              key={quiz._id}
-              onClick={() =>
-                navigate(`/student/quiz/${quiz._id}`, {
-                  state: { quizData: quiz },
-                })
-              }
-            >
-              <div className="quiz-top">
-                <div className="play-icon">▶</div>
-                <span className="live-badge">LIVE</span>
-              </div>
-
-              <h3 className="quiz-title">{quiz.title}</h3>
-              <p className="quiz-subject">{quiz.subject}</p>
+        {quizzesToShow.map((quiz, index) => (
+          <div className="quiz-card" key={index}  onClick={() =>
+              navigate(`/student/quiz/${quiz._id}`, { state: { quizData: quiz } })
+            }>
+            <div className="quiz-top">
+              <div className="play-icon">▶</div>
+              <span className="live-badge">LIVE</span>
             </div>
-          ))
-        )}
+
+            <h3 className="quiz-title">{quiz.title}</h3>
+            <p className="quiz-subject">{quiz.subject}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

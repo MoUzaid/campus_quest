@@ -65,6 +65,7 @@
   background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%);
   border-radius: 12px 12px 0 0;
   color: white;
+  
 }
 
 .header-content {
@@ -76,34 +77,39 @@
 .header-title {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.title-icon {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(10px);
+  gap: 18px;
 }
 
 .header-title h1 {
   font-size: 28px;
   font-weight: 600;
   margin: 0;
-  color: white;
-  letter-spacing: -0.01em;
+  line-height: 1.2; /* 👈 text vertical balance */
 }
 
-.subtitle {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 4px;
-  font-weight: 400;
+
+.title-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+
+/* .header-title h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+  letter-spacing: -0.01em;
+} */
+
+.subtitle {
+  margin-top: 6px;   /* 👈 pehle thoda chipka hua lag raha tha */
+  line-height: 1.4;
+}
+
 
 .header-info {
   display: flex;
