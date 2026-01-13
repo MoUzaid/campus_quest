@@ -66,7 +66,7 @@ const SeeAll = () => {
               <span className="live-badge">LIVE</span>
             </div>
 
-            <h3 className="quiz-title">{quiz.title}</h3>
+            <h3 className="quiz-title-seeall">{quiz.title}</h3>
             <p className="quiz-subject">{quiz.subject}</p>
           </div>
         ))}

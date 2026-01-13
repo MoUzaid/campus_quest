@@ -21,111 +21,184 @@ const  {createFacultyActivity}  = require("./FacultyActivityController");
 const uploadCertificateToCloudinary = require('../utils/uploadCertificate');
 
 
+function shuffleArray(array) {
+  const shuffled = [...array]; // copy (important)
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
 
 
 const QuizCtrl = {
-    createQuiz: async (req, res) => {
-        try {
-            const { title, subject, course, yr, group, description, department, questions, passingMarks, totalMarks, startTime, endTime, durationMinutes } = req.body;
-           let parsedQuestions = questions;
-      if (typeof questions === "string") {
-        parsedQuestions = JSON.parse(questions);
-      }
-            if(req.files && req.files.length > 0){
-            let fileMap = {};
-            req.files.forEach((file) => {
-                if (!fileMap[file.fieldname]) fileMap[file.fieldname] = [];
-                fileMap[file.fieldname].push(file);
-            });
-            for (let i = 0; i < parsedQuestions.length; i++) {
-                let key = `questionImages_${i}`;
-                let imageFiles = fileMap[key] || [];
-                let urls = [];
-                for (let file of imageFiles) {
-                    const uploaded = await new Promise((resolve, reject) => {
-                        cloudinary.uploader.upload_stream({}, (err, result) => {
-                            if (err) reject(err);
-                            else resolve(result);
-                        }).end(file.buffer);
-                    });
-                    urls.push(uploaded.secure_url);
-                }
-                parsedQuestions[i].imageUrl = urls;
-            }
-        }
-            const newQuiz = new Quiz({
-                title,
-                subject,
-                course,
-                yr,
-                group,
-                description,
-                department,
-                questions: parsedQuestions,
-                passingMarks,
-                totalMarks,
-                startTime,
-                endTime,
-                durationMinutes,
-                createdBy:req.user._id,
-            });
-            await newQuiz.save();
-            console.log(req.faculty.id);    
-            const facultyId = req.faculty.id;
-            const newFacultyQuiz = await Faculty.findById(facultyId);
-            newFacultyQuiz.createdQuizzes.push(newQuiz._id);
-            await newFacultyQuiz.save();
-            const superAdminData = await superAdmin.findOne({ department: department });
-            superAdminData.departmentQuizzes.push(newQuiz._id);
-            await superAdminData.save();
-            let students;
-            if (!course && !yr && !group) {
-                students = await Student.find();
-                const emails = students.map(s => s.email);
-                await sendEmail(
-                    emails,
-                    'New Quiz Available',
-                    `<h2>A new quiz titled "${title}" is available</h2>
-  <h2>subject: "${subject}"</h2>
-   <p>Description: ${description}</p>
-   <p>Start Time: ${new Date(startTime).toLocaleString()}</p>
-   <p>End Time: ${new Date(endTime).toLocaleString()}</p> 
-    <p>Duration: ${durationMinutes} minutes</p>
-    `);
+ createQuiz : async (req, res) => {
+  try {
+    console.log("REQ BODY:", req.body);
 
-    await createFacultyActivity({
-        facultyId: req.user._id,
-        action: "QUIZ_CREATED",
-        message: `Created quiz "${newQuiz.title}"`,
-        performedBy: req.user.name
+    // 🔹 1. Extract data correctly from quizData
+    const {
+      quizTitle,
+      subject,
+      description,
+      department,
+      selectedCourses,
+      selectedYears,
+      selectedGroups,
+      questions,
+      passingMarks,
+      totalMarks,
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      durationMinutes,
+    } = req.body.quizData;
+
+    // 🔹 2. Validate required fields
+    if (!quizTitle || !subject || !questions || questions.length === 0) {
+      return res.status(400).json({ message: "Missing required quiz data" });
+    }
+
+    // 🔹 3. Safely parse questions (for form-data)
+    let parsedQuestions = questions;
+    if (typeof questions === "string") {
+      parsedQuestions = JSON.parse(questions);
+    }
+
+    // 🔹 4. Merge date + time
+    const startDateTime = new Date(`${startDate}T${startTime}`);
+    const endDateTime = new Date(`${endDate}T${endTime}`);
+
+    // 🔹 5. Handle question images upload
+    if (req.files && req.files.length > 0) {
+      let fileMap = {};
+
+      req.files.forEach((file) => {
+        if (!fileMap[file.fieldname]) fileMap[file.fieldname] = [];
+        fileMap[file.fieldname].push(file);
       });
-            }
-            else{
-                const query = {
-                    course: { $in: course },
-                    yr: { $in: yr },
-                };
-                if (group && group.length > 0) {
-                    query.group = { $in: group };
-                }
-                 students = await Student.find(query);
-                const emails = students.map(s => s.email);
-                await sendEmail(
-                    emails,
-                    'New Quiz Available',
-                    `<h2>A new quiz titled "${title}" is available</h2>
-  <h2>subject: "${subject}"</h2>
-   <p>Description: ${description}</p>
-   <p>Start Time: ${new Date(startTime).toLocaleString()}</p>
-   <p>End Time: ${new Date(endTime).toLocaleString()}</p> 
-    <p>Duration: ${durationMinutes} minutes</p>
-    `);
-            }
-         res.status(201).json({ message: 'Quiz created successfully', quiz: newQuiz });
-        } catch (error) {
-            res.status(500).json({ message: 'Error creating quiz', error: error.message });
+
+      for (let i = 0; i < parsedQuestions.length; i++) {
+        const key = `questionImages_${i}`;
+        const imageFiles = fileMap[key] || [];
+        const urls = [];
+
+        for (let file of imageFiles) {
+          const uploaded = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream({}, (err, result) => {
+              if (err) reject(err);
+              else resolve(result);
+            }).end(file.buffer);
+          });
+
+          urls.push(uploaded.secure_url);
         }
-    },
+
+        parsedQuestions[i].imageUrl = urls;
+      }
+    }
+
+    // 🔹 6. Create Quiz
+    const newQuiz = new Quiz({
+      title: quizTitle,
+      subject,
+      description,
+      department,
+      course: selectedCourses || [],
+      yr: selectedYears || [],
+      group: selectedGroups || [],
+      questions: parsedQuestions,
+      passingMarks,
+      totalMarks,
+      startTime: startDateTime,
+      endTime: endDateTime,
+      durationMinutes,
+      createdBy: req.user._id,
+    });
+
+    await newQuiz.save();
+
+    // 🔹 7. Attach quiz to faculty
+    const faculty = await Faculty.findById(req.user._id);
+    if (faculty) {
+      faculty.createdQuizzes.push(newQuiz._id);
+      await faculty.save();
+    }
+
+    // 🔹 8. Attach quiz to superAdmin safely
+    const superAdminData = await superAdmin.findOne({ department });
+    if (superAdminData) {
+      superAdminData.departmentQuizzes.push(newQuiz._id);
+      await superAdminData.save();
+    }
+
+    // 🔹 9. Find students
+    let students = [];
+
+    const isGlobalQuiz =
+      (!selectedCourses || selectedCourses.length === 0) &&
+      (!selectedYears || selectedYears.length === 0) &&
+      (!selectedGroups || selectedGroups.length === 0);
+
+    if (isGlobalQuiz) {
+      students = await Student.find();
+    } else {
+      const query = {
+        course: { $in: selectedCourses },
+        yr: { $in: selectedYears },
+      };
+
+      if (selectedGroups && selectedGroups.length > 0) {
+        query.group = { $in: selectedGroups };
+      }
+
+      students = await Student.find(query);
+    }
+
+    // 🔹 10. Send email notifications
+    const emails = students.map((s) => s.email);
+
+    if (emails.length > 0) {
+      await sendEmail(
+        emails,
+        "New Quiz Available",
+        `
+        <h2>New Quiz: ${quizTitle}</h2>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p>${description}</p>
+        <p><strong>Start:</strong> ${startDateTime.toLocaleString()}</p>
+        <p><strong>End:</strong> ${endDateTime.toLocaleString()}</p>
+        <p><strong>Duration:</strong> ${durationMinutes} minutes</p>
+        `
+      );
+    }
+
+    // 🔹 11. Faculty activity log
+    // await createFacultyActivity({
+    //   facultyId: req.user._id,
+    //   action: "QUIZ_CREATED",
+    //   message: `Created quiz "${quizTitle}"`,
+    //   performedBy: req.user.name,
+    // });
+
+    // 🔹 12. Success response
+    res.status(201).json({
+      message: "Quiz created successfully",
+      quiz: newQuiz,
+    });
+
+  } catch (error) {
+    console.error("CREATE QUIZ ERROR:", error);
+    res.status(500).json({
+      message: "Error creating quiz",
+      error: error.message,
+    });
+  }
+},
+
     getAllQuizzes: async (req, res) => {
         try {
             const quizzes = await Quiz.find();
@@ -234,59 +307,65 @@ const QuizCtrl = {
             res.status(500).json({ message: 'Error fetching quizzes by department', error: error.message });
         }
     },
-  QuizAttempt: async (req, res) => {
-  try {
-    const { quizId } = req.params;
-    const studentId = req.user.id;
+    QuizAttempt: async (req, res) => {
+    try {
+      const { quizId } = req.params;
+      const studentId = req.user.id;
 
-    const quiz = await Quiz.findById(quizId);
-    if (!quiz) {
-      return res.status(404).json({ message: "Quiz not found" });
-    }
+      const quiz = await Quiz.findById(quizId);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
 
-    if (!quiz.registeredStudents.includes(studentId)) {
-      return res.status(403).json({
-        message: "Student not registered for this quiz",
+      if (!quiz.registeredStudents.includes(studentId)) {
+        return res.status(403).json({
+          message: "Student not registered for this quiz",
+        });
+      }
+
+      const now = Date.now();
+      if (now < quiz.startTime.getTime() || now > quiz.endTime.getTime()) {
+        return res.status(403).json({
+          message: "Quiz not active currently",
+        });
+      }
+
+      console.log("creating attempt:",quizId,studentId);
+
+      const existingAttempt = await QuizAttempt.findOne({
+        quizId,
+        student: studentId,
       });
-    }
 
-    const now = Date.now();
-    if (now < quiz.startTime.getTime() || now > quiz.endTime.getTime()) {
-      return res.status(403).json({
-        message: "Quiz not active currently",
+      if (existingAttempt) {
+        return res.status(403).json({
+          message: "Quiz already attempted",
+        }); 
+      }
+
+      await QuizAttempt.create({
+        quizId,
+        student: studentId,
+        status: "in_progress",
       });
-    }
 
-    console.log("creating attempt:",quizId,studentId);
-
-    const existingAttempt = await QuizAttempt.findOne({
-      quizId,
-      student: studentId,
-    });
-
-    if (existingAttempt) {
-      return res.status(403).json({
-        message: "Quiz already attempted",
-      }); 
-    }
-
-    await QuizAttempt.create({
-      quizId,
-      student: studentId,
-      status: "in_progress",
-    });
+   const shuffledQuestions = shuffleArray(quiz.questions);
 
     res.status(200).json({
       message: "Quiz attempt started",
-      quiz,
+      quiz: {
+        ...quiz.toObject(),
+        questions: shuffledQuestions,
+      },
     });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error starting quiz",
-      error: error.message,
-    });
-  }
-},
+    
+    } catch (error) {
+      res.status(500).json({
+        message: "Error starting quiz",
+        error: error.message,
+      });
+    }
+  },
 
 submitQuiz: async (req, res) => {
   try {

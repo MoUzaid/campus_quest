@@ -4,6 +4,8 @@ import { updateQuestion } from "../redux/features/quizSlice";
 import { useNavigate } from "react-router-dom";
 import './styles/QuestionPage.css';
 import { useCreateQuizMutation } from "../redux/services/quizApi";
+import { toast } from "react-toastify";
+
 
 const QuestionsPage = () => {
   const [createQuiz, { isLoading, isSuccess, isError }] = useCreateQuizMutation();
@@ -43,9 +45,18 @@ const QuestionsPage = () => {
   };
 
   const handleSubmit=async()=>{
-  await createQuiz({
+    try{
+  const res = await createQuiz({
     quizData
-  })
+  }).unwrap();
+  if(res?.message){
+     toast.success(res.message);
+    Navigate("/");
+  }
+}
+catch(err){
+  alert(err.message);
+}
   }
 
 
