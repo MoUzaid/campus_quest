@@ -7,11 +7,12 @@ import "./QuizGrid.css";
 const RegisteredQuizzes = () => {
   const navigate = useNavigate();
   const { data: quizzesData = [], isLoading, isError } = useGetRegisteredQuizzesForStudentQuery();
+  const filteredQuizzes = quizzesData.filter((quiz) => new Date(quiz.endTime) > new Date());
 
   if (isLoading) return <p style={{color: '#fff'}}>Loading...</p>;
   if (isError) return <p style={{color: '#fff'}}>Error loading quizzes</p>;
 
-  const topFour = quizzesData.slice(0, 4);
+  const topFour = filteredQuizzes.slice(0, 4);
 
   return (
     <div className="quiz-section">

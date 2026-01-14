@@ -177,6 +177,7 @@ const AddFaculty = () => {
       transition={{ duration: 0.4 }}
     >
       {/* Header Section */}
+      <div className="left"> 
       <div className="form-header">
         <div className="header-content">
           <div className="header-title">
@@ -196,7 +197,7 @@ const AddFaculty = () => {
           </div>
         </div>
       </div>
-
+</div>
       {/* Status Message */}
       {message.text && (
         <motion.div 

@@ -6,19 +6,30 @@ import "./QuizGrid.css";
 
 const PreviousQuizzes = () => {
   const navigate = useNavigate();
-  const { data: prevQuiz = [], isLoading, isError } = useGetAllAttemptedQuizzesQuery();
+  const { data: prevQuiz = [], isLoading, isError } =
+    useGetAllAttemptedQuizzesQuery();
 
-  if (isLoading) return <p style={{color: '#fff'}}>Loading...</p>;
-  if (isError) return <p style={{color: '#fff'}}>Error loading quizzes</p>;
+  if (isLoading) return <p style={{ color: "#fff" }}>Loading...</p>;
+  if (isError) return <p style={{ color: "#fff" }}>Error loading quizzes</p>;
 
-  const topFour = prevQuiz.slice(0, 4);
+  // ✅ FILTER OUT BROKEN / DELETED QUIZZES
+  const safeQuizzes = prevQuiz.filter((item) => item.quizId !== null);
+  const topFour = safeQuizzes.slice(0, 4);
 
   return (
     <div className="quiz-section">
       <div className="quiz-header">
         <h2 className="quiz-section-title">Previous Attempts</h2>
-        {prevQuiz.length > 0 && (
-          <button className="see-all-btn" onClick={() => navigate("/student/see-all",{ state:{ quizzes:prevQuiz}})}>
+
+        {safeQuizzes.length > 0 && (
+          <button
+            className="see-all-btn"
+            onClick={() =>
+              navigate("/student/see-all-prev", {
+                state: { quizzes: safeQuizzes },
+              })
+            }
+          >
             See All <FaArrowRight />
           </button>
         )}
@@ -29,7 +40,15 @@ const PreviousQuizzes = () => {
       ) : (
         <div className="quiz-grid">
           {topFour.map((item) => (
-            <div key={item._id} className="quiz-tile" onClick={() => navigate("/student/quiz/review",{ state:{ quizId: item._id }})}>
+            <div
+              key={item._id}
+              className="quiz-tile"
+              onClick={() =>
+                navigate("/student/quiz/review", {
+                  state: { quizId: item.quizId._id },
+                })
+              }
+            >
               <div className="card-top">
                 <div className="quiz-icon-wrapper icon-previous">
                   <FaHistory />
@@ -37,11 +56,16 @@ const PreviousQuizzes = () => {
                 <span className="quiz-category-badge">Completed</span>
               </div>
 
-              <div className="quiz-tile-title">{item.quizId.title}</div>
+              <div className="quiz-tile-title">
+                {item.quizId.title}
+              </div>
 
               <div className="quiz-tile-subtitle">
                 <MdSubject size={16} /> {item.quizId.subject}
-                <FaCheckCircle className="arrow-icon" style={{color: '#10b981'}}/>
+                <FaCheckCircle
+                  className="arrow-icon"
+                  style={{ color: "#10b981" }}
+                />
               </div>
 
               <FaHistory className="card-decoration" />
@@ -53,4 +77,6 @@ const PreviousQuizzes = () => {
   );
 };
 
+
 export default PreviousQuizzes;
+

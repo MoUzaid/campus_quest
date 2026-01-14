@@ -47,6 +47,7 @@ export const facultyApi = createApi({
         body: data,
       }),
     }),
+    
 
     /* =========================
        FACULTY CRUD (HOD / ADMIN)

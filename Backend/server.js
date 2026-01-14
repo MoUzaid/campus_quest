@@ -15,6 +15,7 @@ const leaderboardRoutes = require('./routers/leaderboardRoutes');
 const departmentRoutes = require('./routers/departmentRoutes');
 const chatRoutes = require('./routers/chatRoutes');
 
+
 //Importing HTTP and creating server 
 const http = require("http");
 const server = http.createServer(app);
@@ -31,7 +32,7 @@ app.use(cors({
   origin: "http://localhost:3000",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization","cache-control","pragma"]
+  allowedHeaders: ["Content-Type", "Authorization","cache-control","pragma","X-Requested-With"]
 }));
 
 
@@ -40,6 +41,10 @@ app.use(cors({
 
 
 // analytics routes
+
+ app.use("/api/student-analytics", require("./routers/StudentAnalyticsRoutes"));
+// app.use('/api/student-analytics', studentAnalyticsRoutes)
+
 app.use("/api/superadmin", require("./routers/superAdminAnalyticsRoutes"));
 
 app.use("/api", require("./routers/FacultyAnalyticsRoutes"));

@@ -1,22 +1,21 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAttemptedQuizByStudentQuery } from "../../../redux/services/quizApi";
+import { useGetAttemptedQuizByIdQuery } from "../../../redux/services/quizApi";
 import "./QuizReview.css";
 
 const QuizReview = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const {
-    quizId,
-    timeTaken,
-    totalQuestions,
-    attemptedOn,
-    submissionStatus,
-  } = location.state || {};
+  const { quizId } = location.state || {};
 
-  const { data: prevQuiz, isLoading, isError } =
-    useAttemptedQuizByStudentQuery(quizId, { skip: !quizId });
+  const {
+    data: prevQuiz,
+    isLoading,
+    isError,
+  } = useGetAttemptedQuizByIdQuery(quizId, {
+    skip: !quizId,
+  });
 
   if (!quizId) {
     return (
@@ -31,17 +30,21 @@ const QuizReview = () => {
   if (isLoading) return <p>Loading review...</p>;
   if (isError || !prevQuiz) return <p>Failed to load review.</p>;
 
-  const correct = prevQuiz.quiz.questions.filter((q) => {
-    const ans = prevQuiz.answers.find((a) => a.questionId === q._id);
-    return ans?.selectedAnswer === q.correctAnswer;
-  }).length;
+  const correct = prevQuiz.correctCount ?? 0;
+  const wrong = prevQuiz.wrongCount ?? 0;
+  const attempted = prevQuiz.answers?.length ?? 0;
+  const totalQuestions = correct + wrong + (prevQuiz.skippedCount || 0);
 
-  const wrong = prevQuiz.answers.length - correct;
-  const skipped = totalQuestions - prevQuiz.answers.length;
-  const accuracy = Math.round((correct / totalQuestions) * 100);
+  const skipped =
+    totalQuestions > attempted ? totalQuestions - attempted : 0;
 
-  const minutes = Math.floor(timeTaken / 60);
-  const seconds = timeTaken % 60;
+  const accuracy =
+    totalQuestions > 0
+      ? Math.round((correct / totalQuestions) * 100)
+      : 0;
+
+  const minutes = Math.floor((prevQuiz.timeTaken || 0) / 60);
+  const seconds = (prevQuiz.timeTaken || 0) % 60;
 
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
@@ -52,19 +55,35 @@ const QuizReview = () => {
       <div className="quiz-attempt-card wide">
         <div className="review-summary">
           <div>
-            <h1>{prevQuiz.quiz.title}</h1>
-            <p>Score: {correct} / {totalQuestions}</p>
-            <p>Time Taken: {minutes}m {seconds}s</p>
+            <h1>{prevQuiz.quizId?.title}</h1>
+
+            <p>
+              Score: {prevQuiz.scoredMarks}
+            </p>
+
+            <p>
+              Time Taken: {minutes}m {seconds}s
+            </p>
+
             <p className="meta">
               Accuracy: {accuracy}% | Correct: {correct} | Wrong: {wrong} | Skipped: {skipped}
             </p>
+
             <p className="meta">
-              Attempted on: {attemptedOn} · Status: {submissionStatus}
+              Attempted on: {new Date(prevQuiz.attemptedAt).toLocaleString()} ·
+              Status: {prevQuiz.status}
             </p>
           </div>
 
           <svg width="110" height="110" className="donut">
-            <circle cx="55" cy="55" r={radius} stroke="#e5e7eb" strokeWidth="10" fill="none" />
+            <circle
+              cx="55"
+              cy="55"
+              r={radius}
+              stroke="#e5e7eb"
+              strokeWidth="10"
+              fill="none"
+            />
             <circle
               cx="55"
               cy="55"
@@ -88,43 +107,15 @@ const QuizReview = () => {
           <div className="dist wrong" style={{ flex: wrong }} />
           <div className="dist skipped" style={{ flex: skipped }} />
         </div>
+
         <p className="dist-legend">
           Correct: {correct} | Wrong: {wrong} | Skipped: {skipped}
         </p>
 
-        {prevQuiz.quiz.questions.map((q, index) => {
-          const userAnswer = prevQuiz.answers.find(
-            (a) => a.questionId === q._id
-          )?.selectedAnswer;
-
-          const isCorrect = userAnswer === q.correctAnswer;
-          const isSkipped = !userAnswer;
-
-          return (
-            <div
-              key={q._id}
-              className={`review-question ${
-                isCorrect ? "correct" : isSkipped ? "skipped" : "wrong"
-              }`}
-            >
-              <h3>Q{index + 1}. {q.question}</h3>
-              <p>
-                Your Answer:
-                <span className={isCorrect ? "green" : "red"}>
-                  {userAnswer || "Not Answered"}
-                </span>
-              </p>
-              {!isCorrect && (
-                <p>
-                  Correct Answer:
-                  <span className="green">{q.correctAnswer}</span>
-                </p>
-              )}
-            </div>
-          );
-        })}
-
-        <button className="primary" onClick={() => navigate("/student/dashboard")}>
+        <button
+          className="primary"
+          onClick={() => navigate("/student/dashboard")}
+        >
           Back to Dashboard
         </button>
       </div>

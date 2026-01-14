@@ -7,6 +7,7 @@ import Header from "./components/Header/Header";
 import Navbar from "./components/Header/Navbar";
 
 /* AUTH */
+
 import Login from "./pages/Login";
 
 /* SUPER ADMIN */
@@ -36,6 +37,11 @@ import QuizAttemptedStudents from "./pages/Dashboards/Faculty/QuizAttemptedStude
 import OwnFacultyQuizzes from "./pages/Dashboards/Faculty/OwnFacultyQuizzes";
 import FacultyAnalytics from "./pages/Dashboards/Faculty/FacultyAnalytics";
 
+import resetPassword from "./pages/Dashboards/Faculty/resetPassword";
+
+import fOtp from "./pages/Dashboards/Faculty/Otp";
+import forgotPassword from "./pages/Dashboards/Faculty/ForgotPassword";
+
 /* STUDENT */
 import StudentDashboard from "./pages/student/dashboard/Dashboard";
 import StudentLogin from "./pages/student/auth/StudentLogin";
@@ -47,7 +53,9 @@ import Certificates from "./pages/student/profile/Certificates";
 import Otp from "./pages/student/auth/Otp";
 import Leaderboard from "./pages/student/quiz/Leaderboard";
 import SeeAll from "./pages/student/dashboard/SeeAll";
-// import SeeAllPrevious from "./pages/student/dashboard/SeeAllPrevious";
+import FacultyChangePassword from "./pages/Dashboards/Faculty/FacultyChangePassword";
+import ChangePassword from "./pages/Dashboards/superAdmin/ChangePasswordSuper";
+import SeeAllPrevious from "./pages/student/dashboard/SeeAllPrevious";
 
 /* QUIZ */
 import QuizDetails from "./pages/student/quiz/QuizDetails";
@@ -56,7 +64,11 @@ import FeedbackPage from "./pages/student/quiz/FeedbackPage";
 import QuizWaiting from "./pages/student/quiz/QuizWaiting";
 import QuizReview from "./pages/student/quiz/QuizReview";
 import QuizReviewMock from "./pages/student/quiz/QuizReviewMock";
+import StudentAnalytics from "./pages/student/profile/StudentAnalytics";
 
+import OngoingQuizzes from "./pages/student/dashboard/components/OngoingQuizzes";
+import StudentHome from "./pages/student/dashboard/StudentHome";
+import StudentChangePassword from "./pages/student/auth/StudentChangePassword";
 /* EXTRA */
 import CreateQuiz from "./pages/CreateQuiz";
 import QuestionsPage from "./pages/QuestionsPage";
@@ -72,9 +84,21 @@ const Pages = () => {
     <>
       <Header />
       <Navbar />
+
+
+
+
+
       
       <Routes>
         {/* ROOT - REDIRECT BASED ON AUTH & ROLE */}
+<Route path='/student/change-password' element={<StudentChangePassword/>} />
+<Route path='/Student/Home' element={<StudentHome/>} />
+   <Route path='/ongoing-quiz' element={<OngoingQuizzes/>} />
+        <Route path='forgott-password' element={<forgotPassword/>} />
+        <Route path='reset-password/:token' element={<resetPassword/>} />
+        <Route path='faculty-otp' element={<fOtp/>} />
+
         <Route
           path="/"
           element={
@@ -100,6 +124,12 @@ const Pages = () => {
 
         {/* SUPERADMIN REGISTRATION */}
         <Route path="/superadmin/register" element={<SuperAdminRegister />} />
+
+        <Route
+  path="/change-password"
+  element={<ChangePassword />}
+/>
+
 
         {/* ================= SUPER ADMIN ================= */}
         
@@ -213,6 +243,8 @@ const Pages = () => {
         {/* ================= SHARED ROUTES ================= */}
         
         {/* VIEW FACULTY - DUPLICATE ROUTES COMMENTED */}
+       <Route path="/faculty-change-password" element={<FacultyChangePassword />} />
+      
         <Route
           path="/view-faculty"
           element={
@@ -298,7 +330,8 @@ const Pages = () => {
         <Route path="/faculty/analytics" element={<FacultyAnalytics />} />
 
         {/* ================= STUDENT AUTH ================= */}
-        <Route path="/student/login" element={<StudentLogin />} />
+        <Route path="/student/login" element={<StudentLogin/>} />
+        
         <Route path="/student/signup" element={<Signup />} />
         <Route path="/student/forgot-password" element={<ForgotPassword />} />
         <Route path="/student/reset-password/:token" element={<ResetPassword />} />
@@ -322,6 +355,7 @@ const Pages = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/student/analytics/:studentId" element={<StudentAnalytics />} />
 
         <Route
           path="/student/certificates"
@@ -342,14 +376,14 @@ const Pages = () => {
           }
         />
 
-        {/* <Route
+        <Route
           path="/student/see-all-prev"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <SeeAllPrevious />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* ================= QUIZ ================= */}
         <Route

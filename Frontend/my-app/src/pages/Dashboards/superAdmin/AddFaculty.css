@@ -1,53 +1,6 @@
-/* .add-faculty-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.add-faculty-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.add-faculty-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.add-faculty-form input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.add-faculty-form button {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #4f46e5;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.add-faculty-form button:disabled {
-  background: #aaa;
-}
-
-.message {
-  text-align: center;
-  margin-bottom: 10px;
-} */
-
-
-/* AddFaculty.css - Formal & Professional */
 
 .add-faculty-container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 40px auto;
   padding: 0;
   background: #ffffff;
@@ -57,14 +10,23 @@
     0 1px 4px rgba(0, 0, 0, 0.04);
   border: 1px solid #e5e7eb;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
 }
 
 /* Header Styles */
+.left{
+  margin-top:30px;
+  margin-left: 40px;
+
+}
 .form-header {
+   max-width: 900px;
   padding: 32px 40px;
   background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%);
   border-radius: 12px 12px 0 0;
   color: white;
+  
+
 }
 
 .header-content {
@@ -107,7 +69,8 @@
 
 .header-info {
   display: flex;
-  gap: 20px;
+  gap: 30px;
+  
 }
 
 .info-item {
@@ -546,12 +509,12 @@
     margin: 0;
   }
   
-  .form-header {
+  /* .form-header {
     background: white !important;
     color: black !important;
     border-bottom: 2px solid #1a56db;
   }
-  
+   */
   .title-icon {
     background: #f3f4f6 !important;
   }

@@ -1,48 +1,58 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./QuizDetails.css";
-import { useRegisterStudentForQuizMutation } from "../../../redux/services/quizApi";
+import {
+  useRegisterStudentForQuizMutation,
+  useGetQuizTimerQuery,
+} from "../../../redux/services/quizApi";
+import { useGetMeQuery } from "../../../redux/services/studentApi";
+import { toast } from "react-toastify";
 import Socket from "../../../Socket";
-import { useGetQuizTimerQuery } from "../../../redux/services/quizApi";
-import QuizTimer from "./QuizTimer";
 
 const QuizDetails = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { quizData, registered } = location.state || {};
+  /* ================= ALL HOOKS FIRST ================= */
+
+  const { quizData } = location.state || {};
+
+  const { data: student } = useGetMeQuery();
+
+  const [registerStudentForQuiz, { isLoading }] =
+    useRegisterStudentForQuizMutation();
+
+  const {
+    isLoading: timerLoading,
+    isError: timerError,
+    refetch,
+  } = useGetQuizTimerQuery(quizId, {
+    skip: !quizData?.isStarted,
+  });
 
   const [errorMsg, setErrorMsg] = useState("");
-  const [registerStudentForQuiz] = useRegisterStudentForQuizMutation();
- const {
-  data: timerData,
-  isLoading,
-  isError,
-  refetch
-} = useGetQuizTimerQuery(quizId, {
-  skip: !quizData?.isStarted,
-});
 
-console.log("Timer Data:", timerData);
+  /* ================= SAFE DERIVED VALUES ================= */
 
-  if(isLoading) return <p style={{color: '#fff'}}>Loading timer...</p>;
-  if(isError) return <p style={{color: '#fff'}}>Error loading timer</p>;
+  const isRegistered =
+    quizData?.registeredStudents?.includes(student?._id) || false;
 
+  /* ================= CONDITIONAL RENDERING AFTER HOOKS ================= */
 
+  if (!quizData) {
+    return <p style={{ color: "#fff" }}>Invalid quiz data</p>;
+  }
 
-  const handleRegister = async (id) => {
-    try {
-     const res =  await registerStudentForQuiz({ quizId: id }).unwrap();
-console.log("Registration successful:", res);
-if(res.message){
-alert("Successfully registered for the quiz!");
-}
-      setErrorMsg("");
-    } catch (err) {
-      setErrorMsg(err?.data?.message || "Something went wrong");
-    }
-  };
+  if (timerLoading && quizData.isStarted) {
+    return <p style={{ color: "#fff" }}>Loading timer...</p>;
+  }
+
+  if (timerError && quizData.isStarted) {
+    return <p style={{ color: "#fff" }}>Error loading timer</p>;
+  }
+
+  /* ================= HELPERS ================= */
 
   const formatDateTime = (value) => {
     if (!value) return "N/A";
@@ -56,89 +66,123 @@ alert("Successfully registered for the quiz!");
     });
   };
 
-const handleJoin = () => {
-  if(!quizData?.isStarted){
-    alert("Quiz has not started yet!");
-    return;
-  }
-   Socket.emit(`join-timer-room`, { quizId: quizData?._id });
-   refetch();
+  /* ================= REGISTER ================= */
 
-   navigate(`/student/quiz/waiting/${quizData?._id}`, {
-    state: {
-      quizData,
-       startTime: new Date(timerData.startTime).getTime(), 
-      duration: Number(timerData.duration) 
+  const handleRegister = async () => {
+    try {
+      const res = await registerStudentForQuiz({ quizId }).unwrap();
+      toast.success(res.message);
+      navigate("/");
+      setErrorMsg("");
+    } catch (err) {
+      setErrorMsg(err?.data?.message || "Registration failed");
     }
-  });
-}
+  };
 
+  /* ================= JOIN QUIZ ================= */
+
+  const handleJoin = async () => {
+    if (!quizData.isStarted) {
+      alert("Quiz has not started yet!");
+      return;
+    }
+
+    const startTimeMs = new Date(quizData.quizStartTime).getTime();
+    const endTimeMs =
+      startTimeMs + quizData.durationSeconds * 1000;
+
+    if (Date.now() >= endTimeMs) {
+      alert("Quiz Timer Ended");
+      return;
+    }
+
+    try {
+      const latestTimer = await refetch().unwrap();
+
+      const freshEndTime =
+        new Date(latestTimer.startTime).getTime() +
+        Number(latestTimer.duration) * 1000;
+
+      if (Date.now() >= freshEndTime) {
+        alert("Quiz Timer Ended");
+        return;
+      }
+
+      Socket.emit("join-timer-room", quizId);
+
+      navigate(`/student/quiz/waiting/${quizId}`, {
+        state: {
+          quizData,
+          startTime: new Date(latestTimer.startTime).getTime(),
+          duration: Number(latestTimer.duration),
+        },
+      });
+    } catch (err) {
+      alert(err?.data?.message || "Failed to join quiz");
+    }
+  };
+
+  /* ================= JSX ================= */
 
   return (
     <div className="quiz-details">
       <div className="quiz-details-card">
         <h1>Quiz Details</h1>
 
-        <p className="quiz-meta">
-          <strong>Quiz Title:</strong> {quizData?.title}
-        </p>
+        <p><strong>Quiz Title:</strong> {quizData.title}</p>
+        <p><strong>Subject:</strong> {quizData.subject}</p>
+        <p><strong>Description:</strong> {quizData.description}</p>
 
-        <p className="quiz-meta">
-          <strong>Subject:</strong> {quizData?.subject}
-        </p>
-
-        <p className="quiz-description">
-          <strong>Description:</strong> {quizData?.description}
-        </p>
-
-        <p className="quiz-startTime">
+        <p>
           <strong>Start Time:</strong>{" "}
-          {formatDateTime(quizData?.startTime)}
+          {formatDateTime(quizData.startTime)}
         </p>
 
-        <p className="quiz-Time">
+        <p>
           <strong>End Time:</strong>{" "}
-          {formatDateTime(quizData?.endTime)}
+          {formatDateTime(quizData.endTime)}
         </p>
 
-        <p className="quiz-min">
-          <strong>Duration:</strong> {quizData?.durationMinutes} Minutes
+        <p>
+          <strong>Duration:</strong> {quizData.durationMinutes} Minutes
         </p>
 
-        <p className="quiz-marks">
-          <strong>Total Marks:</strong> {quizData?.totalMarks}
+        <p>
+          <strong>Total Marks:</strong> {quizData.totalMarks}
         </p>
 
-        <p className="quiz-marks">
-          <strong>Passing Marks:</strong> {quizData?.passingMarks}
+        <p>
+          <strong>Passing Marks:</strong> {quizData.passingMarks}
         </p>
 
         {errorMsg && <p className="quiz-error">{errorMsg}</p>}
 
-        {quizData?.isStarted || registered ? (
+        {/* ================= BUTTON LOGIC ================= */}
+       {quizData.isStarted && isRegistered ? (
           <button className="quiz-start-btn" onClick={handleJoin}>
             Join
           </button>
         ) : (
           <button
             className="quiz-start-btn"
-            onClick={() => handleRegister(quizData?._id)}
+            onClick={handleRegister}
+            disabled={isLoading || isRegistered}
           >
-            Register
+            {isRegistered
+              ? "Join"
+              : isLoading
+              ? "Registering..."
+              : "Register"}
           </button>
         )}
         <button
-  className="leaderboard-btn"
-  onClick={() =>
-    navigate("/leaderboard", {
-      state: {
-        quizId: quizData?._id,
-      },
-    })
-  }
->
-  🏆 View Leaderboard
-</button>
+          className="leaderboard-btn"
+          onClick={() =>
+            navigate("/leaderboard", { state: { quizId } })
+          }
+        >
+          🏆 View Leaderboard
+        </button>
       </div>
     </div>
   );

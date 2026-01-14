@@ -100,17 +100,14 @@ const QuizAttempt = () => {
           timeTaken,
         },
       }).unwrap();
-
-      console.log("Quiz submitted:", res);
-
       if (document.fullscreenElement) {
         document.exitFullscreen();
       }
 
-      navigate(`/student/quiz/${quizId}/feedback`, {
+      navigate(`/student/quiz/feedback`, {
         state: {
           quizId,
-          answers,
+          quizData,
           timeTaken,
           totalQuestions: questions.length,
           reason,
@@ -118,7 +115,7 @@ const QuizAttempt = () => {
       });
     } catch (error) {
       console.error("Submit failed:", error);
-      alert("Quiz submission failed. Try again.");
+      alert(error.data.message);
       setIsSubmitted(false);
     }
   };
@@ -136,11 +133,13 @@ const QuizAttempt = () => {
           <h2>Ready to start the quiz?</h2>
           <p>
             Duration: {quizData?.durationMinutes} minutes <br />
-            Quiz will run in fullscreen mode
+            Quiz will run in fullscreen mode <br />
+            Don't switch tabs or minimize the window <br />
+            Don't Leave the quiz until submission
           </p>
 
           <button className="primary" onClick={handleStartQuiz}>
-            Start Quiz
+            OK
           </button>
         </div>
       </div>

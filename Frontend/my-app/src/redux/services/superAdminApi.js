@@ -57,6 +57,13 @@ export const superAdminApi = createApi({
         body: data,
       }),
     }),
+      updateSuperAdminProfile: builder.mutation({
+      query: (data) => ({
+        url: "/update/profile",
+        method: "PUT",
+        body: data,
+      }),
+    }),
     }),
 });
 
@@ -68,4 +75,5 @@ export const {
     useGetSuperAdminQuery,
     useRefreshTokenSuperAdminMutation,
     useChangePasswordMutation,
+    useUpdateSuperAdminProfileMutation
 } = superAdminApi;

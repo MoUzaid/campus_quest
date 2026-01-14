@@ -12,8 +12,9 @@ const authUser = require("../middleware/authUser");
 
 // REGISTER
 router.post("/register", studentController.registerStudent);
-
+router.put("/update-password", authUser, studentController.changePassword);
 // GET STUDENT PROFILE
+
 router.get("/me", authUser, studentController.getStudentProfile);
 
 // VERIFY EMAIL (OTP)
@@ -21,7 +22,7 @@ router.post("/verify-email", studentController.verifyEmail);
 
 // LOGIN - DUPLICATE ROUTES (COMMENTED ONE)
 // router.post("/login", studentController.loginStudent);
-router.post("/login", studentController.loginStudent);
+router.post("/login",studentController.loginStudent);
 
 // REFRESH ACCESS TOKEN
 router.post("/refresh", studentController.refreshToken);
@@ -67,4 +68,6 @@ router.get("/rating/:quizId", feedbackController.getQuizRating);
 // GET ALL FEEDBACKS
 router.get("/all-feedbacks", feedbackController.getAllFeedbacks);
 
+
+// router.get("/profile", authUser, studentController.getMe);
 module.exports = router;

@@ -113,6 +113,7 @@ exports.superAdminLogin = async (req, res) => {
   }
 };
 
+
 /* =====================================================
    CHANGE PASSWORD (ONLY ONE VERSION)
 ===================================================== */
@@ -255,7 +256,7 @@ exports.getSuperAdminProfile = async (req, res) => {
   const admin = req.superAdmin;
 
   res.status(200).json({
-    name: admin.username,
+    username: admin.username,
     facultyId: admin.facultyId,
     department: admin.department,
     designation: admin.designation,
@@ -295,24 +296,25 @@ exports.getDepartmentAttemptedQuizzes = async (req, res) => {
 };
 
 
+exports.updateSuperAdminProfile = async (req, res) => {
+  try {
+    const { username, email, designation, department } = req.body;
 
+    const admin = await SuperAdmin.findById(req.user.id);
+    if (!admin) return res.status(404).json({ message: "Not found" });
 
+    admin.username = username || admin.username;
+    admin.email = email || admin.email;
+    admin.designation = designation || admin.designation;
+    admin.department = department || admin.department;
 
+    await admin.save();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    res.json({ message: "Profile updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 exports.getStudentAttemptedQuizzes = async (req, res) => {
@@ -349,6 +351,11 @@ exports.getStudentAttemptedQuizzes = async (req, res) => {
     });
   }
 };
+
+
+
+
+
 
 
 exports.getQuizAttemptsAnalytics = async (req, res) => {

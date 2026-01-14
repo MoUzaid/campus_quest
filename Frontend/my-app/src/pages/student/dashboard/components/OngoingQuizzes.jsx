@@ -1,3 +1,8 @@
+// 
+
+
+
+
 import { useNavigate } from "react-router-dom";
 import { useGetAllQuizzesQuery } from "../../../../redux/services/quizApi";
 import { useGetMeQuery } from "../../../../redux/services/studentApi";
@@ -16,14 +21,15 @@ const OngoingQuizzes = () => {
   const filteredQuizzes = allQuizzes
     .filter((quiz) => quiz.department === studentDetails.department && !quiz.isStarted &&  new Date(quiz.endTime).getTime() > Date.now() && !quiz.registeredStudents.includes(studentDetails._id))
     .slice(0, 4);
-
+ const seeAllQuizzes = allQuizzes
+    .filter((quiz) =>!quiz.isStarted &&  new Date(quiz.endTime).getTime() > Date.now() && !quiz.registeredStudents.includes(studentDetails._id));
 
 
   return (
     <div className="quiz-section">
       <div className="quiz-header">
         <h2 className="quiz-section-title">Ongoing Quizzes</h2>
-        <button className="see-all-btn" onClick={() => navigate("/student/see-all",{ state:{ quizzes:allQuizzes}})}>
+        <button className="see-all-btn" onClick={() => navigate("/student/see-all",{ state:{ quizzes:seeAllQuizzes}})}>
           See All <FaArrowRight />
         </button>
       </div>
@@ -34,7 +40,7 @@ const OngoingQuizzes = () => {
             key={quiz._id}
             className="quiz-tile"
             onClick={() =>
-              navigate(`/student/quiz/${quiz._id}`, { state: { quizData: quiz } })
+              navigate(`/student/quiz/${quiz._id}`, { state: { quizData: quiz} })
             }
           >
             {/* Header of the Card */}

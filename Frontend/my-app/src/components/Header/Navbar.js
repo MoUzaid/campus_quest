@@ -20,7 +20,7 @@ const Header = () => {
 
       <div className="header-buttons">
         {!token ? (
-          <button onClick={() => navigate("/login")}>Login</button>
+          <button onClick={() => navigate("/Student/login")}>Login</button>
         ) : (
           <>
             <button onClick={logout}>Logout</button>

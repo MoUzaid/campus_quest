@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Auth.css";
@@ -7,9 +9,10 @@ import {
   setStudentField,
   resetStudentForm,
 } from "../../../redux/features/studentSlice";
+
 import { useRegisterStudentMutation } from "../../../redux/services/studentApi";
 import { useGetAllDepartmentsQuery } from "../../../redux/services/departmentApi";
-import { useGetAllCoursesQuery } from "../../../redux/services/coursesApi";
+import { useAllCoursesQuery } from "../../../redux/services/coursesApi";
 import { setCredentials } from "../../../redux/features/authSlice";
 
 const Signup = () => {
@@ -41,44 +44,53 @@ const Signup = () => {
   const { data: departments, isLoading: deptLoading } =
     useGetAllDepartmentsQuery();
 
-  const { data: courses } = useGetAllCoursesQuery();
-
-  console.log(courses);
+  const { data: courses } = useAllCoursesQuery();
 
   /* ================= DATA NORMALIZATION ================= */
 
-  // Departments
+  // Departments list
   const departmentList =
     departments?.data?.[0]?.departmentNames || [];
 
-  // 👇 IMAGE KE HISAAB SE ACTUAL COURSES YAHAN HAIN
-  const allCourses =
-  courses?.courses?.[0]?.courses || [];
+  // ✅ CORRECT: courses array direct hai
+  const allCourses = courses?.courses || [];
 
+  // ✅ String normalizer
+  const normalize = (str = "") =>
+    str.toLowerCase().replace(/\s+/g, " ").trim();
 
-  // Filter courses by selected department
+  // ✅ Filter courses when department changes
   const filteredCourses = allCourses.filter(
-  (c) =>
-    c.department?.trim().toLowerCase() ===
-    department?.trim().toLowerCase()
-);
+    (c) =>
+      normalize(c.department) === normalize(department)
+  );
 
-
-  // Selected course object
-const selectedCourseObj = filteredCourses.find(
-  (c) => c.courseName === course
-);
-
+  // ✅ Selected course object (for groups)
+  const selectedCourseObj = filteredCourses.find(
+    (c) => c.courseName === course
+  );
 
   /* ================= HANDLERS ================= */
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     dispatch(
       setStudentField({
-        field: e.target.name,
-        value: e.target.value,
+        field: name,
+        value,
       })
     );
+
+    // 🔁 Reset dependent fields
+    if (name === "department") {
+      dispatch(setStudentField({ field: "course", value: "" }));
+      dispatch(setStudentField({ field: "group", value: "" }));
+    }
+
+    if (name === "course") {
+      dispatch(setStudentField({ field: "group", value: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -182,6 +194,7 @@ const selectedCourseObj = filteredCourses.find(
               required
             />
 
+            {/* ===== GENDER ===== */}
             <select
               name="gender"
               value={gender}
@@ -195,6 +208,7 @@ const selectedCourseObj = filteredCourses.find(
               <option value="Other">Other</option>
             </select>
 
+            {/* ===== DEPARTMENT ===== */}
             <select
               name="department"
               value={department}
@@ -213,26 +227,25 @@ const selectedCourseObj = filteredCourses.find(
 
             {/* ===== COURSE ===== */}
             <select
-  name="course"
-  value={course}
-  onChange={handleChange}
-  className="student-signup-select"
-  disabled={!department}
-  required
->
-  <option value="">Select Course</option>
+              name="course"
+              value={course}
+              onChange={handleChange}
+              className="student-signup-select"
+              disabled={!department}
+              required
+            >
+              <option value="">Select Course</option>
 
-  {filteredCourses.length === 0 && (
-    <option disabled>No courses found</option>
-  )}
+              {filteredCourses.length === 0 && (
+                <option disabled>No courses found</option>
+              )}
 
-  {filteredCourses.map((c, idx) => (
-    <option key={idx} value={c.courseName}>
-      {c.courseName}
-    </option>
-  ))}
-</select>
-
+              {filteredCourses.map((c) => (
+                <option key={c._id} value={c.courseName}>
+                  {c.courseName}
+                </option>
+              ))}
+            </select>
 
             {/* ===== YEAR ===== */}
             <select

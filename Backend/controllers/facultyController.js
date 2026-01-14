@@ -89,21 +89,97 @@ await Activity.create({
   }
 };
 
+
+exports.loginFaculty = async (req, res) => {
+  try {
+    const { facultyId, password } = req.body;
+
+    if (!facultyId || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    // 🔍 Must select password explicitly
+    const faculty = await Faculty.findOne({ facultyId }).select("+password");
+    if (!faculty) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 🔐 Password check
+    const isMatch = await bcrypt.compare(password, faculty.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 🔑 Tokens
+    const accessToken = jwt.sign(
+      { id: faculty._id, role: "faculty" },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: faculty._id, role: "faculty" },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // 💾 Save refresh token
+    faculty.refreshToken = refreshToken;
+    await faculty.save();
+
+    // 🍪 Send cookies inline (SuperAdmin style)
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      role: "faculty",
+      user: {
+        id: faculty._id,
+        name: faculty.name,
+        facultyId: faculty.facultyId
+      }
+    });
+  } catch (err) {
+    console.error("FACULTY LOGIN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 /* =====================================================
    CHANGE PASSWORD (FIRST LOGIN)
    ===================================================== */
+// controllers/facultyController.js
+
 exports.changePassword = async (req, res) => {
   try {
-    const { facultyId, newPassword } = req.body;
-    if (!facultyId || !newPassword) {
-      return res.status(400).json({ msg: "Faculty ID and new password required" });
+    const { currentPassword, newPassword } = req.body;
+
+    // req.user comes from authFaculty middleware
+    const faculty = req.user;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ msg: "Both current and new passwords are required" });
     }
 
-    const faculty = await Faculty.findOne({ facultyId });
-    if (!faculty) return res.status(404).json({ msg: "Faculty not found" });
+    // 🔍 Compare current password
+    const isMatch = await bcrypt.compare(currentPassword, faculty.password);
+    if (!isMatch) {
+      return res.status(401).json({ msg: "Current password is incorrect" });
+    }
 
+    // 🔄 Update password (pre-save hook will hash it)
     faculty.password = newPassword;
-    faculty.isTempPasswordUsed = true;
     await faculty.save();
 
     res.json({ msg: "Password updated successfully" });
@@ -112,7 +188,6 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
-
 /* =====================================================
    REFRESH TOKEN
    ===================================================== */
@@ -255,12 +330,17 @@ exports.getFacultyProfile = async (req, res) => {
       success: true,
       profile: {
         id: faculty._id,
+        facultyId: faculty.facultyId,
         name: faculty.name,
         email: faculty.email,
+        mobileNumber:faculty.mobileNumber,
         department: faculty.department,
         designation: faculty.designation
       }
+      
     });
+    console.log("Faculty profile:", faculty);
+
   } catch (err) {
     console.error("Get Faculty Profile Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch faculty profile" });
@@ -344,28 +424,43 @@ exports.facultyLogin = async (req, res) => {
 exports.updateFaculty = async (req, res) => {
   try {
     const { facultyId } = req.params;
-    const { name, designation, department, isActive } = req.body;
+
+    const {
+      name,
+      email,
+      mobileNumber,
+      designation,
+      department,
+      isActive
+    } = req.body;
 
     const faculty = await Faculty.findOne({ facultyId });
     if (!faculty) {
       return res.status(404).json({ msg: "Faculty not found" });
     }
 
+    // 🔁 Partial updates (no field required)
     if (name) faculty.name = name;
+    if (email) faculty.email = email;
+    if (mobileNumber) faculty.mobileNumber = mobileNumber;
     if (designation) faculty.designation = designation;
     if (department) faculty.department = department;
-    if (typeof isActive === "boolean") faculty.isActive = isActive;
+
+    // Admin-only flag (safe check)
+    if (typeof isActive === "boolean") {
+      faculty.isActive = isActive;
+    }
 
     await faculty.save();
 
     await Activity.create({
       action: "FACULTY_UPDATED",
-      message: `Faculty "${faculty.name}" updated`,
-      performedBy: req.user?.name || "Super Admin"
+      message: `Faculty "${faculty.name}" updated their profile`,
+      performedBy: req.user?.name || "Faculty"
     });
 
     res.json({
-      msg: "Faculty updated successfully",
+      msg: "Profile updated successfully",
       faculty
     });
   } catch (err) {
@@ -373,9 +468,6 @@ exports.updateFaculty = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
-
-
-
 
 
 const Quiz = require("../models/quizModel");
@@ -2268,7 +2360,7 @@ exports.getQuizRegisteredStudents = async (req, res) => {
       return {
         _id: student._id,
         name: student.name || 'N/A',
-        enrollmentNumber: student.studentId || 'N/A',
+        enrollmentNumber: student.enrollmentNumber || 'N/A',
         course: student.course || 'N/A',
         group: student.group || 'N/A',
         semester: student.semester || 'N/A',
@@ -2499,10 +2591,6 @@ exports.getQuizRegisteredStudents = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.getQuizRegisteredStudents = async (req, res) => {
   try {
     const facultyId = req.user._id;
@@ -2516,7 +2604,7 @@ exports.getQuizRegisteredStudents = async (req, res) => {
       .populate({
         path: "registeredStudents",
         select:
-          "name enrollmnentNumber course group department semester email mobileNumber gender"
+          "name enrollmentNumber course group department semester email mobileNumber gender"
       })
       .lean();
 
@@ -2542,6 +2630,17 @@ exports.getQuizRegisteredStudents = async (req, res) => {
     let highestScore = 0;
     let lowestScore = null;
     const attemptedStudents = new Set();
+
+    // NEW: For pass percentage calculation
+    let passedStudentsCount = 0;
+    let failedStudentsCount = 0;
+    const performanceStats = {
+      excellent: 0,  // >= 80%
+      good: 0,       // 60-79%
+      average: 0,    // 40-59%
+      poor: 0,       // < 40%
+      notAttempted: 0
+    };
 
     attempts.forEach(attempt => {
       const studentId = attempt.student._id.toString();
@@ -2584,10 +2683,45 @@ exports.getQuizRegisteredStudents = async (req, res) => {
         status: "Not Attempted"
       };
 
+      const hasAttempted = attemptStats.attempts > 0;
+      let performancePercentage = 0;
+      let hasPassed = false;
+
+      if (hasAttempted) {
+        // Calculate performance percentage
+        performancePercentage = quiz.totalMarks > 0 
+          ? (attemptStats.bestScore / quiz.totalMarks) * 100 
+          : 0;
+        
+        // Check if passed
+        const passingMarks = quiz.passingMarks || (quiz.totalMarks * 0.4); // Default 40% if not set
+        hasPassed = attemptStats.bestScore >= passingMarks;
+        
+        // Count passed/failed
+        if (hasPassed) {
+          passedStudentsCount++;
+        } else {
+          failedStudentsCount++;
+        }
+        
+        // Categorize performance
+        if (performancePercentage >= 80) {
+          performanceStats.excellent++;
+        } else if (performancePercentage >= 60) {
+          performanceStats.good++;
+        } else if (performancePercentage >= 40) {
+          performanceStats.average++;
+        } else if (performancePercentage > 0) {
+          performanceStats.poor++;
+        }
+      } else {
+        performanceStats.notAttempted++;
+      }
+
       return {
         _id: student._id,
         name: student.name,
-        enrollmentNumber: student.studentId,
+        enrollmentNumber: student.enrollmentNumber,
         course: student.course,
         group: student.group,
         semester: student.semester,
@@ -2602,7 +2736,10 @@ exports.getQuizRegisteredStudents = async (req, res) => {
         bestScore: attemptStats.bestScore,
         totalTimeTaken: attemptStats.timeTaken,
         status: attemptStats.attempts > 0 ? "Attempted" : "Not Attempted",
-        hasAttempted: attemptStats.attempts > 0
+        hasAttempted: attemptStats.attempts > 0,
+        // NEW: Add these fields for frontend
+        performancePercentage: performancePercentage.toFixed(1),
+        hasPassed: hasPassed
       };
     });
 
@@ -2615,6 +2752,11 @@ exports.getQuizRegisteredStudents = async (req, res) => {
       : 0;
     const avgAttempts = attempts.length > 0 
       ? (totalAttempts / attemptedCount).toFixed(2)
+      : 0;
+
+    // NEW: Calculate pass percentage
+    const passPercentage = attemptedCount > 0 
+      ? ((passedStudentsCount / attemptedCount) * 100).toFixed(1)
       : 0;
 
     /* ================= GROUP STATISTICS ================= */
@@ -2631,13 +2773,21 @@ exports.getQuizRegisteredStudents = async (req, res) => {
           group: student.group,
           count: 0,
           attempted: 0,
-          avgScore: 0
+          avgScore: 0,
+          // NEW: Add group pass rate
+          passed: 0,
+          passRate: 0
         };
       }
       groupStats[key].count++;
       if (student.hasAttempted) {
         groupStats[key].attempted++;
         groupStats[key].avgScore += parseFloat(student.avgScore);
+        
+        // NEW: Count passed students in group
+        if (student.hasPassed) {
+          groupStats[key].passed++;
+        }
       }
 
       // Gender count
@@ -2648,6 +2798,9 @@ exports.getQuizRegisteredStudents = async (req, res) => {
     Object.keys(groupStats).forEach(key => {
       if (groupStats[key].attempted > 0) {
         groupStats[key].avgScore = (groupStats[key].avgScore / groupStats[key].attempted).toFixed(2);
+        
+        // NEW: Calculate group pass rate
+        groupStats[key].passRate = ((groupStats[key].passed / groupStats[key].attempted) * 100).toFixed(1);
       }
     });
 
@@ -2676,13 +2829,19 @@ exports.getQuizRegisteredStudents = async (req, res) => {
         registeredCount: totalStudents,
         attemptedCount,
         notAttemptedCount,
+        // NEW: Add pass percentage and counts
+        passedStudents: passedStudentsCount,
+        failedStudents: failedStudentsCount,
+        passPercentage: passPercentage,
         attemptRate: totalStudents > 0 ? ((attemptedCount / totalStudents) * 100).toFixed(2) + '%' : '0%',
         totalAttempts,
         avgScoreOverall,
         avgAttempts,
         highestScore,
         lowestScore: lowestScore || 0,
-        genderDistribution: genderStats
+        genderDistribution: genderStats,
+        // NEW: Add performance stats
+        performanceStats: performanceStats
       },
 
       groupWiseStats: Object.values(groupStats),
@@ -2698,13 +2857,7 @@ exports.getQuizRegisteredStudents = async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-};
-
-
-
-
-
-
+}; 
 
 
 

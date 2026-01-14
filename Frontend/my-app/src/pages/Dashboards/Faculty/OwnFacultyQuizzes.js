@@ -1268,12 +1268,15 @@ const OwnFacultyQuizzes = () => {
               Refresh
             </Button>
             <ExportMenu onExport={handleExport} quizzes={filteredQuizzes} />
-            <Button
-              variant="contained"
-              startIcon={<QuizIcon />}
-           className="export1-btn" >
-              Create Quiz
-            </Button>
+           <Button
+  variant="contained"
+  startIcon={<QuizIcon />}
+  className="export1-btn"
+  onClick={() => navigate("/create-quiz")}
+>
+  Create Quiz
+</Button>
+
           </Stack>
         </Box>
 

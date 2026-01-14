@@ -6,7 +6,7 @@ const authFacultyOrAdmin =require("../middleware/authFacultyOrAdmin");
 
 const {
   addFaculty,
-  facultyLogin,
+  loginFaculty,
   changePassword,
   deleteFaculty,
   getAllFaculty,
@@ -25,13 +25,11 @@ const {
 } = require("../controllers/facultyController");
 
 
-
-
 // router.post("/add", authFacultyOrAdmin, addFaculty);
 
 router.post("/add",addFaculty);
-router.post("/login",facultyLogin);
-router.put("/update-password",changePassword );
+router.post("/login",loginFaculty);
+router.put("/update-password",authFaculty,changePassword );
 router.delete("/delete/:facultyId",authSuperAdmin,deleteFaculty);
 // router.get("/all",getAllFaculty);
 router.get("/all", authFacultyOrAdmin, getAllFaculty);
@@ -54,7 +52,7 @@ router.get("/me", authFaculty, getFacultyProfile);
 
 router.put(
   "/update/:facultyId",
-  authSuperAdmin,
+  authFacultyOrAdmin,
   updateFaculty
 );
 

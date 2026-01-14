@@ -13,9 +13,11 @@ const {
   getDepartmentAttemptedQuizzes,
   getStudentAttemptedQuizzes,
   getQuizAttemptsAnalytics,
+  updateSuperAdminProfile
 
 } = require("../controllers/superAdminController");
 
+const authFacultyOrAdmin = require("../middleware/authFacultyOrAdmin");
 
 
 router.post("/login",superAdminLogin);
@@ -36,6 +38,7 @@ router.post("/reset-password", resetPassword);
 router.get("/refresh-token",refreshToken);
 
 // ✔ SuperAdmin Profile
+router.put("/update/profile", authSuperAdmin, updateSuperAdminProfile);
 router.get("/me", authSuperAdmin, getSuperAdminProfile);
 
 // ✔ HOD → Course / Faculty Stats

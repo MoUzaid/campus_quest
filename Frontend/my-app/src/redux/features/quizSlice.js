@@ -79,16 +79,17 @@ const quizSlice = createSlice({
         action.payload * state.marksPerQuestion;
     },
 
-    setMarksPerQuestion(state, action) {
-      state.marksPerQuestion = action.payload;
+   setMarksPerQuestion(state, action) {
+  const value = Math.abs(Number(action.payload)) || 0;
 
-      state.questions.forEach((q) => {
-        q.marks = action.payload;
-      });
+  state.marksPerQuestion = value;
 
-      state.totalMarks =
-        state.totalQuestions * action.payload;
-    },
+  state.questions.forEach((q) => {
+    q.marks = value;
+  });
+
+  state.totalMarks = state.totalQuestions * value;
+},
 
     setNegativeMark(state, action) {
       state.negativeMark = action.payload;

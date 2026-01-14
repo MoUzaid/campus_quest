@@ -12,6 +12,7 @@ import {
   FaUniversity
 } from "react-icons/fa";
 import "./SuperAdminRegister.css";
+
 const departments = [
   { code: "CA", name: "Computer Applications" },
   { code: "CS", name: "Computer Science" },
@@ -19,26 +20,21 @@ const departments = [
   { code: "IT", name: "Information Technology" },
   { code: "AI", name: "Artificial Intelligence" },
   { code: "DS", name: "Data Science" },
-
   { code: "ME", name: "Mechanical Engineering" },
   { code: "CE", name: "Civil Engineering" },
   { code: "EE", name: "Electrical Engineering" },
   { code: "ECE", name: "Electronics & Communication Engineering" },
-
   { code: "BBA", name: "Business Administration" },
   { code: "MBA", name: "Master of Business Administration" },
   { code: "BCom", name: "Commerce" },
-
   { code: "MATH", name: "Mathematics" },
   { code: "PHY", name: "Physics" },
   { code: "CHEM", name: "Chemistry" },
   { code: "BIO", name: "Biology" },
-
   { code: "ECO", name: "Economics" },
   { code: "ENG", name: "English" },
   { code: "LAW", name: "Law" }
 ];
-
 
 const SuperAdminRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,9 +59,6 @@ const SuperAdminRegister = () => {
     const errors = [];
 
     if (!username.trim()) errors.push("Full name is required");
-    if (!facultyId.match(/^[A-Z]{2,3}\d{4,6}$/)) {
-      errors.push("Faculty ID should follow pattern: ABC12345");
-    }
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       errors.push("Valid email is required");
     }
@@ -104,10 +97,12 @@ const SuperAdminRegister = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.msg || "Registration failed");
+        throw new Error(data.message || "Registration failed");
+
       }
 
-      alert("✅ " + data.msg);
+     alert("✅ " + data.message);
+
       // Reset form on successful submission
       setFormData({
         username: "",
@@ -135,30 +130,29 @@ const SuperAdminRegister = () => {
       </div>
 
      <div className="register-card-wrapper">
-  <div className="form-panel">
-    <div className="form-header">
-      <div className="form-header-main">
-        <FaUserTie className="header-icon" style={{fontSize: '44px'}} />
-        <div>
-          <h2>Super Admin Registration</h2>
-         
-        </div>
-      </div>
-      
-      <div className="form-logo">
-        <img 
-          src="/campus-quest.png" 
-          alt="Campus Quest" 
-          className="app-logo"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a237e'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3ECQ%3C/text%3E%3C/svg%3E";
-          }}
-        />
-        <span className="logo-text">Campus Quest</span>
-      </div>
-    </div>
-    {/* Rest of your form remains exactly the same */}
+        <div className="form-panel">
+          <div className="form-header">
+            <div className="form-header-main">
+              <FaUserTie className="header-icon" style={{fontSize: '44px'}} />
+              <div>
+                <h2>Super Admin Registration</h2>
+              </div>
+            </div>
+            
+            <div className="form-logo">
+              <img 
+                src="/campus-quest.png" 
+                alt="Campus Quest" 
+                className="app-logo"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a237e'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3ECQ%3C/text%3E%3C/svg%3E";
+                }}
+              />
+              <span className="logo-text">Campus Quest</span>
+            </div>
+          </div>
+          
           <form onSubmit={handleSubmit} className="registration-form">
             {/* Form Grid - Two Columns */}
             <div className="form-row">
@@ -200,10 +194,8 @@ const SuperAdminRegister = () => {
                       value={formData.facultyId}
                       onChange={handleChange}
                       className="form-input"
-                      pattern="[A-Z]{2,3}\d{4,6}"
-                      title="Format: ABC12345"
                     />
-                    <span className="input-note">Format: ABC12345</span>
+                    <span className="input-note">Enter faculty ID (any format)</span>
                   </div>
                 </div>
               </div>
@@ -284,7 +276,7 @@ const SuperAdminRegister = () => {
                       </option>
                       {departments.map((dept) => (
                         <option key={dept.code} value={dept.code}>
-                          {dept.icon} {dept.code} – {dept.name}
+                          {dept.code} – {dept.name}
                         </option>
                       ))}
                     </select>
@@ -378,7 +370,7 @@ const SuperAdminRegister = () => {
           </div>
         </div>
 
-        {/* Right Panel - Branding (EXACTLY AS BEFORE - PERFECT) */}
+        {/* Right Panel - Branding */}
         <div className="brand-panel">
           <div className="brand-header">
             <div className="logo-container">

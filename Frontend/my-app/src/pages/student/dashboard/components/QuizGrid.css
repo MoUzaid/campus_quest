@@ -51,7 +51,7 @@
   font-size: 28px;
   font-weight: 800;
   /* Gradient Text */
-  background: linear-gradient(to right, #ffffff 0%, #a5b4fc 100%);
+  background: linear-gradient(to right, #0a0aff 0%, #dd03b5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0;
@@ -61,13 +61,13 @@
 
 /* "See All" Button - Glass Pill Style */
 .see-all-btn {
-  background: rgba(255, 255, 255, 0.05);
+    background: rgb(13, 20, 233);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 8px 18px;
   border-radius: 30px;
-  color: #a5b4fc;
+  color: #ffffff;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -77,11 +77,12 @@
 }
 
 .see-all-btn:hover {
-  background: rgba(129, 140, 248, 0.2);
-  border-color: #818cf8;
+   background: rgb(4, 11, 197);
+  border-color: #021af3;
+  
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
+  box-shadow: 0 0 15px rgb(40, 167, 221);
 }
 
 /* =========================================
