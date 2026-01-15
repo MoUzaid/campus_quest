@@ -382,22 +382,53 @@ exports.changePassword = async (req, res) => {
 
 exports.getRegisteredStudents = async (req, res) => {
   try {
-    const department = req.user.department; // SuperAdmin department
+    const department = req.user.department;
 
-    
-    const quizzes = await Quiz.find({ department }).select("registeredStudents");
-
-    // 2️⃣ Collect unique registered student IDs
-    const registeredStudentIds = new Set();
-    quizzes.forEach(quiz => {
-      quiz.registeredStudents.forEach(id => registeredStudentIds.add(id.toString()));
-    });
-
-    // 3️⃣ Get students who are in this department AND registered in department quizzes
-    const students = await Student.find({
-      _id: { $in: Array.from(registeredStudentIds) },
-      department
-    }).select("-password -refreshToken");
+    // OPTIMIZATION 1: Direct aggregation query
+    const students = await Quiz.aggregate([
+      {
+        $match: { department: department }
+      },
+      {
+        $unwind: "$registeredStudents"
+      },
+      {
+        $group: {
+          _id: "$registeredStudents"
+        }
+      },
+      {
+        $lookup: {
+          from: "students",
+          let: { studentId: { $toObjectId: "$_id" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$_id", "$$studentId"] },
+                    { $eq: ["$department", department] }
+                  ]
+                }
+              }
+            },
+            {
+              $project: {
+                password: 0,
+                refreshToken: 0
+              }
+            }
+          ],
+          as: "studentData"
+        }
+      },
+      {
+        $unwind: "$studentData"
+      },
+      {
+        $replaceRoot: { newRoot: "$studentData" }
+      }
+    ]);
 
     res.status(200).json({
       success: true,
@@ -414,7 +445,6 @@ exports.getRegisteredStudents = async (req, res) => {
     });
   }
 };
-
 
 // getquizzes for students
 
